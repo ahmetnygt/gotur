@@ -1,36 +1,41 @@
 extends layout
 
 block content
-  .ticket-finder
+  .trip-finder
     .d-flex.p-3.gap-3
-      select.ticket-finder_from.form-select(value="")
-        option(value="" disabled selected) Kalkış Seçiniz
-        option(value="17000") Çanakkale
-        option(value="17500") Gelibolu
-        option(value="17900") Eceabat
-        option(value="22800") Keşan
-        option(value="34000") İstanbul
-        option(value="34220") Esenler
-        option(value="34520") Beylikdüzü
-        option(value="34710") Kadıköy
-        option(value="59000") Tekirdağ
-        option(value="59300") Malkara
-        option(value="59740") Marmaraereğlisi
-      select.ticket-finder_to.form-select(value="")
-        option(value="" disabled selected) Varış Seçiniz
-        option(value="17000") Çanakkale
-        option(value="17500") Gelibolu
-        option(value="17900") Eceabat
-        option(value="22800") Keşan
-        option(value="34000") İstanbul
-        option(value="34220") Esenler
-        option(value="34520") Beylikdüzü
-        option(value="34710") Kadıköy
-        option(value="59000") Tekirdağ
-        option(value="59300") Malkara
-        option(value="59740") Marmaraereğlisi
-      input.ticket-finder_date.form-control(type="text")
-      button.ticket-finder_search-button.btn.btn-outline-primary ARA
+      .col-6
+        select.trip-finder_from.form-select(value="")
+          option(value="" disabled selected) Kalkış Seçiniz
+          option(value="17000") Çanakkale
+          option(value="17500") Gelibolu
+          option(value="17900") Eceabat
+          option(value="22800") Keşan
+          option(value="34000") İstanbul
+          option(value="34220") Esenler
+          option(value="34520") Beylikdüzü
+          option(value="34710") Kadıköy
+          option(value="59000") Tekirdağ
+          option(value="59300") Malkara
+          option(value="59740") Marmaraereğlisi
+      .col-6
+        select.trip-finder_to.form-select(value="")
+          option(value="" disabled selected) Varış Seçiniz
+          option(value="17000") Çanakkale
+          option(value="17500") Gelibolu
+          option(value="17900") Eceabat
+          option(value="22800") Keşan
+          option(value="34000") İstanbul
+          option(value="34220") Esenler
+          option(value="34520") Beylikdüzü
+          option(value="34710") Kadıköy
+          option(value="59000") Tekirdağ
+          option(value="59300") Malkara
+          option(value="59740") Marmaraereğlisi
+    .d-flex.p-3.gap-3
+      .col-6
+        input.trip-finder_date.form-control(type="text")
+      .col-6
+        button.trip-finder_search-button.btn.btn-outline-primary.w-100 ARA
 
 block scripts
   script(src="/js/index.js")

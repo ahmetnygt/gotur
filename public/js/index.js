@@ -1,14 +1,14 @@
-const ticketFinderDate = $(".ticket-finder_date")
-flatpickr(ticketFinderDate, {
+const tripFinderDate = $(".trip-finder_date")
+flatpickr(tripFinderDate, {
     locale: "tr",
     defaultDate: new Date(),
 })
 
-$(".ticket-finder_search-button").off()
-$(".ticket-finder_search-button").on("click", async e => {
-    const fromId = $(".ticket-finder_from").val()
-    const toId = $(".ticket-finder_to").val()
-    const date = ticketFinderDate.val()
+$(".trip-finder_search-button").off()
+$(".trip-finder_search-button").on("click", async e => {
+    const fromId = $(".trip-finder_from").val()
+    const toId = $(".trip-finder_to").val()
+    const date = tripFinderDate.val()
     await $.ajax({
         url: "/get-trips",
         type: "GET",

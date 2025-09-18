@@ -33,20 +33,21 @@ exports.getTrips = async (req, res, next) => {
         for (const routeStop of routeStops) {
             const routeIdKey = String(routeStop.routeId);
             const stopIdValue = String(routeStop.stopId);
-
+            
             if (!stopsByRoute.has(routeIdKey)) {
                 stopsByRoute.set(routeIdKey, {
                     routeId: routeStop.routeId,
                     stopIds: new Set()
                 });
             }
-
+            
             stopsByRoute.get(routeIdKey).stopIds.add(stopIdValue);
         }
 
         const matchingRouteIds = Array.from(stopsByRoute.values())
             .filter(({ stopIds }) => stopIds.has(fromIdStr) && stopIds.has(toIdStr))
             .map(({ routeId }) => routeId);
+
 
         if (!matchingRouteIds.length) {
             res.json([]);

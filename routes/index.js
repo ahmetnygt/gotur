@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const ticketController = require("../controllers/ticketController")
+const ticketController = require("../controllers/tripController")
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
