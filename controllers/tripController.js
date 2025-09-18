@@ -18,7 +18,6 @@ exports.getTrips = async (req, res, next) => {
             res.status(400).json({ message: "Eksik bilgi gönderildi." })
             return; // eklemezsen alttaki query yine çalışır
         }
-
         // placeId değeri kalkış ya da varış olan tüm durakları veritabanından çekiyoruz.
         const stops = await Stop.findAll({
             where: {
