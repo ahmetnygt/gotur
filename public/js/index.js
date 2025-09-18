@@ -9,15 +9,6 @@ $(".trip-finder_search-button").on("click", async e => {
     const fromId = $(".trip-finder_from").val()
     const toId = $(".trip-finder_to").val()
     const date = tripFinderDate.val()
-    await $.ajax({
-        url: "/get-trips",
-        type: "GET",
-        data: { fromId, toId, date },
-        success: async function (response) {
-            console.log(response)
-        },
-        error: function (xhr, status, error) {
-            console.log(error.message);
-        }
-    });
+    const url = `/trips/${fromId}-${toId}/${date}`
+    window.location.href = url;
 })

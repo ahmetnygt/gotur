@@ -9,9 +9,9 @@ const Stop = require('../models/stopModel');
 exports.getTrips = async (req, res, next) => {
     try {
         // İstekten gelen kalkış, varış ve tarih bilgilerini alıyoruz.
-        const fromId = req.query.fromId
-        const toId = req.query.toId
-        const date = req.query.date
+        const fromId = req.params.route.split("-")[0]
+        const toId = req.params.route.split("-")[1]
+        const date = req.params.date
 
         // Eksik parametre varsa kullanıcıya haber verip işlemi sonlandırıyoruz.
         if (!fromId || !toId || !date) {
@@ -123,7 +123,7 @@ exports.getTrips = async (req, res, next) => {
         });
 
         // Sonuç olarak sadece tripId listesini döndürüyoruz.
-        res.json(trips.map(t => t.id))
+        res.render("trips", { trips })
 
     } catch (err) {
         console.error('Trip search error:', err);
