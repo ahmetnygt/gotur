@@ -8,15 +8,18 @@ const Stop = require('../models/stopModel');
 
 exports.getTrips = async (req, res, next) => {
     try {
+        // İstekten gelen kalkış, varış ve tarih bilgilerini alıyoruz.
         const fromId = req.query.fromId
         const toId = req.query.toId
         const date = req.query.date
 
+        // Eksik parametre varsa kullanıcıya haber verip işlemi sonlandırıyoruz.
         if (!fromId || !toId || !date) {
             res.status(400).json({ message: "Eksik bilgi gönderildi." })
             return; // eklemezsen alttaki query yine çalışır
         }
 
+        // placeId değeri kalkış ya da varış olan tüm durakları veritabanından çekiyoruz.
         const stops = await Stop.findAll({
             where: {
                 placeId: {
@@ -27,6 +30,7 @@ exports.getTrips = async (req, res, next) => {
             raw: true
         });
 
+        // placeId -> stopId listesi ve stopId -> placeId eşleşmesi tutuyoruz.
         const stopIdsByPlace = new Map();
         const stopIdToPlace = new Map();
 
@@ -48,13 +52,16 @@ exports.getTrips = async (req, res, next) => {
         const fromPlaceStopIds = stopIdsByPlace.get(fromPlaceKey);
         const toPlaceStopIds = stopIdsByPlace.get(toPlaceKey);
 
+        // Kalkış ya da varış için hiç durak bulunamazsa boş liste dönüyoruz.
         if (!fromPlaceStopIds || !fromPlaceStopIds.length || !toPlaceStopIds || !toPlaceStopIds.length) {
             res.json([]);
             return;
         }
 
+        // RouteStop aramasında kullanacağımız tüm stopId'leri tek listede topluyoruz.
         const allStopIds = Array.from(new Set([...fromPlaceStopIds, ...toPlaceStopIds]));
 
+        // Seçilen duraklara bağlı route-stop kayıtlarını çekiyoruz.
         const routeStops = await RouteStop.findAll({
             where: {
                 stopId: {
@@ -65,11 +72,13 @@ exports.getTrips = async (req, res, next) => {
             raw: true
         });
 
+        // Hiç eşleşen route-stop yoksa sefer bulunamamıştır.
         if (!routeStops.length) {
             res.json([]);
             return;
         }
 
+        // Her bir route'un hangi place'lere hizmet verdiğini takip eden bir map oluşturuyoruz.
         const routesWithPlaces = new Map();
 
         for (const routeStop of routeStops) {
@@ -91,15 +100,18 @@ exports.getTrips = async (req, res, next) => {
             routesWithPlaces.get(routeKey).placeIds.add(placeKey);
         }
 
+        // Hem kalkış hem de varış place'lerini içeren routeId listesini çıkarıyoruz.
         const matchingRouteIds = Array.from(routesWithPlaces.values())
             .filter(({ placeIds }) => placeIds.has(fromPlaceKey) && placeIds.has(toPlaceKey))
             .map(({ routeId }) => routeId);
 
+        // Uygun route yoksa yine boş liste döndürüyoruz.
         if (!matchingRouteIds.length) {
             res.json([]);
             return;
         }
 
+        // Uygun route'lara sahip ve ilgili tarihteki trip kayıtlarını alıyoruz.
         const trips = await Trip.findAll({
             where: {
                 routeId: {
@@ -111,10 +123,11 @@ exports.getTrips = async (req, res, next) => {
             }
         });
 
+        // Sonuç olarak sadece tripId listesini döndürüyoruz.
         res.json(trips.map(t => t.id))
 
     } catch (err) {
-        console.error('PDF generation error:', err);
+        console.error('Trip search error:', err);
         res.status(500).json({ message: err.message });
     }
 };
