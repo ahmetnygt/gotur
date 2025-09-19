@@ -50,7 +50,7 @@ block content
                         -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
                         -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
                         -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
-                        .trip_seat
+                        .trip_seat(data-is-available=`${t.tickets[seat]?false:true}` data-seat-number=`${plan[index]}` data-trip=`${t.tripId}`)
                           svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
                             rect(x="10" y="10" width="80" height="80" rx="10" ry="10" fill=genderColor stroke=genderColorStroke stroke-width="2")
                             rect(x="75" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")

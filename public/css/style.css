@@ -116,7 +116,6 @@ body {
 
 a.gtr-link {
   font-weight: 500;
-  /* text-transform: uppercase; */
   font-size: 1.25rem;
   color: white;
   text-decoration: none;
@@ -153,9 +152,10 @@ a.gtr-link:active {
   transform: scale(0.99);
 }
 
-.trip.open:active {
-  box-shadow: #2660ff 0px 0px 5px;
-  transform: scale(1.01);
+.trip.open:active,
+.trip.open:hover {
+  box-shadow: #2660ff 0px 0px 1px;
+  transform: scale(1);
 }
 
 .trip img {
