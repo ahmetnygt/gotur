@@ -153,6 +153,11 @@ a.gtr-link:active {
   transform: scale(0.99);
 }
 
+.trip.open:active {
+  box-shadow: #2660ff 0px 0px 5px;
+  transform: scale(1.01);
+}
+
 .trip img {
   width: 60%;
   height: 5rem;
