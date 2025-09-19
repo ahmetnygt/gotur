@@ -203,10 +203,65 @@ a.gtr-link:active {
   right: .5rem;
 }
 
-.trip.open .trip_chevron{
+.trip.open .trip_chevron {
   transform: rotate(180deg);
 }
 
-.trip_content{
+.trip_content {
   display: none;
+  cursor: default;
+}
+
+.trip_seat {
+  position: relative;
+  cursor: pointer;
+}
+
+.gender-pick {
+  position: absolute;
+  z-index: 100;
+  background-color: white;
+  border-radius: 4em;
+  padding: 1rem 1.5rem;
+  display: none;
+}
+
+.gender-pick.show {
+  display: block;
+}
+
+.gender-pick img {
+  width: 4vw;
+}
+
+.gender-pick .m {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #216396;
+  user-select: none;
+  border-radius: 2rem;
+  padding: .5rem;
+  transition: all .3s;
+  cursor: pointer;
+}
+
+.gender-pick .m:hover {
+  background-color: #2986cc;
+}
+
+.gender-pick .f {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #920256;
+  user-select: none;
+  border-radius: 2rem;
+  padding: .5rem;
+  transition: all .3s;
+  cursor: pointer;
+}
+
+.gender-pick .f:hover {
+  background-color: #c90076;
 }
