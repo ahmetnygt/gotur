@@ -1,10 +1,15 @@
 $(".trip").on("click", function () {
     $(this).find(".trip_content").slideToggle(300);
-    trip.classList.toggle("open");
+    this.classList.toggle("open");
+});
+
+$(".trip_content").on("click", function (e) {
+    e.stopPropagation();
 });
 
 document.querySelectorAll(".trip_seat").forEach(seat => {
     seat.addEventListener("click", e => {
+        e.stopPropagation();
         const genderPick = document.querySelector(".gender-pick");
 
         // Koltuğun konumunu al
