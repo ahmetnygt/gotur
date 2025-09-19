@@ -1,17 +1,27 @@
-const Sequelize = require("sequelize");
+const { DataTypes } = require("sequelize");
 
-const sequelize = require("../utilities/database");
-
-const Firm = sequelize.define("firm", {
+module.exports = (sequelize) => {
+  return sequelize.define("Firm", {
     id: {
-        type: Sequelize.BIGINT,
-        primaryKey: true,
-        autoIncrement: true,
+      type: DataTypes.BIGINT,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    title:{
-        type: Sequelize.STRING,
-        allowNull: false
-    }
-});
-
-module.exports = Firm;
+    key: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    dbName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    displayName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      defaultValue: "active",
+    },
+  });
+};

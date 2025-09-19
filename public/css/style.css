@@ -110,6 +110,14 @@ body {
   color: white;
 }
 
+.gtr-header-invert {
+  height: 10vh;
+  width: 100%;
+  background-color: white !important;
+  padding: 1rem 3rem;
+  color: #313131;
+}
+
 .gtr-header img {
   width: 10vw;
 }

@@ -57,34 +57,38 @@ $(".gender-pick .m").off().on("click", e => {
         // Koltuk numarası yazısını daha okunaklı yapmak için siyah yap
         $seat.find("span").css("color", "#008346ff");
 
-        ticketPairs.push([$seat.data("seat-number"),"m"])
-        
+        ticketPairs.push([$seat.data("seat-number"), "m"])
+
         // Gender pick popup'ı kapat
         $(".gender-pick").removeClass("show");
     });
-    
+
 })
 
 $(".gender-pick .f").off().on("click", e => {
     $(".gender-pick .f").off().on("click", e => {
         if (!selectedSeat) return; // seçili seat yoksa çık
-        
+
         // Seçilen seat elementini bul
         const $seat = $(`.trip_seat[data-seat-number='${selectedSeat}']`);
-        
+
         // İçindeki rect’leri renklendir
         $seat.find("rect").attr({
             fill: "#02ff89",   // sarı
             stroke: "#00c76a", // daha koyu sarı/kahverengi
         });
-        
+
         // Koltuk numarası yazısını daha okunaklı yapmak için siyah yap
         $seat.find("span").css("color", "#008346ff");
 
-        ticketPairs.push([$seat.data("seat-number"),"f"])
+        ticketPairs.push([$seat.data("seat-number"), "f"])
 
         // Gender pick popup'ı kapat
         $(".gender-pick").removeClass("show");
     });
 
+})
+
+$(".trip_confirm-button").off().on("click", e => {
+    
 })

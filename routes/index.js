@@ -7,8 +7,8 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-// router.get('/get-trips', tripController.getTrips)
+router.get('/trips/:route/:date', tripController.searchAllTrips)
 
-router.get('/trips/:route/:date', tripController.getTrips)
+// router.get('/payment/:route/:date', tripController.getTrips)
 
 module.exports = router;
