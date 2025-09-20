@@ -344,14 +344,88 @@ exports.createTicketPayment = async (req, res) => {
             });
         }
 
-        const { models } = await getTenantConnection(firmKey);
-        const ticketPayment = await models.TicketPayment.create({
-            tripId: numericTripId,
-            fromStopId: numericFromStopId,
-            toStopId: numericToStopId,
-            seatNumbers: normalisedSeats,
-            genders: normalisedGenders,
+        const numericSeatNumbers = normalisedSeats.map((seat) => {
+            const numeric = Number(seat);
+            if (!Number.isFinite(numeric)) {
+                throw Object.assign(new Error(`Geçersiz koltuk numarası: ${seat}`), {
+                    isUserError: true,
+                    statusCode: 400,
+                });
+            }
+            return numeric;
         });
+
+        const { models, sequelize } = await getTenantConnection(firmKey);
+        const { Ticket } = models;
+        const transaction = await sequelize.transaction();
+
+        let ticketPayment = null;
+
+        try {
+            const existingTickets = await Ticket.findAll({
+                where: {
+                    tripId: numericTripId,
+                    seatNo: { [Op.in]: numericSeatNumbers },
+                    status: { [Op.notIn]: ["refund", "canceled"] },
+                },
+                transaction,
+                lock: transaction.LOCK.UPDATE,
+            });
+
+            if (existingTickets.length) {
+                throw Object.assign(
+                    new Error(
+                        "Seçilen koltuklardan biri veya birkaçı artık uygun değil."
+                    ),
+                    {
+                        isUserError: true,
+                        statusCode: 409,
+                    }
+                );
+            }
+
+            ticketPayment = await models.TicketPayment.create(
+                {
+                    tripId: numericTripId,
+                    fromStopId: numericFromStopId,
+                    toStopId: numericToStopId,
+                    seatNumbers: normalisedSeats,
+                    genders: normalisedGenders,
+                },
+                { transaction }
+            );
+
+            const pendingPnr = buildPendingPnr(ticketPayment.id);
+
+            const pendingTickets = numericSeatNumbers.map((seatNumber, index) => ({
+                tripId: numericTripId,
+                ticketGroupId: 0,
+                seatNo: seatNumber,
+                price: 0,
+                status: "pending",
+                idNumber: null,
+                name: null,
+                surname: null,
+                phoneNumber: null,
+                gender: normalisedGenders[index],
+                nationality: "tr",
+                customerType: null,
+                customerCategory: null,
+                fromRouteStopId: numericFromStopId,
+                toRouteStopId: numericToStopId,
+                pnr: pendingPnr,
+                payment: null,
+            }));
+
+            if (pendingTickets.length) {
+                await Ticket.bulkCreate(pendingTickets, { transaction });
+            }
+
+            await transaction.commit();
+        } catch (innerError) {
+            await transaction.rollback();
+            throw innerError;
+        }
 
         if (!req.session.ticketPaymentTenants) {
             req.session.ticketPaymentTenants = {};
@@ -361,9 +435,13 @@ exports.createTicketPayment = async (req, res) => {
         res.json({ success: true, ticketPaymentId: ticketPayment.id });
     } catch (error) {
         console.error("createTicketPayment hata:", error);
-        res.status(500).json({
+        const statusCode = error.statusCode || 500;
+        res.status(statusCode).json({
             success: false,
-            message: "Ödeme kaydı oluşturulamadı.",
+            message:
+                error && error.isUserError
+                    ? error.message
+                    : "Ödeme kaydı oluşturulamadı.",
         });
     }
 };
@@ -489,6 +567,7 @@ exports.completePayment = async (req, res) => {
 
         const { Ticket } = models;
         const transaction = await sequelize.transaction();
+        const pendingPnr = buildPendingPnr(ticketPayment.id);
 
         try {
             for (let i = 0; i < numericSeatNumbers.length; i++) {
@@ -505,6 +584,14 @@ exports.completePayment = async (req, res) => {
                 });
 
                 if (existing) {
+                    const isOwnPending =
+                        existing.status === "pending" &&
+                        existing.pnr === pendingPnr;
+
+                    if (isOwnPending) {
+                        continue;
+                    }
+
                     const err = new Error(
                         `${viewData.seatDetails[i].seatNumber} numaralı koltuk artık uygun değil.`
                     );
@@ -513,7 +600,20 @@ exports.completePayment = async (req, res) => {
                 }
             }
 
-            const group = await models.TicketGroup.create({ tripId: ticketPayment.tripId });
+            await Ticket.destroy({
+                where: {
+                    tripId: ticketPayment.tripId,
+                    seatNo: { [Op.in]: numericSeatNumbers },
+                    status: "pending",
+                    pnr: pendingPnr,
+                },
+                transaction,
+            });
+
+            const group = await models.TicketGroup.create(
+                { tripId: ticketPayment.tripId },
+                { transaction }
+            );
             const ticketGroupId = group.id;
 
             const stops = await models.Stop.findAll({ where: { id: { [Op.in]: [ticketPayment.fromStopId, ticketPayment.toStopId] } } })
@@ -827,4 +927,8 @@ async function buildPaymentViewData(models, ticketPayment) {
         pricePerSeat,
         totalPrice: pricePerSeat * seatDetails.length,
     };
+}
+
+function buildPendingPnr(ticketPaymentId) {
+    return `PENDING-${ticketPaymentId}`;
 }
