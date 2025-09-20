@@ -1,3 +1,9 @@
+const tripSearchDate = $(".trip-search_date")
+flatpickr(tripSearchDate, {
+    locale: "tr",
+    defaultDate: new Date(),
+})
+
 var ticketPairs = [];
 
 $(".trip").on("click", function () {

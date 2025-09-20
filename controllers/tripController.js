@@ -239,7 +239,7 @@ exports.searchAllTrips = async (req, res) => {
         const mergedTrips = results.flatMap((r) => r.result || []);
 
         // 👉 Şablon render edebilirsin:
-        res.render("trips", { trips: mergedTrips });
+        res.render("trips", { trips: mergedTrips, fromId, toId, date });
 
         // 👉 veya JSON API olarak dönebilirsin:
         // res.json({ count: mergedTrips.length, trips: mergedTrips });

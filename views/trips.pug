@@ -1,5 +1,8 @@
 extends layout
 
+block css
+  link(rel='stylesheet' href='/css/trips.css')
+
 block content
   .gender-pick.border
     .d-flex.gap-3
@@ -9,72 +12,100 @@ block content
       .f
         img(src="/svg/woman.svg" alt="koltuk")
         |KADIN
-  .row
-    each t in trips 
-      .col-4.p-3
-        .trip(
-          data-trip-id=(t.tripId || t.id)
-          data-from-stop-id=t.fromStopId
-          data-to-stop-id=t.toStopId
-          data-firm=t.firm
-        )
-          .trip_chevron
-            i.fa-solid.fa-chevron-down
-          .d-flex.justify-content-between.align-items-center.px-3.mb-2
-            img(src="/images/uludag.png" alt="uludağ")
-            .d-flex.flex-column.align-items-center
-              span.trip_time         
-                i.fa-solid.fa-clock.me-1
-                span #{t.time.split(":")[0]}:#{t.time.split(":")[1]}
-              span #{t.duration}
-          p.trip_route
-            |#{t.fromStr}
-            i.fa-solid.fa-route.mx-1
-            |#{t.toStr}
-          .d-flex.gap-3.align-items-center
-            .trip_fullness
-              svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
-                rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
-                rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-              span #{t.fullness}
-            button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
-          .trip_content
-            .d-flex
-              .trip_seat-plan
-                - const planBinary = t.busPlanBinary
-                - const plan = t.busPlan
-                - var index = 0
-                - var seat = 1
-                -for(let i = 0; i < 8; i++){
-                  .d-flex
-                    -for(let j = 0; j < 5; j++){
-                      if planBinary[index] == "1"
-                        -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
-                        -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
-                        -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
-                        .trip_seat(
-                          data-is-available=`${t.tickets[seat]?false:true}`
-                          data-seat-number=`${plan[index]}`
-                          data-trip=(t.tripId || t.id)
-                        )
-                          svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
-                            rect(x="10" y="10" width="80" height="80" rx="10" ry="10" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                            rect(x="75" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                            rect(x="5" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                            rect(x="10" y="70" width="80" height="20" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                            rect(x="30" y="65" width="40" height="30" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                          span(style=`position: absolute;top: 40%;left: 50%;transform: translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
-                        -seat++;
-                      else 
-                        svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
-                      -index++;
-                    -}
-                -}
-              .trip_info.p-1
-                button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
+  .trip-search
+    select.trip-search_from.form-select.form-select-sm(value=fromId)
+      option(value="17000") Çanakkale
+      option(value="17500") Gelibolu
+      option(value="17900") Eceabat
+      option(value="22800") Keşan
+      option(value="34000") İstanbul
+      option(value="34220") Esenler
+      option(value="34520") Beylikdüzü
+      option(value="34710") Kadıköy
+      option(value="59000") Tekirdağ
+      option(value="59300") Malkara
+      option(value="59740") Marmaraereğlisi
+    select.trip-search_to.form-select.form-select-sm(value=toId)
+      option(value="17000") Çanakkale
+      option(value="17500") Gelibolu
+      option(value="17900") Eceabat
+      option(value="22800") Keşan
+      option(value="34000") İstanbul
+      option(value="34220") Esenler
+      option(value="34520") Beylikdüzü
+      option(value="34710") Kadıköy
+      option(value="59000") Tekirdağ
+      option(value="59300") Malkara
+      option(value="59740") Marmaraereğlisi
+    input.trip-search_date.form-control.form-control-sm(type="text" value=date)
+    button.trip-search_search-button.btn.btn-sm.btn-primary.w-100 ARA
+  .container
+    .row
+      each t in trips 
+        .col-4.p-3
+          .trip(
+            data-trip-id=(t.tripId || t.id)
+            data-from-stop-id=t.fromStopId
+            data-to-stop-id=t.toStopId
+            data-firm=t.firm
+          )
+            .trip_chevron
+              i.fa-solid.fa-chevron-down
+            .d-flex.justify-content-between.align-items-center.px-3.mb-2
+              img(src=`/images/${t.firm}.png` alt=t.firm)
+              .d-flex.flex-column.align-items-center
+                span.trip_time         
+                  i.fa-solid.fa-clock.me-1
+                  span #{t.time.split(":")[0]}:#{t.time.split(":")[1]}
+                span #{t.duration}
+            p.trip_route
+              |#{t.fromStr}
+              i.fa-solid.fa-route.mx-1
+              |#{t.toStr}
+            .d-flex.gap-3.align-items-center
+              .trip_fullness
+                svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
+                  rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
+                  rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                  rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                  rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                  rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                span #{t.fullness}
+              button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
+            .trip_content
+              .d-flex
+                .trip_seat-plan
+                  - const planBinary = t.busPlanBinary
+                  - const plan = t.busPlan
+                  - var index = 0
+                  - var seat = 1
+                  -for(let i = 0; i < 8; i++){
+                    .d-flex
+                      -for(let j = 0; j < 5; j++){
+                        if planBinary[index] == "1"
+                          -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
+                          -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
+                          -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
+                          .trip_seat(
+                            data-is-available=`${t.tickets[seat]?false:true}`
+                            data-seat-number=`${plan[index]}`
+                            data-trip=(t.tripId || t.id)
+                          )
+                            svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
+                              rect(x="10" y="10" width="80" height="80" rx="10" ry="10" fill=genderColor stroke=genderColorStroke stroke-width="2")
+                              rect(x="75" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
+                              rect(x="5" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
+                              rect(x="10" y="70" width="80" height="20" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
+                              rect(x="30" y="65" width="40" height="30" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
+                            span(style=`position: absolute;top: 40%;left: 50%;transform: translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
+                          -seat++;
+                        else 
+                          svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
+                        -index++;
+                      -}
+                  -}
+                .trip_info.p-1
+                  button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
 
 block scripts
   script(src="/js/trips.js")
