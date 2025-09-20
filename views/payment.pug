@@ -1,8 +1,94 @@
 extends layout_invert
 
 block content
-    .trip_info
-        p #{}
+    .container.py-4
+        h2.mb-3 Ödeme Bilgileri
+
+        if error
+            .alert.alert-danger #{error}
+
+        if trip || fromStop || toStop
+            .card.mb-4
+                .card-body
+                    if fromStop && toStop
+                        p.mb-1
+                            strong Güzergâh:
+                            span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
+                    if trip && trip.date
+                        p.mb-1
+                            strong Tarih:
+                            span.ms-1 #{trip.date}
+                    if trip && trip.time
+                        p.mb-0
+                            strong Kalkış Saati:
+                            span.ms-1 #{trip.time}
+
+        if seatDetails && seatDetails.length
+            form(method="post" action=`/payment/${ticketPaymentId}/complete`)
+                - const genderLabels = { m: "Erkek", f: "Kadın" };
+                each seat, index in seatDetails
+                    - const passenger = passengerInputs && passengerInputs[index] ? passengerInputs[index] : { name: '', surname: '', idNumber: '', phoneNumber: '', nationality: 'TR' };
+                    .card.mb-4
+                        .card-header.d-flex.justify-content-between.align-items-center
+                            span
+                                strong Koltuk #{seat.seatNumber}
+                                span.ms-2.badge.bg-secondary #{genderLabels[seat.gender] || 'Belirtilmedi'}
+                            if typeof pricePerSeat !== 'undefined'
+                                span.text-muted #{pricePerSeat} TL
+                        .card-body
+                            .row.g-3
+                                .col-md-6
+                                    label.form-label(for=`passenger-name-${index}`) Ad
+                                    input.form-control(
+                                        type="text"
+                                        id=`passenger-name-${index}`
+                                        name="names"
+                                        required
+                                        value=passenger.name
+                                    )
+                                .col-md-6
+                                    label.form-label(for=`passenger-surname-${index}`) Soyad
+                                    input.form-control(
+                                        type="text"
+                                        id=`passenger-surname-${index}`
+                                        name="surnames"
+                                        required
+                                        value=passenger.surname
+                                    )
+                                .col-md-6
+                                    label.form-label(for=`passenger-id-${index}`) Kimlik Numarası
+                                    input.form-control(
+                                        type="text"
+                                        id=`passenger-id-${index}`
+                                        name="idNumbers"
+                                        required
+                                        value=passenger.idNumber
+                                    )
+                                .col-md-6
+                                    label.form-label(for=`passenger-phone-${index}`) Telefon
+                                    input.form-control(
+                                        type="tel"
+                                        id=`passenger-phone-${index}`
+                                        name="phoneNumbers"
+                                        required
+                                        value=passenger.phoneNumber
+                                    )
+                                .col-md-6
+                                    label.form-label(for=`passenger-nationality-${index}`) Uyruk
+                                    input.form-control(
+                                        type="text"
+                                        id=`passenger-nationality-${index}`
+                                        name="nationalities"
+                                        value=passenger.nationality || 'TR'
+                                    )
+
+                .d-flex.justify-content-between.align-items-center.mt-3
+                    if typeof pricePerSeat !== 'undefined'
+                        span
+                            strong Toplam Tutar:
+                            span.ms-2 #{totalPrice || 0} TL
+                    button.btn.btn-primary.btn-lg(type="submit") Öde
+        else
+            p Henüz bir koltuk seçimi yapılmamış.
 
 block scripts
-  script(src="/js/index.js")

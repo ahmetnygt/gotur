@@ -10,85 +10,177 @@ $(".trip_content").on("click", function (e) {
 });
 
 var selectedSeat = null;
-$(".trip_seat").off().on("click", seat => {
-    if ($(seat.currentTarget).data("is-available") == true) {
-        if ($(seat.currentTarget).data("seat-number") != selectedSeat) {
-            selectedSeat = $(seat.currentTarget).data("seat-number");
+var selectedTrip = null;
+
+$(".trip_seat")
+    .off()
+    .on("click", (seat) => {
+        const $seat = $(seat.currentTarget);
+        const isAvailable = $seat.data("is-available");
+        if (!isAvailable) {
+            return;
+        }
+
+        const seatNumber = String($seat.data("seat-number"));
+        const tripId = String($seat.data("trip"));
+        const isSameSelection =
+            seatNumber === selectedSeat && tripId === selectedTrip;
+
+        if (!isSameSelection) {
+            selectedSeat = seatNumber;
+            selectedTrip = tripId;
             seat.stopPropagation();
             const genderPick = document.querySelector(".gender-pick");
 
-            // Koltuğun konumunu al
             const rect = seat.currentTarget.getBoundingClientRect();
-
-            // Ortaya ve altına hizala
             const left = rect.left + rect.width / 2 + window.scrollX;
             const top = rect.bottom + window.scrollY;
 
-            // gender-pick’i pozisyonla
             genderPick.style.position = "absolute";
             genderPick.style.left = left + "px";
             genderPick.style.top = top + "px";
-            genderPick.style.transform = "translate(-50%,-125%)"; // ortalamak için
+            genderPick.style.transform = "translate(-50%,-125%)";
 
-            // göster
             genderPick.classList.add("show");
-        }
-        else {
+        } else {
             selectedSeat = null;
-            const genderPick = document.querySelector(".gender-pick");
-            genderPick.classList.remove("show");
+            selectedTrip = null;
+            document.querySelector(".gender-pick").classList.remove("show");
         }
-    }
-})
+    });
 
-$(".gender-pick .m").off().on("click", e => {
-    $(".gender-pick .m").off().on("click", e => {
-        if (!selectedSeat) return; // seçili seat yoksa çık
+const highlightSeat = (tripId, seatNumber) => {
+    const $seat = $(
+        `.trip_seat[data-trip='${tripId}'][data-seat-number='${seatNumber}']`
+    );
+    $seat.find("rect").attr({
+        fill: "#02ff89",
+        stroke: "#00c76a",
+    });
+    $seat.find("span").css("color", "#008346ff");
+};
 
-        // Seçilen seat elementini bul
-        const $seat = $(`.trip_seat[data-seat-number='${selectedSeat}']`);
+const upsertTicketPair = (tripId, seatNumber, gender) => {
+    ticketPairs = ticketPairs.filter(
+        (ticket) =>
+            !(ticket.tripId === tripId && ticket.seatNumber === seatNumber)
+    );
+    ticketPairs.push({ tripId, seatNumber, gender });
+};
 
-        // İçindeki rect’leri renklendir
-        $seat.find("rect").attr({
-            fill: "#02ff89",   // sarı
-            stroke: "#00c76a", // daha koyu sarı/kahverengi
-        });
+$(".gender-pick .m")
+    .off()
+    .on("click", () => {
+        if (!selectedSeat || !selectedTrip) {
+            return;
+        }
 
-        // Koltuk numarası yazısını daha okunaklı yapmak için siyah yap
-        $seat.find("span").css("color", "#008346ff");
+        highlightSeat(selectedTrip, selectedSeat);
+        upsertTicketPair(selectedTrip, selectedSeat, "m");
 
-        ticketPairs.push([$seat.data("seat-number"), "m"])
-
-        // Gender pick popup'ı kapat
+        selectedSeat = null;
+        selectedTrip = null;
         $(".gender-pick").removeClass("show");
     });
 
-})
+$(".gender-pick .f")
+    .off()
+    .on("click", () => {
+        if (!selectedSeat || !selectedTrip) {
+            return;
+        }
 
-$(".gender-pick .f").off().on("click", e => {
-    $(".gender-pick .f").off().on("click", e => {
-        if (!selectedSeat) return; // seçili seat yoksa çık
+        highlightSeat(selectedTrip, selectedSeat);
+        upsertTicketPair(selectedTrip, selectedSeat, "f");
 
-        // Seçilen seat elementini bul
-        const $seat = $(`.trip_seat[data-seat-number='${selectedSeat}']`);
-
-        // İçindeki rect’leri renklendir
-        $seat.find("rect").attr({
-            fill: "#02ff89",   // sarı
-            stroke: "#00c76a", // daha koyu sarı/kahverengi
-        });
-
-        // Koltuk numarası yazısını daha okunaklı yapmak için siyah yap
-        $seat.find("span").css("color", "#008346ff");
-
-        ticketPairs.push([$seat.data("seat-number"), "f"])
-
-        // Gender pick popup'ı kapat
+        selectedSeat = null;
+        selectedTrip = null;
         $(".gender-pick").removeClass("show");
     });
 
-})
+$(".trip_confirm-button")
+    .off()
+    .on("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-$(".trip_confirm-button").off().on("click", e => {
-    
-})
+        const $trip = $(e.currentTarget).closest(".trip");
+        const tripIdData = $trip.data("tripId");
+        const fromStopId = $trip.data("fromStopId");
+        const toStopId = $trip.data("toStopId");
+        const firmKey = $trip.data("firm");
+
+        const tripId =
+            typeof tripIdData === "undefined" ? null : String(tripIdData);
+
+        if (!tripId) {
+            alert("Sefer bilgisi bulunamadı.");
+            return;
+        }
+
+        const selectedTickets = ticketPairs.filter(
+            (ticket) => ticket.tripId === tripId
+        );
+
+        if (!selectedTickets.length) {
+            alert("Lütfen en az bir koltuk seçin.");
+            return;
+        }
+
+        if (
+            typeof fromStopId === "undefined" ||
+            typeof toStopId === "undefined"
+        ) {
+            alert("Sefer durak bilgileri eksik.");
+            return;
+        }
+
+        if (!firmKey) {
+            alert("Firma bilgisi bulunamadı.");
+            return;
+        }
+
+        const payload = {
+            tripId,
+            fromStopId,
+            toStopId,
+            seatNumbers: selectedTickets.map((ticket) => ticket.seatNumber),
+            genders: selectedTickets.map((ticket) => ticket.gender),
+            firmKey,
+        };
+
+        try {
+            const response = await fetch("/payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            let data = null;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                data = null;
+            }
+
+            if (!response.ok || !data) {
+                throw new Error(
+                    data && data.message
+                        ? data.message
+                        : "Ödeme isteği oluşturulamadı."
+                );
+            }
+
+            if (!data.ticketPaymentId) {
+                throw new Error("Beklenmeyen sunucu cevabı alındı.");
+            }
+
+            ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
+
+            window.location.href = `/payment/${data.ticketPaymentId}`;
+        } catch (error) {
+            alert(error.message || "Ödeme isteği oluşturulamadı.");
+        }
+    });
