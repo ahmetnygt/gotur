@@ -1,7 +1,7 @@
-const { goturDb } = require("./goturDB");
+const { goturDB } = require("./goturDB");
 const FirmFactory = require("../models/firmModel");
 
-const Firm = FirmFactory(goturDb);
+const Firm = FirmFactory(goturDB);
 
 let cache = null;
 
@@ -9,7 +9,7 @@ let cache = null;
  * Uygulama açılırken çağır → cache'e firmaları alır
  */
 async function loadTenants() {
-    await goturDb.sync(); // firms tablosu yoksa oluşturur
+    await goturDB.sync(); // firms tablosu yoksa oluşturur
     const rows = await Firm.findAll({ raw: true });
     cache = rows.map(r => ({ key: r.key, dbName: r.dbName }));
     return cache;

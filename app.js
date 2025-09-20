@@ -8,15 +8,36 @@ var logger = require("morgan");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
-const { goturDb, initGoturModels } = require("./utilities/goturDB");
+const { goturDB, initGoturModels } = require("./utilities/goturDB");
+const { loadTenants } = require("./utilities/tenantCatalog");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 var store = new SequelizeStore({
-  db: goturDb,
+  db: goturDB,
 });
 store.sync(); // Sessions tablosu otomatik oluşur
 
 var app = express();
+
+let tenantInitError = null;
+const tenantsReady = (async () => {
+  try {
+    await goturDB.authenticate();
+    console.log("Gotur DB bağlantısı başarılı.");
+    await loadTenants();
+    console.log("Tenant katalogu başarıyla yüklendi.");
+  } catch (error) {
+    tenantInitError = error;
+    console.error("Tenant katalogu yüklenirken hata oluştu:", error);
+  }
+})();
+
+app.locals.waitForTenants = async () => {
+  await tenantsReady;
+  if (tenantInitError) {
+    throw tenantInitError;
+  }
+};
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -55,14 +76,6 @@ app.use("/users", usersRouter);
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
-// sadece gotur DB bağlantısını kontrol edelim
-goturDb
-  .authenticate()
-  .then(() => console.log("Gotur DB bağlantısı başarılı."))
-  .catch((error) =>
-    console.error("Gotur DB bağlantısı kurulamadı:", error)
-  );
 
 // error handler
 app.use(function (err, req, res, next) {
