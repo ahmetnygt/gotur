@@ -4,6 +4,28 @@ block css
   link(rel='stylesheet' href='/css/trips.css')
 
 block content
+  - const tripList = Array.isArray(trips) ? trips : [];
+  - const uniqueFirms = [];
+  - const firmSet = new Set();
+  - const uniqueFromStops = [];
+  - const fromStopSet = new Set();
+  - const uniqueToStops = [];
+  - const toStopSet = new Set();
+  - tripList.forEach((trip) => {
+  -   const firmKey = trip.firm;
+  -   if (firmKey && !firmSet.has(firmKey)) {
+  -     firmSet.add(firmKey);
+  -     uniqueFirms.push({ key: firmKey, label: trip.firmName || firmKey });
+  -   }
+  -   if (trip.fromStopId && !fromStopSet.has(trip.fromStopId)) {
+  -     fromStopSet.add(trip.fromStopId);
+  -     uniqueFromStops.push({ id: trip.fromStopId, label: trip.fromStr });
+  -   }
+  -   if (trip.toStopId && !toStopSet.has(trip.toStopId)) {
+  -     toStopSet.add(trip.toStopId);
+  -     uniqueToStops.push({ id: trip.toStopId, label: trip.toStr });
+  -   }
+  - });
   .gender-pick.border
     .d-flex.gap-3
       .m
@@ -39,24 +61,62 @@ block content
       option(value="59740") Marmaraereğlisi
     input.trip-search_date.form-control.form-control-sm(type="text" value=date)
     button.trip-search_search-button.btn.btn-sm.btn-primary.w-100 ARA
-  .container
-    .row
-      each t in trips 
+  .trip-actions
+    .container
+      .trip-actions_inner
+        .trip-actions_sorting
+          label.trip-actions_label(for="trip-sort-select") Sırala:
+          select#trip-sort-select.form-select.form-select-sm
+            option(value="departureTime") Kalkış saatine göre
+            option(value="price") Fiyata göre
+            option(value="duration") Varış süresine göre
+        .trip-actions_filters
+          .trip-filter
+            label.form-label(for="trip-filter-firm") Firma
+            select#trip-filter-firm.form-select.form-select-sm
+              option(value="") Tüm firmalar
+              each firm in uniqueFirms
+                option(value=firm.key) #{firm.label}
+          .trip-filter
+            label.form-label(for="trip-filter-from") Kalkış noktası
+            select#trip-filter-from.form-select.form-select-sm
+              option(value="") Tüm kalkış noktaları
+              each stop in uniqueFromStops
+                option(value=stop.id) #{stop.label}
+          .trip-filter
+            label.form-label(for="trip-filter-to") Varış noktası
+            select#trip-filter-to.form-select.form-select-sm
+              option(value="") Tüm varış noktaları
+              each stop in uniqueToStops
+                option(value=stop.id) #{stop.label}
+          .trip-filter.trip-filter_time-range
+            label.form-label(for="trip-filter-time-start") Kalkış saat aralığı
+            .trip-filter_time-inputs
+              input#trip-filter-time-start.form-control.form-control-sm(type="time")
+              span.trip-filter_time-separator –
+              input#trip-filter-time-end.form-control.form-control-sm(type="time")
+  #trip-results.container
+    .row#trip-results-grid
+      each t in tripList
+        - const [tripHour = '00', tripMinute = '00'] = String(t.time || '').split(':');
         .col-4.p-3
           .trip(
             data-trip-id=(t.tripId || t.id)
             data-from-stop-id=t.fromStopId
             data-to-stop-id=t.toStopId
             data-firm=t.firm
+            data-price=t.price
+            data-departure-time=t.time
+            data-duration=t.duration
           )
             .trip_chevron
               i.fa-solid.fa-chevron-down
             .d-flex.justify-content-between.align-items-center.px-3.mb-2
               img(src=`/images/${t.firm}.png` alt=t.firm)
               .d-flex.flex-column.align-items-center
-                span.trip_time         
+                span.trip_time
                   i.fa-solid.fa-clock.me-1
-                  span #{t.time.split(":")[0]}:#{t.time.split(":")[1]}
+                  span #{tripHour}:#{tripMinute}
                 span #{t.duration}
             p.trip_route
               |#{t.fromStr}
@@ -106,6 +166,7 @@ block content
                   -}
                 .trip_info.p-1
                   button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
+    p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Uygun sefer bulunamadı.
 
 block scripts
   script(src="/js/trips.js")
