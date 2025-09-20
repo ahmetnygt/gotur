@@ -214,6 +214,17 @@ exports.searchAllTrips = async (req, res) => {
                 .json({ message: "Eksik parametre: /trips/:fromId-:toId/:date" });
         }
 
+        if (req.app?.locals?.waitForTenants) {
+            try {
+                await req.app.locals.waitForTenants();
+            } catch (initErr) {
+                console.error("Tenant katalogu henüz hazır değil:", initErr);
+                return res
+                    .status(503)
+                    .json({ message: "Sistem başlangıç işlemleri tamamlanmadı." });
+            }
+        }
+
         const results = await runForAllTenants(async ({ firmKey, models }) => {
             const { Trip, RouteStop, Stop, Route, Price, BusModel, Ticket } = models;
 
