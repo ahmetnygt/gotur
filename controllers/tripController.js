@@ -18,6 +18,33 @@ function addTime(baseTime, addTime) {
     return `${hh}:${mm}:${ss}`;
 }
 
+async function generatePNR(models, fromId, toId, stops) {
+    const from = stops.find(s => s.id == fromId)?.title;
+    const to = stops.find(s => s.id == toId)?.title;
+    const turkishMap = { "Ç": "C", "Ş": "S", "İ": "I", "Ğ": "G", "Ü": "U", "Ö": "O", "ç": "C", "ş": "S", "ı": "I", "ğ": "G", "ü": "U", "ö": "O" };
+
+    const clean = str => str
+        .split('')
+        .map(c => turkishMap[c] || c)
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+
+    const fromCode = clean(from);
+    const toCode = clean(to);
+
+    let pnr;
+    let exists = true;
+
+    while (exists) {
+        const rand = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 karakter
+        pnr = `${fromCode}${toCode}${rand}`;
+        exists = await models.Ticket.findOne({ where: { pnr } }); // Sequelize'de sorgu
+    }
+
+    return pnr;
+};
+
 exports.searchAllTrips = async (req, res) => {
     try {
         // /trips/:route/:date → örn: /trips/1-2/2025-09-25
@@ -486,21 +513,33 @@ exports.completePayment = async (req, res) => {
                 }
             }
 
+            const group = await models.TicketGroup.create({ tripId: ticketPayment.tripId });
+            const ticketGroupId = group.id;
+
+            const stops = await models.Stop.findAll({ where: { id: { [Op.in]: [ticketPayment.fromStopId, ticketPayment.toStopId] } } })
+
+            const pnr = (ticketPayment.fromStopId && ticketPayment.toStopId) ? await generatePNR(models, ticketPayment.fromStopId, ticketPayment.toStopId, stops) : null;
+
             for (let i = 0; i < numericSeatNumbers.length; i++) {
                 await Ticket.create(
                     {
                         tripId: ticketPayment.tripId,
+                        userId: 1,
+                        ticketGroupId: ticketGroupId,
                         seatNo: numericSeatNumbers[i],
-                        gender: viewData.seatDetails[i].gender,
-                        status: "completed",
                         price: viewData.pricePerSeat || 0,
-                        fromRouteStopId: ticketPayment.fromStopId,
-                        toRouteStopId: ticketPayment.toStopId,
+                        status: "web",
+                        idNumber: passengerInputs[i].idNumber,
                         name: passengerInputs[i].name,
                         surname: passengerInputs[i].surname,
-                        idNumber: passengerInputs[i].idNumber,
                         phoneNumber: passengerInputs[i].phoneNumber,
-                        nationality: passengerInputs[i].nationality || "TR",
+                        gender: viewData.seatDetails[i].gender,
+                        nationality: passengerInputs[i].nationality || "tr",
+                        customerType: "adult",
+                        customerCategory: "normal",
+                        fromRouteStopId: ticketPayment.fromStopId,
+                        pnr: pnr,
+                        toRouteStopId: ticketPayment.toStopId,
                         payment: "card",
                     },
                     { transaction }
