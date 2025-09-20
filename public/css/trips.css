@@ -1,3 +1,143 @@
+.trip {
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px #2660ff solid;
+    box-shadow: #2660ff 0px 0px 1px;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+}
+
+.trip:hover {
+    box-shadow: #2660ff 0px 0px 5px;
+    transform: scale(1.01);
+}
+
+.trip:active {
+    box-shadow: #2660ff 0px 0px 3px;
+    transform: scale(0.99);
+}
+
+.trip.open:active,
+.trip.open:hover {
+    box-shadow: #2660ff 0px 0px 1px;
+    transform: scale(1);
+}
+
+.trip img {
+    width: 60%;
+    height: 5rem;
+    object-fit: contain;
+}
+
+.trip_time svg {
+    font-size: 1.25rem;
+}
+
+.trip_time span {
+    font-size: 1.5rem;
+}
+
+.trip_route {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: .5rem;
+}
+
+.trip_route svg {
+    font-size: 1.25rem;
+}
+
+.trip_fullness {
+    display: flex;
+    align-items: center;
+}
+
+.trip_fullness span {
+    font-size: 1.5rem;
+}
+
+.trip_pick-button {
+    height: 2rem;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trip_chevron {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+}
+
+.trip.open .trip_chevron {
+    transform: rotate(180deg);
+}
+
+.trip_content {
+    display: none;
+    cursor: default;
+}
+
+.trip_seat {
+    position: relative;
+    cursor: pointer;
+}
+
+.gender-pick {
+    position: absolute;
+    z-index: 100;
+    background-color: white;
+    border-radius: 4em;
+    padding: 1rem 1.5rem;
+    display: none;
+}
+
+.gender-pick.show {
+    display: block;
+}
+
+.gender-pick img {
+    width: 4vw;
+}
+
+.gender-pick .m {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #216396;
+    user-select: none;
+    border-radius: 2rem;
+    padding: .5rem;
+    transition: all .3s;
+    cursor: pointer;
+}
+
+.gender-pick .m:hover {
+    background-color: #2986cc;
+}
+
+.gender-pick .f {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #920256;
+    user-select: none;
+    border-radius: 2rem;
+    padding: .5rem;
+    transition: all .3s;
+    cursor: pointer;
+}
+
+.gender-pick .f:hover {
+    background-color: #c90076;
+}
+
 .trip-search {
     background-color: slategray;
     display: flex;

@@ -94,6 +94,11 @@ acronym {
 
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Quicksand:wght@300..700&display=swap');
 
+html,
+body {
+  background-color: rgb(245, 245, 245);
+}
+
 body {
   font: 14px "Lato", sans-serif !important;
 }
@@ -118,7 +123,7 @@ body {
   color: #313131;
 }
 
-.gtr-header img {
+.gtr-header img,.gtr-header-invert img {
   width: 10vw;
 }
 
@@ -140,141 +145,29 @@ a.gtr-link:active {
   transform: scale(0.95);
 }
 
-.trip {
-  padding: 1rem;
-  border-radius: 5px;
-  border: 1px #2660ff solid;
-  box-shadow: #2660ff 0px 0px 1px;
-  user-select: none;
-  cursor: pointer;
-  position: relative;
+.gtr-input{
+  border: 2px solid #2660ff !important;
+  border-radius: 5px !important;
+  height: 3rem !important;
+  color: #333 !important;
+  font-size: 1rem !important;
+  padding-left: .5rem !important;
+  line-height: 2.75rem !important;
 }
 
-.trip:hover {
-  box-shadow: #2660ff 0px 0px 5px;
-  transform: scale(1.01);
+.select2-container .select2-selection {
+  border: 2px solid #2660ff !important;
+  border-radius: 5px !important;
+  height: 3rem !important;
 }
 
-.trip:active {
-  box-shadow: #2660ff 0px 0px 3px;
-  transform: scale(0.99);
+.select2-container .select2-selection__rendered {
+  color: #333 !important;
+  font-size: 1rem !important;
+  padding-left: .5rem !important;
+  line-height: 2.75rem !important;
 }
 
-.trip.open:active,
-.trip.open:hover {
-  box-shadow: #2660ff 0px 0px 1px;
-  transform: scale(1);
-}
-
-.trip img {
-  width: 60%;
-  height: 5rem;
-  object-fit: contain;
-}
-
-.trip_time svg {
-  font-size: 1.25rem;
-}
-
-.trip_time span {
-  font-size: 1.5rem;
-}
-
-.trip_route {
-  font-size: 1.5rem;
-  text-align: center;
-  margin: 0;
-  display: flex;
-  justify-content: space-evenly;
-  margin-bottom: .5rem;
-}
-
-.trip_route svg {
-  font-size: 1.25rem;
-}
-
-.trip_fullness {
-  display: flex;
-  align-items: center;
-}
-
-.trip_fullness span {
-  font-size: 1.5rem;
-}
-
-.trip_pick-button {
-  height: 2rem;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.trip_chevron {
-  position: absolute;
-  top: .5rem;
-  right: .5rem;
-}
-
-.trip.open .trip_chevron {
-  transform: rotate(180deg);
-}
-
-.trip_content {
-  display: none;
-  cursor: default;
-}
-
-.trip_seat {
-  position: relative;
-  cursor: pointer;
-}
-
-.gender-pick {
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border-radius: 4em;
-  padding: 1rem 1.5rem;
-  display: none;
-}
-
-.gender-pick.show {
-  display: block;
-}
-
-.gender-pick img {
-  width: 4vw;
-}
-
-.gender-pick .m {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #216396;
-  user-select: none;
-  border-radius: 2rem;
-  padding: .5rem;
-  transition: all .3s;
-  cursor: pointer;
-}
-
-.gender-pick .m:hover {
-  background-color: #2986cc;
-}
-
-.gender-pick .f {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #920256;
-  user-select: none;
-  border-radius: 2rem;
-  padding: .5rem;
-  transition: all .3s;
-  cursor: pointer;
-}
-
-.gender-pick .f:hover {
-  background-color: #c90076;
+.select2-container .select2-selection__arrow {
+  display: none !important;
 }
