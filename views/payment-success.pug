@@ -1,0 +1,60 @@
+extends layout_invert
+
+block content
+    .container.py-4
+        h2.mb-3 Ödeme Başarılı
+
+        if error
+            .alert.alert-danger #{error}
+        else
+            .alert.alert-success Ödemeniz başarıyla tamamlandı. Bilet bilgileriniz aşağıdadır.
+
+        if trip || fromStop || toStop
+            .card.mb-4
+                .card-body
+                    if fromStop && toStop
+                        p.mb-1
+                            strong Güzergâh:
+                            span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
+                    if trip && trip.date
+                        p.mb-1
+                            strong Tarih:
+                            span.ms-1 #{trip.date}
+                    if trip && trip.time
+                        p.mb-0
+                            strong Kalkış Saati:
+                            span.ms-1 #{trip.time}
+
+        if tickets && tickets.length
+            table.table.table-striped
+                thead
+                    tr
+                        th(scope="col") Koltuk
+                        th(scope="col") Yolcu
+                        th(scope="col") Kimlik No
+                        th(scope="col") Telefon
+                        th(scope="col") Uyruk
+                tbody
+                    each ticket in tickets
+                        tr
+                            td #{ticket.seatNo}
+                            td #{(ticket.name || '') + ' ' + (ticket.surname || '')}
+                            td #{ticket.idNumber || '-'}
+                            td #{ticket.phoneNumber || '-'}
+                            td #{ticket.nationality || '-'}
+        else if seatDetails && seatDetails.length
+            .card
+                .card-body
+                    h5.mb-3 Koltuklar
+                    ul.mb-0
+                        each seat in seatDetails
+                            li #{seat.seatNumber}
+
+        .d-flex.justify-content-between.align-items-center.mt-4
+            if typeof totalPrice !== 'undefined'
+                span
+                    strong Toplam Tutar:
+                    span.ms-2 #{totalPrice || 0} TL
+            a.btn.btn-outline-primary(href="/") Ana sayfaya dön
+
+block scripts
