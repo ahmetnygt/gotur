@@ -4,7 +4,7 @@ const tripController = require("../controllers/tripController")
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Götür' });
 });
 
 router.get('/trips/:route/:date', tripController.searchAllTrips)
