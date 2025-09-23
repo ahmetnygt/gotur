@@ -2,7 +2,7 @@ mixin placeSelect(options)
   -
     options = options || {};
     const placeholder = options.placeholder || 'Seçin';
-    const searchPlaceholder = options.searchPlaceholder || 'Ara...';
+    const searchPlaceholder = options.searchPlaceholder || 'İl-ilçe adı yazın...';
     const hasCustomLabel = typeof options.label !== 'undefined' && options.label !== null;
     const labelText = hasCustomLabel ? options.label : placeholder;
     const rootAttrs = Object.assign({}, options.attrs || {});

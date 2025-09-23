@@ -1,3 +1,10 @@
+extends layout
+
+include components/place-select
+
+block css
+  link(rel='stylesheet' href='/css/index.css')
+
 <!DOCTYPE html>
 html
   head
@@ -27,30 +34,47 @@ html
           a.gtr-link 
             i.fa-solid.fa-user-plus.me-1
             |Kayıt Ol
+      - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
+      - const toValue = typeof toId !== 'undefined' ? toId : '';
       .trip-finder.border
         .trip-finder_selects
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
               span Nereden?
-            input.trip-finder_from(value="" type="text" placeholder="Kalkış Seçin")
+            +placeSelect({
+              placeholder: 'Kalkış Seçin',
+              searchPlaceholder: 'İl-ilçe adı yazın...',
+              input: {
+                class: 'trip-finder_from',
+                name: 'from',
+                value: fromValue
+              }
+            })
           span.trip-finder_change
             i.fa-solid.fa-arrow-right-arrow-left
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
               span Nereye?
-            input.trip-finder_to(value="" type="text" placeholder="Varış Seçin")
+            +placeSelect({
+              placeholder: 'Varış Seçin',
+              searchPlaceholder: 'İl-ilçe adı yazın...',
+              input: {
+                class: 'trip-finder_to',
+                name: 'to',
+                value: toValue
+              }
+            })
           .d-flex.flex-column
             span
               i.fa-solid.fa-calendar.me-1
               span Ne Zaman?
-            input.trip-finder_date(type="text")
+            input.trip-finder_date(type='text')
           .trip-finder_day-buttons
-            button(type="button").trip-finder_day-button(data-day="today") Bugün
-            button(type="button").trip-finder_day-button(data-day="tomorrow") Yarın
+            button(type='button').trip-finder_day-button(data-day='today') Bugün
+            button(type='button').trip-finder_day-button(data-day='tomorrow') Yarın
           button.trip-finder_search-button ARA
-
 block content
 
 block scripts

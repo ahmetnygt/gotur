@@ -32,6 +32,31 @@ router.get('/api/places', async (req, res) => {
   }
 });
 
+router.get('/api/places', async (req, res) => {
+  try {
+    if (req.app?.locals?.waitForTenants) {
+      await req.app.locals.waitForTenants();
+    }
+
+    const { Place } = req.commonModels ?? {};
+
+    if (!Place) {
+      return res.status(500).json({ message: 'Place modeli bulunamadı.' });
+    }
+
+    const places = await Place.findAll({
+      attributes: ['id', 'title', 'provinceId'],
+      order: [['title', 'ASC']],
+      raw: true,
+    });
+
+    res.json(places);
+  } catch (error) {
+    console.error('Yerler alınırken hata oluştu:', error);
+    res.status(500).json({ message: 'Yerler alınamadı.' });
+  }
+});
+
 router.get('/trips/:route/:date', tripController.searchAllTrips)
 
 router.post('/payment', tripController.createTicketPayment)
