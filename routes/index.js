@@ -4,7 +4,7 @@ const tripController = require("../controllers/tripController")
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Götür' });
+  res.render('index', { title: "Götür | Türkiye'nin en yeni biletçisi" });
 });
 
 router.get('/api/places', async (req, res) => {
