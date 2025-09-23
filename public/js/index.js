@@ -38,6 +38,8 @@ if (tripFinderDate.length) {
     datePicker = flatpickr(tripFinderDate[0], {
         locale: "tr",
         defaultDate: new Date(),
+        altInput: true,
+        altFormat: "d F Y",
         onChange: (_, dateStr) => {
             updateActiveDayButton(dateStr);
         },
