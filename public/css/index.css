@@ -37,6 +37,10 @@
     color: #2660ff9c;
 }
 
+.trip-finder .place-select {
+    width: 13vw;
+}
+
 .trip-finder_date-wrapper {
     display: flex;
     flex-direction: column;

@@ -1,78 +1,96 @@
-const tripFinderDate = $(".trip-finder_date");
-const dayButtons = $(".trip-finder_day-button");
-const dayOffsets = {
-    today: 0,
-    tomorrow: 1,
-};
-
-const formatDate = date => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-};
-
-const getRelativeDate = offset => {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() + offset);
-    return date;
-};
-
-const updateActiveDayButton = dateStr => {
-    dayButtons.removeClass("active");
-    if (!dateStr) {
-        return;
+(() => {
+    const placeSelectModule = window.GTR && window.GTR.placeSelect;
+    if (placeSelectModule && typeof placeSelectModule.init === "function") {
+        Promise.resolve(placeSelectModule.init()).catch(error => {
+            console.error(
+                "Trip finder için yer seçici başlatılırken hata oluştu:",
+                error
+            );
+        });
     }
 
-    Object.entries(dayOffsets).forEach(([key, offset]) => {
-        if (dateStr === formatDate(getRelativeDate(offset))) {
-            dayButtons.filter(`[data-day="${key}"]`).addClass("active");
+    const tripFinderDate = $(".trip-finder_date");
+    const dayButtons = $(".trip-finder_day-button");
+    const dayOffsets = {
+        today: 0,
+        tomorrow: 1,
+    };
+
+    const formatDate = date => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
+    const getRelativeDate = offset => {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + offset);
+        return date;
+    };
+
+    const updateActiveDayButton = dateStr => {
+        dayButtons.removeClass("active");
+        if (!dateStr) {
+            return;
         }
-    });
-};
 
-let datePicker;
+        Object.entries(dayOffsets).forEach(([key, offset]) => {
+            if (dateStr === formatDate(getRelativeDate(offset))) {
+                dayButtons.filter(`[data-day="${key}"]`).addClass("active");
+            }
+        });
+    };
 
-if (tripFinderDate.length) {
-    datePicker = flatpickr(tripFinderDate[0], {
-        locale: "tr",
-        defaultDate: new Date(),
-        altInput: true,
-        altFormat: "d F Y",
-        onChange: (_, dateStr) => {
-            updateActiveDayButton(dateStr);
-        },
-    });
+    let datePicker;
 
-    updateActiveDayButton(datePicker.input.value);
+    if (tripFinderDate.length) {
+        datePicker = flatpickr(tripFinderDate[0], {
+            locale: "tr",
+            defaultDate: new Date(),
+            altInput: true,
+            altFormat: "d F Y",
+            onChange: (_, dateStr) => {
+                updateActiveDayButton(dateStr);
+            },
+        });
 
-    tripFinderDate.on("change", () => {
-        updateActiveDayButton(tripFinderDate.val());
-    });
-}
+        updateActiveDayButton(datePicker.input.value);
 
-dayButtons.on("click", function () {
-    if (!datePicker) {
-        return;
+        tripFinderDate.on("change", () => {
+            updateActiveDayButton(tripFinderDate.val());
+        });
     }
 
-    const dayKey = $(this).data("day");
-    const offset = dayOffsets[dayKey];
+    dayButtons.on("click", function () {
+        if (!datePicker) {
+            return;
+        }
 
-    if (offset === undefined) {
-        return;
-    }
+        const dayKey = $(this).data("day");
+        const offset = dayOffsets[dayKey];
 
-    const targetDate = getRelativeDate(offset);
-    datePicker.setDate(targetDate, true);
-});
+        if (offset === undefined) {
+            return;
+        }
 
-$(".trip-finder_search-button").off();
-$(".trip-finder_search-button").on("click", async e => {
-    const fromId = $(".trip-finder_from").val();
-    const toId = $(".trip-finder_to").val();
-    const date = tripFinderDate.val();
-    const url = `/trips/${fromId}-${toId}/${date}`;
-    window.location.href = url;
-});
+        const targetDate = getRelativeDate(offset);
+        datePicker.setDate(targetDate, true);
+    });
+
+    const searchButton = $(".trip-finder_search-button");
+    searchButton.off("click");
+    searchButton.on("click", () => {
+        const fromId = $(".trip-finder_from").val();
+        const toId = $(".trip-finder_to").val();
+        const date = tripFinderDate.val();
+
+        if (!fromId || !toId || !date) {
+            return;
+        }
+
+        const url = `/trips/${fromId}-${toId}/${date}`;
+        window.location.href = url;
+    });
+})();
