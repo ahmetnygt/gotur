@@ -62,6 +62,11 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session?.user ?? null;
+  next();
+});
+
 // ✅ ortak modelleri request'e ekle
 app.use((req, res, next) => {
   req.commonModels = initGoturModels();
