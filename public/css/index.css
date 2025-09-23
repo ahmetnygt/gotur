@@ -37,6 +37,34 @@
     color: #2660ff9c;
 }
 
+.trip-finder_date-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trip-finder_day-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.trip-finder_day-button {
+    border: 1px solid #2660ff9c;
+    border-radius: 5px;
+    background-color: white;
+    color: #2660ff;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.3rem 0.75rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.trip-finder_day-button:hover,
+.trip-finder_day-button.active {
+    background-color: #2660ff;
+    color: white;
+}
+
 .trip-finder_to,
 .trip-finder_from,
 .trip-finder_date {
