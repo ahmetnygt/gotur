@@ -1,6 +1,3 @@
-$(".trip-finder_from").select2()
-$(".trip-finder_to").select2()
-
 const tripFinderDate = $(".trip-finder_date")
 flatpickr(tripFinderDate, {
     locale: "tr",

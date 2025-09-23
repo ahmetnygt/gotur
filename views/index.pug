@@ -1,39 +1,54 @@
-extends layout
+<!DOCTYPE html>
+html
+  head
+    title= title
+    link(rel='stylesheet' href='/flatpickr/dist/flatpickr.min.css')
+    link(rel='stylesheet' href='/select2/dist/css/select2.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css')
+    link(rel='stylesheet' href='/css/style.css')
+    link(rel='stylesheet' href='/css/index.css')
+  body
+    .gtr-header
+      .d-flex.justify-content-between
+        a.navbar-brand(href="/")
+          img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
+        .d-flex.gap-3.align-items-center
+          a.gtr-link 
+            i.fa-solid.fa-magnifying-glass.me-1
+            |Biletimi Bul
+          a.gtr-link 
+            i.fa-solid.fa-user-check.me-1
+            |Giriş Yap
+          a.gtr-link 
+            i.fa-solid.fa-user-plus.me-1
+            |Kayıt Ol
+      .trip-finder.border
+        .trip-finder_selects
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-bus-side.me-1
+              span Nereden?
+            input.trip-finder_from(value="" type="text" placeholder="Kalkış Seçin")
+          span.trip-finder_change
+            i.fa-solid.fa-arrow-right-arrow-left
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-bus-side.me-1
+              span Nereye?
+            input.trip-finder_to(value="" type="text" placeholder="Varış Seçin")
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-calendar.me-1
+              span Ne Zaman?
+            input.trip-finder_date(type="text")
+          button.trip-finder_search-button ARA
 
-block css
-  link(rel='stylesheet' href='/css/index.css')
-block content
-  .position-relative(style="height:30vh;margin-top:1rem;")
-    .h-50(style="background-color:#2660ff")
-    .trip-finder.border
-      select.trip-finder_from.form-select(value="")
-        option(value="" disabled selected) Kalkış Seçiniz
-        option(value="17000") Çanakkale
-        option(value="17500") Gelibolu
-        option(value="17900") Eceabat
-        option(value="22800") Keşan
-        option(value="34000") İstanbul
-        option(value="34220") Esenler
-        option(value="34520") Beylikdüzü
-        option(value="34710") Kadıköy
-        option(value="59000") Tekirdağ
-        option(value="59300") Malkara
-        option(value="59740") Marmaraereğlisi
-      select.trip-finder_to.form-select(value="")
-        option(value="" disabled selected) Varış Seçiniz
-        option(value="17000") Çanakkale
-        option(value="17500") Gelibolu
-        option(value="17900") Eceabat
-        option(value="22800") Keşan
-        option(value="34000") İstanbul
-        option(value="34220") Esenler
-        option(value="34520") Beylikdüzü
-        option(value="34710") Kadıköy
-        option(value="59000") Tekirdağ
-        option(value="59300") Malkara
-        option(value="59740") Marmaraereğlisi
-      input.trip-finder_date.gtr-input(type="text")
-      button.trip-finder_search-button.btn.btn-outline-primary.w-100 ARA
-
-block scripts
+  script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
+  script(src="https://code.jquery.com/jquery-3.7.1.min.js")
+  script(src="/select2/dist/js/select2.min.js")
+  script(src="/flatpickr/dist/flatpickr.min.js")
+  script(src="/flatpickr/dist/l10n/tr.js")
   script(src="/js/index.js")

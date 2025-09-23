@@ -154,20 +154,3 @@ a.gtr-link:active {
   padding-left: .5rem !important;
   line-height: 2.75rem !important;
 }
-
-.select2-container .select2-selection {
-  border: 2px solid #2660ff !important;
-  border-radius: 5px !important;
-  height: 3rem !important;
-}
-
-.select2-container .select2-selection__rendered {
-  color: #333 !important;
-  font-size: 1rem !important;
-  padding-left: .5rem !important;
-  line-height: 2.75rem !important;
-}
-
-.select2-container .select2-selection__arrow {
-  display: none !important;
-}

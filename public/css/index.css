@@ -1,12 +1,75 @@
+.gtr-header {
+    height: 50vh;
+    width: 100%;
+    background-image:
+        linear-gradient(180deg, #2660ff, #2660ff00),
+        url('../images/bus.jpeg');
+    background-size: cover;
+    /* taşıp kırpsın */
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 1rem 3rem;
+    color: white;
+    position: relative;
+}
+
 .trip-finder {
     position: absolute;
-    top: 50%;
+    top: 65%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
     padding: 1rem;
-    width: 50vw;
+    /* width: 70vw; */
+    height: 15vh;
     display: flex;
     gap: 2rem;
     border-radius: 1rem;
+}
+
+.trip-finder input {
+    height: 70%;
+}
+
+.trip-finder_selects {
+    gap: 1rem;
+    display: flex;
+    color: #2660ff9c;
+}
+
+.trip-finder_to,
+.trip-finder_from,
+.trip-finder_date {
+    border-radius: 5px;
+    border: 2px solid #2660ff9c;
+}
+
+.trip-finder_change {
+    display: flex;
+    align-items: center;
+}
+
+.trip-finder_change svg:hover {
+    color: #2660ff9c;
+    border-color: #2660ff9c;
+}
+
+.trip-finder_change svg {
+    border: 2px solid #2660ff;
+    cursor: pointer;
+    color: #2660ff;
+    padding: .5rem;
+    height: 1rem;
+    border-radius: 50%;
+    width: 1rem;
+    margin-top: .5rem;
+}
+
+.trip-finder_search-button {
+    border: 2px solid #2660ff;
+    border-radius: 5px;
+    color: #2660ff;
+    width: 10rem;
+    background-color: white;
+    margin-top: .5rem;
 }
