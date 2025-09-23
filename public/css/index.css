@@ -27,8 +27,12 @@
     border-radius: 1rem;
 }
 
-.trip-finder input {
+.trip-finder input,
+.place-select {
     height: 70%;
+}
+.place-select_display{
+    height: 100%;
 }
 
 .trip-finder_selects {

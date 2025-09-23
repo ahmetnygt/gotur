@@ -123,7 +123,8 @@ body {
   color: #313131;
 }
 
-.gtr-header img,.gtr-header-invert img {
+.gtr-header img,
+.gtr-header-invert img {
   width: 10vw;
 }
 
@@ -145,7 +146,7 @@ a.gtr-link:active {
   transform: scale(0.95);
 }
 
-.gtr-input{
+.gtr-input {
   border: 2px solid #2660ff !important;
   border-radius: 5px !important;
   height: 3rem !important;
@@ -153,4 +154,9 @@ a.gtr-link:active {
   font-size: 1rem !important;
   padding-left: .5rem !important;
   line-height: 2.75rem !important;
+}
+
+.gtr-modal-header {
+  background-color: #2660ff;
+  color: white;
 }

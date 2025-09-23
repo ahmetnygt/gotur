@@ -3,7 +3,7 @@ mixin authModals()
   .modal.fade#loginModal(tabindex='-1' aria-labelledby='loginModalLabel' aria-hidden='true')
     .modal-dialog.modal-dialog-centered
       .modal-content
-        .modal-header
+        .modal-header.gtr-modal-header
           h5#loginModalLabel.modal-title Giriş Yap
           button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
         .modal-body
@@ -23,7 +23,7 @@ mixin authModals()
   .modal.fade#registerModal(tabindex='-1' aria-labelledby='registerModalLabel' aria-hidden='true')
     .modal-dialog.modal-dialog-centered
       .modal-content
-        .modal-header
+        .modal-header.gtr-modal-header
           h5#registerModalLabel.modal-title Kayıt Ol
           button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
         .modal-body
