@@ -1,4 +1,4 @@
-const { goturDB } = require("./goturDB");
+const { goturDB } = require("./goturDb");
 const FirmFactory = require("../models/firmModel");
 
 const Firm = FirmFactory(goturDB);

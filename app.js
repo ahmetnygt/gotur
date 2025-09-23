@@ -8,7 +8,7 @@ var logger = require("morgan");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
-const { goturDB, initGoturModels } = require("./utilities/goturDB");
+const { goturDB, initGoturModels } = require("./utilities/goturDb");
 const { loadTenants } = require("./utilities/tenantCatalog");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
