@@ -1,0 +1,43 @@
+mixin authModals()
+  //- Login Modal
+  .modal.fade#loginModal(tabindex='-1' aria-labelledby='loginModalLabel' aria-hidden='true')
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5#loginModalLabel.modal-title Giriş Yap
+          button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
+        .modal-body
+          form
+            .mb-3
+              label.form-label(for='login-identifier') E-posta veya Telefon Numarası
+              input#login-identifier.form-control(type='text' placeholder='E-posta veya telefon numarası')
+            .mb-3
+              label.form-label(for='login-password') Şifre
+              input#login-password.form-control(type='password' placeholder='Şifrenizi girin')
+            button.btn.btn-primary.w-100(type='submit') Giriş Yap
+        .modal-footer.justify-content-center
+          span.text-muted.small Hesabınız yok mu?
+          button.btn.btn-link.p-0.ms-1(type='button' data-bs-target='#registerModal' data-bs-toggle='modal' data-bs-dismiss='modal') Kayıt Ol
+
+  //- Register Modal
+  .modal.fade#registerModal(tabindex='-1' aria-labelledby='registerModalLabel' aria-hidden='true')
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5#registerModalLabel.modal-title Kayıt Ol
+          button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
+        .modal-body
+          form
+            .mb-3
+              label.form-label(for='register-identifier') E-posta veya Telefon Numarası
+              input#register-identifier.form-control(type='text' placeholder='E-posta veya telefon numarası')
+            .mb-3
+              label.form-label(for='register-password') Şifre
+              input#register-password.form-control(type='password' placeholder='Şifrenizi girin')
+            .mb-3
+              label.form-label(for='register-password-confirm') Şifre Tekrarı
+              input#register-password-confirm.form-control(type='password' placeholder='Şifrenizi tekrar girin')
+            button.btn.btn-primary.w-100(type='submit') Kayıt Ol
+        .modal-footer.justify-content-center
+          span.text-muted.small Zaten hesabınız var mı?
+          button.btn.btn-link.p-0.ms-1(type='button' data-bs-target='#loginModal' data-bs-toggle='modal' data-bs-dismiss='modal') Giriş Yap
