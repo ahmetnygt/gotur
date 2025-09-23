@@ -7,13 +7,16 @@ mixin authModals()
           h5#loginModalLabel.modal-title Giriş Yap
           button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
         .modal-body
-          form
+          .alert.alert-danger.d-none(role='alert' data-error-target='login')
+          form#loginForm(novalidate)
             .mb-3
               label.form-label(for='login-identifier') E-posta veya Telefon Numarası
-              input#login-identifier.form-control(type='text' placeholder='E-posta veya telefon numarası')
+              input#login-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
+              .invalid-feedback
             .mb-3
               label.form-label(for='login-password') Şifre
-              input#login-password.form-control(type='password' placeholder='Şifrenizi girin')
+              input#login-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='current-password')
+              .invalid-feedback
             button.btn.btn-primary.w-100(type='submit') Giriş Yap
         .modal-footer.justify-content-center
           span.text-muted.small Hesabınız yok mu?
@@ -27,16 +30,20 @@ mixin authModals()
           h5#registerModalLabel.modal-title Kayıt Ol
           button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
         .modal-body
-          form
+          .alert.alert-danger.d-none(role='alert' data-error-target='register')
+          form#registerForm(novalidate)
             .mb-3
               label.form-label(for='register-identifier') E-posta veya Telefon Numarası
-              input#register-identifier.form-control(type='text' placeholder='E-posta veya telefon numarası')
+              input#register-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
+              .invalid-feedback
             .mb-3
               label.form-label(for='register-password') Şifre
-              input#register-password.form-control(type='password' placeholder='Şifrenizi girin')
+              input#register-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='new-password')
+              .invalid-feedback
             .mb-3
               label.form-label(for='register-password-confirm') Şifre Tekrarı
-              input#register-password-confirm.form-control(type='password' placeholder='Şifrenizi tekrar girin')
+              input#register-password-confirm.form-control(type='password' name='passwordConfirm' placeholder='Şifrenizi tekrar girin' autocomplete='new-password')
+              .invalid-feedback
             button.btn.btn-primary.w-100(type='submit') Kayıt Ol
         .modal-footer.justify-content-center
           span.text-muted.small Zaten hesabınız var mı?

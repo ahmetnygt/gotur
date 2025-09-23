@@ -18,19 +18,27 @@ html
     link(rel='stylesheet' href='/css/place-select.css')
   body
     .gtr-header
+      - const displayName = currentUser ? [currentUser.name, currentUser.surname].filter(Boolean).join(' ') || currentUser.email || currentUser.phoneNumber : ''
       .d-flex.justify-content-between
         a.navbar-brand(href="/")
           img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
         .d-flex.gap-3.align-items-center
-          a.gtr-link 
+          a.gtr-link
             i.fa-solid.fa-magnifying-glass.me-1
             |Biletimi Bul
-          a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#loginModal')
-            i.fa-solid.fa-user-check.me-1
-            |Giriş Yap
-          a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#registerModal')
-            i.fa-solid.fa-user-plus.me-1
-            |Kayıt Ol
+          if currentUser
+            if displayName
+              span.text-white.fw-semibold.d-none.d-sm-inline Merhaba, #{displayName}
+            a.gtr-link#logoutButton(href='#' role='button')
+              i.fa-solid.fa-right-from-bracket.me-1
+              |Çıkış Yap
+          else
+            a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#loginModal')
+              i.fa-solid.fa-user-check.me-1
+              |Giriş Yap
+            a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#registerModal')
+              i.fa-solid.fa-user-plus.me-1
+              |Kayıt Ol
       - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
       - const toValue = typeof toId !== 'undefined' ? toId : '';
       p Türkiye'nin En Yeni Online Yazıhanesi
@@ -73,7 +81,8 @@ html
             button(type='button').trip-finder_day-button(data-day='today') Bugün
             button(type='button').trip-finder_day-button(data-day='tomorrow') Yarın
           button.trip-finder_search-button ARA
-    +authModals()
+    if !currentUser
+      +authModals()
     .d-flex.gap-3
       .d-flex.flex-column.border
         p Çözümcü Online Destek
@@ -85,7 +94,6 @@ html
         p İşlem Kolaylığı
       .d-flex.flex-column.border
         p Kullanıcı Dostu Kampanyalar
-
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
