@@ -33,7 +33,7 @@ mixin placeSelect(options)
       inputClassParts.push(inputAttrs.class);
     }
     inputAttrs.class = inputClassParts.join(' ');
-  .attributes(rootAttrs)
+  div(&attributes(rootAttrs))
     input(&attributes(inputAttrs))
     .place-select_display(tabindex='0' role='button' aria-expanded='false' aria-haspopup='listbox')
       span.place-select_label #{labelText}
