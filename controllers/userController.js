@@ -207,5 +207,5 @@ exports.logout = (req, res) => {
 
 exports.myAccount = (req, res, next) => {
     const currentUser = req.session.user
-    res.render("user", { user: currentUser });
+    res.render("user", { user: currentUser,title:"Götür | Hesabım" });
 }

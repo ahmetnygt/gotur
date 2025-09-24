@@ -238,8 +238,10 @@ exports.searchAllTrips = async (req, res) => {
         // Tüm firmaların sonuçlarını birleştir
         const mergedTrips = results.flatMap((r) => r.result || []);
 
+        const places = await req.commonModels.Place.findAll({ where: { id: { [Op.in]: [fromId, toId] } } })
+        const title = `Götür | ${places.find(p => p.id == fromId).title}-${places.find(p => p.id == toId).title}`
         // 👉 Şablon render edebilirsin:
-        res.render("trips", { trips: mergedTrips, fromId, toId, date });
+        res.render("trips", { trips: mergedTrips, fromId, toId, date, title });
 
         // 👉 veya JSON API olarak dönebilirsin:
         // res.json({ count: mergedTrips.length, trips: mergedTrips });
