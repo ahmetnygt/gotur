@@ -1,10 +1,32 @@
 var express = require('express');
 var router = express.Router();
 const tripController = require("../controllers/tripController")
+const { fetchRandomRouteSuggestions } = require("../utilities/randomRouteSuggestions");
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: "Götür | Türkiye'nin en yeni biletçisi" });
+router.get('/', async function (req, res) {
+  let promoRoutes = [];
+
+  try {
+    if (req.app?.locals?.waitForTenants) {
+      await req.app.locals.waitForTenants();
+    }
+
+    const Place = req.commonModels?.Place;
+    if (Place) {
+      promoRoutes = await fetchRandomRouteSuggestions({
+        Place,
+        count: 6,
+      });
+    }
+  } catch (error) {
+    console.error("Anasayfa rota önerileri alınırken hata oluştu:", error);
+  }
+
+  res.render('index', {
+    title: "Götür | Türkiye'nin en yeni biletçisi",
+    promoRoutes,
+  });
 });
 
 router.get('/api/places', async (req, res) => {

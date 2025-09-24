@@ -138,3 +138,14 @@
 .attributes_icon {
     height: 15vh;
 }
+
+.attribute-routes {
+    border: 2px solid #2660ff1a;
+    border-radius: 5px;
+    padding: 1.5rem;
+    background-color: #f7f9ff;
+}
+
+.attribute-routes li + li {
+    margin-top: 0.35rem;
+}
