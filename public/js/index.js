@@ -246,7 +246,7 @@
             try {
                 setSubmitting(loginForm, true);
 
-                const response = await fetch("/users/login", {
+                const response = await fetch("/user/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -331,7 +331,7 @@
             try {
                 setSubmitting(registerForm, true);
 
-                const response = await fetch("/users/register", {
+                const response = await fetch("/user/register", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -385,7 +385,7 @@
             logoutButton.setAttribute("aria-disabled", "true");
 
             try {
-                const response = await fetch("/users/logout", {
+                const response = await fetch("/user/logout", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -406,5 +406,14 @@
                 logoutButton.removeAttribute("aria-disabled");
             }
         });
+    }
+
+    const $myAccount = $("#myAccount")
+
+    if ($myAccount) {
+        $myAccount.off().on("click", () => {
+            const url = `/user`;
+            window.location.href = url;
+        })
     }
 })();

@@ -204,3 +204,8 @@ exports.logout = (req, res) => {
             .json({ success: false, message: "Çıkış yapılırken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin." });
     }
 };
+
+exports.myAccount = (req, res, next) => {
+    const currentUser = req.session.user
+    res.render("user", { user: currentUser });
+}

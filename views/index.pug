@@ -18,17 +18,20 @@ html
     link(rel='stylesheet' href='/css/place-select.css')
   body
     .gtr-header
-      - const displayName = currentUser ? [currentUser.name, currentUser.surname].filter(Boolean).join(' ') || currentUser.email || currentUser.phoneNumber : ''
       .d-flex.justify-content-between
         a.navbar-brand(href="/")
           img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
         .d-flex.gap-3.align-items-center
-          a.gtr-link
+          a.gtr-link#findMyTicket
             i.fa-solid.fa-magnifying-glass.me-1
             |Biletimi Bul
           if currentUser
-            if displayName
-              span.text-white.fw-semibold.d-none.d-sm-inline Merhaba, #{displayName}
+            a.gtr-link#myTrips(href='#' role='button')
+              i.fa-solid.fa-road.me-1
+              |Seyahatlerim
+            a.gtr-link#myAccount(href='#' role='button')
+              i.fa-solid.fa-user.me-1
+              |Hesabım
             a.gtr-link#logoutButton(href='#' role='button')
               i.fa-solid.fa-right-from-bracket.me-1
               |Çıkış Yap
@@ -83,17 +86,28 @@ html
           button.trip-finder_search-button ARA
     if !currentUser
       +authModals()
-    .d-flex.gap-3
-      .d-flex.flex-column.border
-        p Çözümcü Online Destek
-      .d-flex.flex-column.border
-        p Güvenli Ödeme
-      .d-flex.flex-column.border
-        p Avantajlı Bilet
-      .d-flex.flex-column.border
-        p İşlem Kolaylığı
-      .d-flex.flex-column.border
-        p Kullanıcı Dostu Kampanyalar
+    .container
+      .d-flex.gap-3.mt-4
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Çözümcü Online Destek")
+          h4 Çözümcü Online Destek
+          p Seyahatinizle ilgili her konuda yanınızdayız. Online destek ekibimiz bilet alımında, iptal ya da değişiklik işlemlerinde size hızlı ve çözüm odaklı şekilde yardımcı olur. Rahat edin, biz buradayız.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Güvenli Ödeme")
+          h4 Güvenli Ödeme
+          p Ödemeleriniz en gelişmiş güvenlik sistemleriyle korunur. Hızlı, kolay ve güvenli ödeme seçeneklerimiz sayesinde siz sadece yolculuğunuzu düşünün, gerisini biz hallederiz.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Avantajlı Bilet")
+          h4 Avantajlı Bilet
+          p Seyahat ederken cebinizi düşünüyoruz. Bütçenize uygun ve avantajlı biletleri kolayca bulabilir, en hesaplı seçeneklerle keyifli yolculuk yapabilirsiniz.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/hand_icon.svg" alt="İşlem Kolaylığı")
+          h4 İşlem Kolaylığı
+          p Karmaşık adımlara gerek yok! Kullanıcı dostu sistemimizle biletinizi sorgulamak, karşılaştırmak ve satın almak sadece birkaç dakikanızı alır. Nerede olursanız olun, işlemleriniz çok kolay.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="Kullanıcı Dostu Kampanyalar")
+          h4 Kullanıcı Dostu Kampanyalar
+          p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")

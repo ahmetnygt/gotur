@@ -21,15 +21,27 @@ html
         a.navbar-brand(href="/")
           img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
         .d-flex.gap-3.align-items-center
-          a.gtr-link
+          a.gtr-link#findMyTicket
             i.fa-solid.fa-magnifying-glass.me-1
             |Biletimi Bul
-          a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#loginModal')
-            i.fa-solid.fa-user-check.me-1
-            |Giriş Yap
-          a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#registerModal')
-            i.fa-solid.fa-user-plus.me-1
-            |Kayıt Ol
+          if currentUser
+            a.gtr-link#myTrips(href='#' role='button')
+              i.fa-solid.fa-road.me-1
+              |Seyahatlerim
+            a.gtr-link#myAccount(href='#' role='button')
+              i.fa-solid.fa-user.me-1
+              |Hesabım
+            a.gtr-link#logoutButton(href='#' role='button')
+              i.fa-solid.fa-right-from-bracket.me-1
+              |Çıkış Yap
+          else
+            a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#loginModal')
+              i.fa-solid.fa-user-check.me-1
+              |Giriş Yap
+            a.gtr-link(href='javascript:void(0)' role='button' data-bs-toggle='modal' data-bs-target='#registerModal')
+              i.fa-solid.fa-user-plus.me-1
+              |Kayıt Ol
+      p Türkiye'nin En Yeni Online Yazıhanesi
       block headerContent
 
 
