@@ -3,6 +3,7 @@
     const elementToInstance = new WeakMap();
     let cachedPlaces = null;
     let placesPromise = null;
+    const staticOptionsCache = new Map();
 
     const toLocaleLower = value => {
         if (typeof value !== "string") {
@@ -15,6 +16,118 @@
             return value.toLowerCase();
         }
     };
+
+    const parseStaticJson = text => {
+        if (typeof text !== "string") {
+            return [];
+        }
+
+        const trimmed = text.trim();
+        if (!trimmed) {
+            return [];
+        }
+
+        try {
+            const parsed = JSON.parse(trimmed);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            console.error("Statik seçenekler çözümlenemedi:", error);
+            return [];
+        }
+    };
+
+    const normalizeStaticOptions = options => {
+        if (!Array.isArray(options)) {
+            return [];
+        }
+
+        const normalized = options
+            .map(option => {
+                if (!option || typeof option !== "object") {
+                    return null;
+                }
+
+                const rawValue =
+                    option.value !== undefined
+                        ? option.value
+                        : option.id !== undefined
+                        ? option.id
+                        : option.code !== undefined
+                        ? option.code
+                        : null;
+
+                const value = rawValue != null ? String(rawValue).trim() : "";
+                const baseLabel =
+                    option.displayLabel ||
+                    option.label ||
+                    option.name ||
+                    option.title ||
+                    "";
+                const label = baseLabel ? String(baseLabel).trim() : "";
+
+                if (!value || !label) {
+                    return null;
+                }
+
+                const displayTitle = option.displayLabel
+                    ? String(option.displayLabel)
+                    : label;
+
+                const searchSource =
+                    typeof option.searchText === "string" && option.searchText
+                        ? option.searchText
+                        : `${label} ${value}`;
+
+                return Object.freeze({
+                    id: String(value),
+                    displayTitle,
+                    searchText: toLocaleLower(searchSource),
+                });
+            })
+            .filter(Boolean);
+
+        return Object.freeze(normalized);
+    };
+
+    const getStaticOptionsForElement = element => {
+        if (!element || !element.dataset) {
+            return [];
+        }
+
+        const { optionsId, options } = element.dataset;
+
+        if (optionsId) {
+            if (staticOptionsCache.has(optionsId)) {
+                return staticOptionsCache.get(optionsId);
+            }
+
+            const sourceElement = document.getElementById(optionsId);
+            if (!sourceElement) {
+                const empty = Object.freeze([]);
+                staticOptionsCache.set(optionsId, empty);
+                return empty;
+            }
+
+            const rawText =
+                sourceElement.textContent || sourceElement.innerText || "";
+            const normalized = normalizeStaticOptions(parseStaticJson(rawText));
+            staticOptionsCache.set(optionsId, normalized);
+            return normalized;
+        }
+
+        if (options) {
+            return normalizeStaticOptions(parseStaticJson(options));
+        }
+
+        return [];
+    };
+
+    const elementUsesStaticOptions = element =>
+        Boolean(
+            element &&
+                element.dataset &&
+                (element.dataset.optionsId || element.dataset.options)
+        );
 
     const enhancePlaces = rawPlaces => {
         const placeMap = new Map(
@@ -493,19 +606,46 @@
             return [];
         }
 
-        let places;
-        try {
-            places = await loadPlaces();
-        } catch (error) {
-            return [];
-        }
+        const staticElements = elements.filter(elementUsesStaticOptions);
+        const dynamicElements = elements.filter(
+            element => !elementUsesStaticOptions(element)
+        );
 
-        const created = elements.map(element => {
-            const instance = new PlaceSelect(element, places);
-            elementToInstance.set(element, instance);
-            instances.add(instance);
-            return instance;
+        const created = [];
+
+        staticElements.forEach(element => {
+            try {
+                const staticOptions = getStaticOptionsForElement(element);
+                const instance = new PlaceSelect(element, staticOptions);
+                instance.isStatic = true;
+                elementToInstance.set(element, instance);
+                instances.add(instance);
+                created.push(instance);
+            } catch (error) {
+                console.error("Statik yer seçici başlatılamadı:", error);
+            }
         });
+
+        if (dynamicElements.length) {
+            let places = [];
+            try {
+                places = await loadPlaces();
+            } catch (error) {
+                console.error("Yerler yüklenirken hata oluştu:", error);
+            }
+
+            dynamicElements.forEach(element => {
+                try {
+                    const instance = new PlaceSelect(element, places);
+                    instance.isStatic = false;
+                    elementToInstance.set(element, instance);
+                    instances.add(instance);
+                    created.push(instance);
+                } catch (error) {
+                    console.error("Yer seçici başlatılamadı:", error);
+                }
+            });
+        }
 
         return created;
     };
@@ -567,7 +707,12 @@
         refreshPlaces: async () => {
             cachedPlaces = null;
             const places = await loadPlaces();
-            instances.forEach(instance => instance.setPlaces(places));
+            instances.forEach(instance => {
+                if (!instance || instance.isStatic) {
+                    return;
+                }
+                instance.setPlaces(places);
+            });
             return places;
         },
         loadPlaces: async () => {

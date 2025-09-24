@@ -1,3 +1,4 @@
+include ../components/place-select
 extends ../layout
 
 block css
@@ -48,8 +49,24 @@ block content
                   option(value=option.value selected=info.gender === option.value) #{option.label}
               .invalid-feedback#gender-feedback
             .col-md-6
+              - const selectedNationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === info.nationality) : null
+              - const nationalityLabel = selectedNationalityOption ? selectedNationalityOption.displayLabel : null
               label.form-label(for='nationality') Uyruk
-              input#nationality.form-control(type='text' name='nationality' value=info.nationality placeholder='Türkiye')
+              +placeSelect({
+                placeholder: 'Uyruk seçin',
+                searchPlaceholder: 'Ülke ara...',
+                label: nationalityLabel || undefined,
+                attrs: {
+                  id: 'nationality-select',
+                  'data-options-id': 'country-options'
+                },
+                input: {
+                  id: 'nationality',
+                  name: 'nationality',
+                  value: info.nationality || '',
+                  'aria-describedby': 'nationality-feedback'
+                }
+              })
               .invalid-feedback#nationality-feedback
             .col-md-6
               label.form-label(for='customerType') Yolcu Tipi
@@ -86,5 +103,6 @@ block content
             button.btn.btn-outline-primary(type='submit') Şifremi Güncelle
 
 block scripts
+  script(type='application/json' id='country-options')!= JSON.stringify(countryOptions || [])
   script(src='/js/personal-information.js')
 

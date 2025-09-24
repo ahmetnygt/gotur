@@ -1,6 +1,10 @@
 const { Op } = require("sequelize");
 const { runForAllTenants } = require("../utilities/runAllTenants");
 const { getTenantConnection } = require("../utilities/tenantDb");
+const {
+    COUNTRY_OPTIONS,
+    COUNTRY_CODE_SET,
+} = require("../utilities/countryOptions");
 
 function addTime(baseTime, addTime) {
     const [h1, m1, s1] = baseTime.split(":").map(Number);
@@ -410,7 +414,7 @@ exports.createTicketPayment = async (req, res) => {
                 surname: null,
                 phoneNumber: null,
                 gender: normalisedGenders[index],
-                nationality: "tr",
+                nationality: "TR",
                 customerType: null,
                 customerCategory: null,
                 fromRouteStopId: numericFromStopId,
@@ -461,6 +465,7 @@ exports.renderPaymentPage = async (req, res) => {
                 seatDetails: [],
                 passengerInputs: [],
                 error: "Ödeme isteği bulunamadı.",
+                countryOptions: COUNTRY_OPTIONS,
             });
         }
 
@@ -486,6 +491,7 @@ exports.renderPaymentPage = async (req, res) => {
                 {}
             ),
             error: null,
+            countryOptions: COUNTRY_OPTIONS,
         });
     } catch (error) {
         console.error("renderPaymentPage hata:", error);
@@ -495,6 +501,7 @@ exports.renderPaymentPage = async (req, res) => {
             seatDetails: [],
             passengerInputs: [],
             error: "Ödeme bilgileri yüklenemedi.",
+            countryOptions: COUNTRY_OPTIONS,
         });
     }
 };
@@ -515,6 +522,7 @@ exports.completePayment = async (req, res) => {
                 seatDetails: [],
                 passengerInputs: [],
                 error: "Ödeme isteği bulunamadı.",
+                countryOptions: COUNTRY_OPTIONS,
             });
         }
 
@@ -552,6 +560,7 @@ exports.completePayment = async (req, res) => {
                 totalPrice: viewData.totalPrice,
                 passengerInputs,
                 error: "Lütfen tüm yolcu bilgilerini doldurun.",
+                countryOptions: COUNTRY_OPTIONS,
             });
         }
 
@@ -636,7 +645,11 @@ exports.completePayment = async (req, res) => {
                         surname: passengerInputs[i].surname,
                         phoneNumber: passengerInputs[i].phoneNumber,
                         gender: viewData.seatDetails[i].gender,
-                        nationality: passengerInputs[i].nationality || "tr",
+                        nationality: COUNTRY_CODE_SET.has(
+                            passengerInputs[i].nationality
+                        )
+                            ? passengerInputs[i].nationality
+                            : "TR",
                         customerType: "adult",
                         customerCategory: "normal",
                         fromRouteStopId: ticketPayment.fromStopId,
@@ -699,6 +712,7 @@ exports.completePayment = async (req, res) => {
                 error && error.message
                     ? error.message
                     : "Ödeme tamamlanırken bir hata oluştu.",
+            countryOptions: COUNTRY_OPTIONS,
         });
     }
 };
@@ -807,19 +821,29 @@ function buildPassengerInputsFromBody(seatDetails, body = {}) {
     const phoneNumbers = normaliseBodyArray(body.phoneNumbers);
     const nationalities = normaliseBodyArray(body.nationalities);
 
-    return seatDetails.map((seat, index) => ({
-        seatNumber: seat.seatNumber,
-        gender: seat.gender,
-        name: names[index] ? String(names[index]).trim() : "",
-        surname: surnames[index] ? String(surnames[index]).trim() : "",
-        idNumber: idNumbers[index] ? String(idNumbers[index]).trim() : "",
-        phoneNumber: phoneNumbers[index]
-            ? String(phoneNumbers[index]).trim()
-            : "",
-        nationality: nationalities[index]
-            ? String(nationalities[index]).trim() || "TR"
-            : "TR",
-    }));
+    return seatDetails.map((seat, index) => {
+        const rawNationality = nationalities[index]
+            ? String(nationalities[index]).trim()
+            : "";
+        const normalizedNationality = rawNationality
+            ? rawNationality.toUpperCase()
+            : "TR";
+        const safeNationality = COUNTRY_CODE_SET.has(normalizedNationality)
+            ? normalizedNationality
+            : "TR";
+
+        return {
+            seatNumber: seat.seatNumber,
+            gender: seat.gender,
+            name: names[index] ? String(names[index]).trim() : "",
+            surname: surnames[index] ? String(surnames[index]).trim() : "",
+            idNumber: idNumbers[index] ? String(idNumbers[index]).trim() : "",
+            phoneNumber: phoneNumbers[index]
+                ? String(phoneNumbers[index]).trim()
+                : "",
+            nationality: safeNationality,
+        };
+    });
 }
 
 async function resolveTicketPaymentContext(req, ticketPaymentId) {
