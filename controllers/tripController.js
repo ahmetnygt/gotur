@@ -8,17 +8,13 @@ const {
 
 const BUS_FEATURE_MAPPINGS = [
     { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
-    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "İkram" },
-    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Girişi" },
     { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Ekran" },
-    {
-        key: "hasComfortableSeat",
-        icon: "/svg/sofa_icon.svg",
-        label: "Konforlu Koltuk",
-    },
-    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Buzdolabı" },
+    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "İkram" },
     { key: "hasWifi", icon: "/svg/wifi_icon.svg", label: "Wi-Fi" },
     { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Yastık" },
+    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Girişi" },
+    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Buzdolabı" },
+    { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Konforlu Koltuk", },
 ];
 
 function addTime(baseTime, addTime) {
@@ -156,9 +152,9 @@ exports.searchAllTrips = async (req, res) => {
 
             const buses = busIds.length
                 ? await Bus.findAll({
-                      where: { id: { [Op.in]: [...new Set(busIds)] } },
-                      raw: true,
-                  })
+                    where: { id: { [Op.in]: [...new Set(busIds)] } },
+                    raw: true,
+                })
                 : [];
 
             const busMap = new Map(

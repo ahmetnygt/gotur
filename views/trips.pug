@@ -133,6 +133,13 @@ block content
                 span #{t.fullness}
               button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
             .trip_content
+              .trip_info.p-1
+                if Array.isArray(t.busFeatures) && t.busFeatures.length
+                  .trip_features.d-flex.justify-content-evenly
+                    each feature in t.busFeatures
+                      .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
+                        img(src=feature.icon alt=feature.label)
+                        span=feature.label
               .d-flex
                 .trip_seat-plan
                   - const planBinary = t.busPlanBinary
@@ -164,13 +171,6 @@ block content
                         -index++;
                       -}
                   -}
-                .trip_info.p-1
-                  if Array.isArray(t.busFeatures) && t.busFeatures.length
-                    .trip_features
-                      each feature in t.busFeatures
-                        .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
-                          img(src=feature.icon alt=feature.label)
-                          span=feature.label
                   button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
     p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Uygun sefer bulunamadı.
 
