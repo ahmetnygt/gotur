@@ -5,8 +5,8 @@
 .account-page .account-section {
   background-color: #ffffff;
   border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 12px 30px rgba(20, 33, 60, 0.08);
+  border: 2px solid #2660ff9c;
+  box-shadow: 0 12px 30px #2660ff9c;
   padding: 2.5rem;
 }
 
@@ -61,7 +61,7 @@
   border-radius: 0.75rem;
 }
 
-.account-form .alert + .alert {
+.account-form .alert+.alert {
   margin-top: 0.75rem;
 }
 

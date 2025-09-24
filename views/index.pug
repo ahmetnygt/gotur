@@ -89,8 +89,8 @@ html
               span Ne Zaman?
             input.trip-finder_date(type='text')
           .trip-finder_day-buttons
-            button(type='button').trip-finder_day-button(data-day='today') Bugün
-            button(type='button').trip-finder_day-button(data-day='tomorrow') Yarın
+            button.trip-finder_day-button(data-day='today' type='button') Bugün
+            button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
           button.trip-finder_search-button ARA
     if !currentUser
       +authModals()
