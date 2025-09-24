@@ -69,6 +69,67 @@
     justify-content: center;
 }
 
+.trip_info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trip_features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.trip_feature {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background-color: #f0f4ff;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: default;
+}
+
+.trip_feature img {
+    width: 1.6rem;
+    height: 1.6rem;
+    object-fit: contain;
+}
+
+.trip_feature span {
+    position: absolute;
+    bottom: -0.35rem;
+    left: 50%;
+    transform: translate(-50%, 0.5rem);
+    background-color: rgba(38, 96, 255, 0.95);
+    color: #fff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    z-index: 5;
+}
+
+.trip_feature:hover,
+.trip_feature:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(38, 96, 255, 0.2);
+}
+
+.trip_feature:hover span,
+.trip_feature:focus-visible span {
+    opacity: 1;
+    transform: translate(-50%, -0.35rem);
+}
+
 .trip_chevron {
     position: absolute;
     top: .5rem;

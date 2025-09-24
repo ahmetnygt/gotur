@@ -6,6 +6,21 @@ const {
     COUNTRY_CODE_SET,
 } = require("../utilities/countryOptions");
 
+const BUS_FEATURE_MAPPINGS = [
+    { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
+    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "İkram" },
+    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Girişi" },
+    { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Ekran" },
+    {
+        key: "hasComfortableSeat",
+        icon: "/svg/sofa_icon.svg",
+        label: "Konforlu Koltuk",
+    },
+    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Buzdolabı" },
+    { key: "hasWifi", icon: "/svg/wifi_icon.svg", label: "Wi-Fi" },
+    { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Yastık" },
+];
+
 function addTime(baseTime, addTime) {
     const [h1, m1, s1] = baseTime.split(":").map(Number);
     const [h2, m2, s2] = addTime.split(":").map(Number);
@@ -64,7 +79,8 @@ exports.searchAllTrips = async (req, res) => {
         await ensureTenantsReady(req);
 
         const results = await runForAllTenants(async ({ firmKey, models }) => {
-            const { Trip, RouteStop, Stop, Route, Price, BusModel, Ticket } = models;
+            const { Trip, RouteStop, Stop, Route, Price, BusModel, Ticket, Bus } =
+                models;
 
             // 1) İlgili duraklar
             const stops = await Stop.findAll({
@@ -134,6 +150,21 @@ exports.searchAllTrips = async (req, res) => {
             });
             if (!trips.length) return [];
 
+            const busIds = trips
+                .map((trip) => trip.busId)
+                .filter((busId) => busId !== null && busId !== undefined);
+
+            const buses = busIds.length
+                ? await Bus.findAll({
+                      where: { id: { [Op.in]: [...new Set(busIds)] } },
+                      raw: true,
+                  })
+                : [];
+
+            const busMap = new Map(
+                buses.map((bus) => [String(bus.id), bus])
+            );
+
             const routesOfTrips = await Route.findAll({
                 where: { id: { [Op.in]: [...new Set(trips.map((t) => t.routeId))] } },
             });
@@ -197,6 +228,25 @@ exports.searchAllTrips = async (req, res) => {
                     where: { id: trip.busModelId },
                 });
 
+                const busKey =
+                    trip.busId !== null && trip.busId !== undefined
+                        ? String(trip.busId)
+                        : null;
+                const busRecord = busKey ? busMap.get(busKey) : undefined;
+                const busFeatures = [];
+
+                if (busRecord) {
+                    for (const feature of BUS_FEATURE_MAPPINGS) {
+                        if (busRecord[feature.key]) {
+                            busFeatures.push({
+                                key: feature.key,
+                                icon: feature.icon,
+                                label: feature.label,
+                            });
+                        }
+                    }
+                }
+
                 const tickets = await Ticket.findAll({
                     where: {
                         tripId: trip.id,
@@ -231,6 +281,7 @@ exports.searchAllTrips = async (req, res) => {
                 }
 
                 trip.tickets = newTickets;
+                trip.busFeatures = busFeatures;
 
                 // hangi firmadan geldiğini belirt
                 trip.firm = firmKey;
