@@ -107,6 +107,10 @@ body {
   transition: 0.2s all;
 }
 
+.dropdown-menu{
+  transition: none;
+}
+
 .gtr-header {
   user-select: none;
   height: 10vh;
