@@ -26,6 +26,7 @@ const TicketPaymentFactory = require("../models/ticketPaymentModel");
 const TransactionFactory = require("../models/transactionModel");
 const TripFactory = require("../models/tripModel");
 const TripNoteFactory = require("../models/tripNoteModel");
+const TripStopTimeFactory = require("../models/tripStopTimeModel");
 
 function initModels(sequelize) {
   const Announcement = AnnouncementFactory(sequelize);
@@ -55,6 +56,7 @@ function initModels(sequelize) {
   const Transaction = TransactionFactory(sequelize);
   const Trip = TripFactory(sequelize);
   const TripNote = TripNoteFactory(sequelize);
+  const TripStopTime = TripStopTimeFactory(sequelize);
 
   return {
     Announcement,
@@ -84,6 +86,7 @@ function initModels(sequelize) {
     Transaction,
     Trip,
     TripNote,
+    TripStopTime,
   };
 }
 
