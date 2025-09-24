@@ -119,6 +119,12 @@ html
           img.attributes_icon(src="/svg/campaigns_icon.svg" alt="Kullanıcı Dostu Kampanyalar")
           h4 Kullanıcı Dostu Kampanyalar
           p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
+      if promoRoutes && promoRoutes.length
+        .attribute-routes.mt-4
+          h5.text-uppercase.text-secondary Küçük Bir İlham
+          ul.list-unstyled.mb-0
+            each route in promoRoutes
+              li.fw-semibold #{route.fromTitle} - #{route.toTitle} => #{route.formattedPrice}₺'den başlayarak
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
