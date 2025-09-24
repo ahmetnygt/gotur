@@ -2,8 +2,13 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 
-router.get("/", userController.myAccount);
-router.get("/personal-information", userController.myAccount);
+router.get("/", userController.redirectToPersonalInformation);
+router.get("/personal-information", userController.personalInformation);
+router.post("/personal-information", userController.updatePersonalInformation);
+router.post(
+  "/personal-information/change-password",
+  userController.changePassword,
+);
 router.get("/cards", userController.myAccount);
 router.get("/passengers", userController.myAccount);
 router.post("/login", userController.login);
