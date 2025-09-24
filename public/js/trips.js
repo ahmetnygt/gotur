@@ -238,6 +238,89 @@ if (tripGrid) {
 
 var ticketPairs = [];
 
+const currencyFormatter = (() => {
+    try {
+        return new Intl.NumberFormat("tr-TR", {
+            style: "currency",
+            currency: "TRY",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    } catch (error) {
+        return null;
+    }
+})();
+
+const formatCurrency = (value) => {
+    if (!Number.isFinite(value)) {
+        return "";
+    }
+
+    if (currencyFormatter) {
+        return currencyFormatter.format(value);
+    }
+
+    try {
+        return `${value.toFixed(2)} TL`;
+    } catch (error) {
+        return `${value} TL`;
+    }
+};
+
+const updateTripSeatSummary = (tripId) => {
+    if (!tripId) {
+        return;
+    }
+
+    const $trip = $(`.trip[data-trip-id='${tripId}']`);
+    if (!$trip.length) {
+        return;
+    }
+
+    const $summary = $trip.find(".trip_info-selection");
+    if (!$summary.length) {
+        return;
+    }
+
+    const placeholder = $summary.data("placeholder") || "";
+    const selectedTickets = ticketPairs.filter(
+        (ticket) => ticket.tripId === tripId
+    );
+
+    if (!selectedTickets.length) {
+        $summary.text(placeholder);
+        return;
+    }
+
+    const seats = selectedTickets
+        .map((ticket) => ticket.seatNumber)
+        .sort((firstSeat, secondSeat) => {
+            const firstNumber = Number(firstSeat);
+            const secondNumber = Number(secondSeat);
+
+            if (Number.isFinite(firstNumber) && Number.isFinite(secondNumber)) {
+                return firstNumber - secondNumber;
+            }
+
+            return String(firstSeat).localeCompare(String(secondSeat), "tr");
+        });
+
+    const seatText = seats.join(", ");
+
+    const pricePerSeat = Number($trip.data("price"));
+    let totalText = "";
+
+    if (Number.isFinite(pricePerSeat)) {
+        const totalPrice = pricePerSeat * selectedTickets.length;
+        const formatted = formatCurrency(totalPrice);
+        if (formatted) {
+            totalText = ` - Toplam: ${formatted}`;
+        }
+    }
+
+    $summary.text(`Koltuklar: ${seatText}${totalText}`);
+};
+
 $(".trip").on("click", function () {
     $(this).find(".trip_content").slideToggle(300);
     this.classList.toggle("open");
@@ -313,8 +396,12 @@ $(".gender-pick .m")
             return;
         }
 
-        highlightSeat(selectedTrip, selectedSeat);
-        upsertTicketPair(selectedTrip, selectedSeat, "m");
+        const tripId = selectedTrip;
+        const seatNumber = selectedSeat;
+
+        highlightSeat(tripId, seatNumber);
+        upsertTicketPair(tripId, seatNumber, "m");
+        updateTripSeatSummary(tripId);
 
         selectedSeat = null;
         selectedTrip = null;
@@ -328,8 +415,12 @@ $(".gender-pick .f")
             return;
         }
 
-        highlightSeat(selectedTrip, selectedSeat);
-        upsertTicketPair(selectedTrip, selectedSeat, "f");
+        const tripId = selectedTrip;
+        const seatNumber = selectedSeat;
+
+        highlightSeat(tripId, seatNumber);
+        upsertTicketPair(tripId, seatNumber, "f");
+        updateTripSeatSummary(tripId);
 
         selectedSeat = null;
         selectedTrip = null;
@@ -416,6 +507,7 @@ $(".trip_confirm-button")
             }
 
             ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
+            updateTripSeatSummary(tripId);
 
             window.location.href = `/payment/${data.ticketPaymentId}`;
         } catch (error) {
