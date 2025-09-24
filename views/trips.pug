@@ -165,6 +165,12 @@ block content
                       -}
                   -}
                 .trip_info.p-1
+                  if Array.isArray(t.busFeatures) && t.busFeatures.length
+                    .trip_features
+                      each feature in t.busFeatures
+                        .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
+                          img(src=feature.icon alt=feature.label)
+                          span=feature.label
                   button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
     p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Uygun sefer bulunamadı.
 
