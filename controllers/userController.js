@@ -1,4 +1,8 @@
 const bcrypt = require("bcrypt");
+const {
+    COUNTRY_OPTIONS,
+    COUNTRY_CODE_SET,
+} = require("../utilities/countryOptions");
 
 const SALT_ROUNDS = 10;
 
@@ -75,7 +79,9 @@ function buildPersonalInfoPayload(userInstance = {}) {
         email: userInstance.email || "",
         phoneNumber: userInstance.phoneNumber || "",
         gender: userInstance.gender || "",
-        nationality: userInstance.nationality || "",
+        nationality: userInstance.nationality
+            ? String(userInstance.nationality).toUpperCase()
+            : "",
         customerType: userInstance.customerType || "",
     };
 }
@@ -273,6 +279,7 @@ exports.personalInformation = async (req, res, next) => {
             personalInfo,
             genderOptions: GENDER_OPTIONS,
             customerTypeOptions: CUSTOMER_TYPE_OPTIONS,
+            countryOptions: COUNTRY_OPTIONS,
         });
     } catch (error) {
         return next(error);
@@ -320,7 +327,7 @@ exports.updatePersonalInformation = async (req, res) => {
         const normalizedPhone = sanitizePhone(normalizedPhoneInput);
         const normalizedIdNumber = sanitizeIdNumber(idNumber);
         const normalizedGender = normalizeText(gender).toLowerCase();
-        const normalizedNationality = normalizeText(nationality);
+        const normalizedNationality = normalizeText(nationality).toUpperCase();
         const normalizedCustomerType = normalizeText(customerType).toLowerCase();
 
         if (!normalizedName) {
@@ -345,6 +352,10 @@ exports.updatePersonalInformation = async (req, res) => {
 
         if (normalizedGender && !GENDER_OPTIONS.some((option) => option.value === normalizedGender)) {
             fieldErrors.gender = "Lütfen geçerli bir cinsiyet seçin.";
+        }
+
+        if (normalizedNationality && !COUNTRY_CODE_SET.has(normalizedNationality)) {
+            fieldErrors.nationality = "Lütfen geçerli bir uyruk seçin.";
         }
 
         if (normalizedCustomerType && !CUSTOMER_TYPE_VALUES.has(normalizedCustomerType)) {

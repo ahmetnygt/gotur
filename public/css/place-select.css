@@ -19,10 +19,20 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.place-select.is-invalid .place-select_display {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
 .place-select_display:focus {
     outline: none;
     border-color: #2660ff;
     box-shadow: 0 0 0 3px rgba(38, 96, 255, 0.2);
+}
+
+.place-select.is-invalid .place-select_display:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
 }
 
 .place-select_open .place-select_display {
@@ -38,6 +48,10 @@
 
 .place-select:not(.has-value) .place-select_label {
     color: #6c757d;
+}
+
+.place-select.is-invalid + .invalid-feedback {
+    display: block;
 }
 
 .place-select_arrow {

@@ -21,7 +21,15 @@
 
   function clearFieldErrors(form) {
     if (!form) return;
-    form.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+    form.querySelectorAll(".is-invalid").forEach((el) => {
+      el.classList.remove("is-invalid");
+      if (typeof el.removeAttribute === "function") {
+        el.removeAttribute("aria-invalid");
+      }
+    });
+    form
+      .querySelectorAll(".place-select.is-invalid")
+      .forEach((el) => el.classList.remove("is-invalid"));
     form.querySelectorAll(".invalid-feedback").forEach((el) => {
       el.textContent = "";
     });
@@ -33,6 +41,13 @@
       const fieldElement = form.querySelector(`[name="${field}"]`);
       if (!fieldElement) return;
       fieldElement.classList.add("is-invalid");
+      if (typeof fieldElement.setAttribute === "function") {
+        fieldElement.setAttribute("aria-invalid", "true");
+      }
+      const selectWrapper = fieldElement.closest(".place-select");
+      if (selectWrapper) {
+        selectWrapper.classList.add("is-invalid");
+      }
       const feedback = form.querySelector(`#${field}-feedback`);
       if (feedback) {
         feedback.textContent = message;
@@ -113,6 +128,19 @@
     const personalInfoForm = document.getElementById("personal-information-form");
     const personalInfoSuccess = document.getElementById("personal-info-success");
     const personalInfoError = document.getElementById("personal-info-error");
+
+    if (personalInfoForm) {
+      personalInfoForm.querySelectorAll(".place-select_input").forEach((input) => {
+        input.addEventListener("change", () => {
+          input.classList.remove("is-invalid");
+          input.removeAttribute("aria-invalid");
+          const wrapper = input.closest(".place-select");
+          if (wrapper) {
+            wrapper.classList.remove("is-invalid");
+          }
+        });
+      });
+    }
 
     submitForm(personalInfoForm, {
       successAlert: personalInfoSuccess,
