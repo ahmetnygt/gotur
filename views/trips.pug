@@ -171,7 +171,17 @@ block content
                       -}
                   -}
                 .trip_info.p-1
-                  button.trip_confirm-button.btn.btn-sm.btn-primary Onayla
+                  if Array.isArray(t.routeTimeline) && t.routeTimeline.length
+                    ul.trip_route-list.list-unstyled.mb-3
+                      each stopInfo in t.routeTimeline
+                        if stopInfo && stopInfo.time && stopInfo.title
+                          li.fw-bold.text-center #{stopInfo.time} - #{stopInfo.title}
+                        else if stopInfo && stopInfo.title
+                          li.fw-bold.text-center #{stopInfo.title}
+                  p.trip_info-selection.text-center.fw-semibold(
+                    data-placeholder="Koltuk seçimi yapın."
+                  ) Koltuk seçimi yapın.
+                  button.trip_confirm-button.btn.btn-sm.btn-primary.mt-2 Onayla
     p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Uygun sefer bulunamadı.
 
 block scripts

@@ -17,20 +17,100 @@ const BUS_FEATURE_MAPPINGS = [
     { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Konforlu Koltuk", },
 ];
 
-function addTime(baseTime, addTime) {
-    const [h1, m1, s1] = baseTime.split(":").map(Number);
-    const [h2, m2, s2] = addTime.split(":").map(Number);
+const MINUTES_IN_DAY = 24 * 60;
 
-    let totalSeconds =
-        h1 * 3600 + m1 * 60 + s1 + (h2 * 3600 + m2 * 60 + s2);
+function normaliseMinutes(value) {
+    if (!Number.isFinite(value)) {
+        return null;
+    }
 
-    totalSeconds = totalSeconds % (24 * 3600);
+    const minutes = ((value % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
+    return minutes;
+}
 
-    const hh = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-    const mm = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-    const ss = String(totalSeconds % 60).padStart(2, "0");
+function parseTimeStringToMinutes(timeString) {
+    if (!timeString) {
+        return null;
+    }
 
-    return `${hh}:${mm}:${ss}`;
+    const parts = String(timeString)
+        .split(":")
+        .map((part) => Number(part));
+
+    if (!Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) {
+        return null;
+    }
+
+    const hours = parts[0];
+    const minutes = parts[1];
+    const seconds = Number.isFinite(parts[2]) ? parts[2] : 0;
+
+    return hours * 60 + minutes + Math.floor(seconds / 60);
+}
+
+function minutesToClockString(totalMinutes) {
+    if (!Number.isFinite(totalMinutes)) {
+        return null;
+    }
+
+    const minutes = normaliseMinutes(totalMinutes);
+    if (minutes === null) {
+        return null;
+    }
+
+    const hoursPart = Math.floor(minutes / 60);
+    const minutesPart = minutes % 60;
+
+    return `${String(hoursPart).padStart(2, "0")}:${String(minutesPart).padStart(2, "0")}`;
+}
+
+function addMinutesToTimeString(baseTime, offsetMinutes) {
+    const baseMinutes = parseTimeStringToMinutes(baseTime);
+    if (baseMinutes === null || !Number.isFinite(offsetMinutes)) {
+        return null;
+    }
+
+    return minutesToClockString(baseMinutes + offsetMinutes);
+}
+
+function parseDurationStringToMinutes(durationString) {
+    if (!durationString) {
+        return 0;
+    }
+
+    const parts = String(durationString)
+        .split(":")
+        .map((part) => Number(part));
+
+    if (!Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) {
+        return 0;
+    }
+
+    const hours = parts[0];
+    const minutes = parts[1];
+    const seconds = Number.isFinite(parts[2]) ? parts[2] : 0;
+
+    return hours * 60 + minutes + Math.floor(seconds / 60);
+}
+
+function formatDurationFromMinutes(totalMinutes) {
+    if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) {
+        return "";
+    }
+
+    const roundedMinutes = Math.round(totalMinutes);
+    const hours = Math.floor(roundedMinutes / 60);
+    const minutes = roundedMinutes % 60;
+
+    const parts = [];
+    if (hours > 0) {
+        parts.push(`${hours} saat`);
+    }
+    if (minutes > 0) {
+        parts.push(`${minutes} dakika`);
+    }
+
+    return parts.join(" ");
 }
 
 async function generatePNR(models, fromId, toId, stops) {
@@ -75,8 +155,17 @@ exports.searchAllTrips = async (req, res) => {
         await ensureTenantsReady(req);
 
         const results = await runForAllTenants(async ({ firmKey, models }) => {
-            const { Trip, RouteStop, Stop, Route, Price, BusModel, Ticket, Bus } =
-                models;
+            const {
+                Trip,
+                RouteStop,
+                Stop,
+                Route,
+                Price,
+                BusModel,
+                Ticket,
+                Bus,
+                TripStopTime,
+            } = models;
 
             // 1) İlgili duraklar
             const stops = await Stop.findAll({
@@ -171,6 +260,45 @@ exports.searchAllTrips = async (req, res) => {
                 raw: true,
             });
 
+            const routeStopStopIds = routeStopsOfTrips.map((rs) => rs.stopId);
+            const additionalStops = routeStopStopIds.length
+                ? await Stop.findAll({
+                      where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
+                      raw: true,
+                  })
+                : [];
+
+            const stopRecordMap = new Map();
+            for (const stop of additionalStops) {
+                stopRecordMap.set(String(stop.id), stop);
+            }
+            for (const stop of stops) {
+                const stopKey = String(stop.id);
+                if (!stopRecordMap.has(stopKey)) {
+                    stopRecordMap.set(stopKey, stop);
+                }
+            }
+
+            const tripStopTimes = trips.length
+                ? await TripStopTime.findAll({
+                      where: {
+                          tripId: { [Op.in]: trips.map((trip) => trip.id) },
+                      },
+                      raw: true,
+                  })
+                : [];
+
+            const tripStopTimesByTripId = new Map();
+            for (const entry of tripStopTimes) {
+                const tripKey = String(entry.tripId);
+                if (!tripStopTimesByTripId.has(tripKey)) {
+                    tripStopTimesByTripId.set(tripKey, new Map());
+                }
+                tripStopTimesByTripId
+                    .get(tripKey)
+                    .set(String(entry.routeStopId), entry);
+            }
+
             // 5) Trip detaylarını hesapla
             for (let i = 0; i < trips.length; i++) {
                 const trip = trips[i];
@@ -181,36 +309,140 @@ exports.searchAllTrips = async (req, res) => {
                     continue;
                 }
 
-                trip.duration = "00:00:00";
-                trip.time = trip.time || "00:00:00"; // güvenlik
+                const baseTripTime = trip.time || "00:00:00";
+                const routeStopsForTrip = routeStopsOfTrips
+                    .filter((rs) => rs.routeId == trip.routeId)
+                    .sort(
+                        (a, b) => Number(a.order || 0) - Number(b.order || 0)
+                    );
 
-                const _routeStops = routeStopsOfTrips.filter(
-                    (rs) => rs.routeId == trip.routeId
-                );
-                const fromOrderEntry = _routeStops.find(
+                const fromRouteStop = routeStopsForTrip.find(
                     (rs) => rs.stopId == fromStop.id
                 );
-                const toOrderEntry = _routeStops.find(
+                const toRouteStop = routeStopsForTrip.find(
                     (rs) => rs.stopId == toStop.id
                 );
 
-                if (!fromOrderEntry || !toOrderEntry) {
+                if (!fromRouteStop || !toRouteStop) {
                     continue;
                 }
 
-                const fromOrder = fromOrderEntry.order;
-                const toOrder = toOrderEntry.order;
+                const fallbackOffsets = new Map();
+                let cumulativeMinutes = 0;
+                for (const routeStop of routeStopsForTrip) {
+                    fallbackOffsets.set(String(routeStop.id), cumulativeMinutes);
+                    cumulativeMinutes += parseDurationStringToMinutes(
+                        routeStop.duration
+                    );
+                }
 
-                if (fromOrder !== _routeStops.length - 1) {
-                    for (const rs of _routeStops) {
-                        trip.time = addTime(trip.time, rs.duration);
-                        if (rs.order == fromOrder) break;
-                    }
-                    for (const rs of _routeStops) {
-                        if (rs.order > fromOrder && rs.order <= toOrder) {
-                            trip.duration = addTime(trip.duration, rs.duration);
+                const tripStopTimeMap =
+                    tripStopTimesByTripId.get(String(trip.id)) || null;
+
+                const resolveOffsetMinutes = (routeStopId) => {
+                    const key = String(routeStopId);
+
+                    if (tripStopTimeMap && tripStopTimeMap.has(key)) {
+                        const entry = tripStopTimeMap.get(key);
+                        const numericOffset = Number(entry.offsetMinutes);
+                        if (Number.isFinite(numericOffset)) {
+                            return numericOffset;
                         }
                     }
+
+                    if (fallbackOffsets.has(key)) {
+                        return fallbackOffsets.get(key);
+                    }
+
+                    return null;
+                };
+
+                const fromOffsetMinutes = resolveOffsetMinutes(fromRouteStop.id);
+                const toOffsetMinutes = resolveOffsetMinutes(toRouteStop.id);
+
+                const computedDeparture =
+                    fromOffsetMinutes !== null
+                        ? addMinutesToTimeString(baseTripTime, fromOffsetMinutes)
+                        : null;
+
+                if (computedDeparture) {
+                    trip.time = computedDeparture;
+                } else {
+                    const fallbackTime = minutesToClockString(
+                        parseTimeStringToMinutes(baseTripTime)
+                    );
+                    if (fallbackTime) {
+                        trip.time = fallbackTime;
+                    }
+                }
+
+                if (fromOffsetMinutes !== null && toOffsetMinutes !== null) {
+                    const diffMinutes = toOffsetMinutes - fromOffsetMinutes;
+                    trip.duration = formatDurationFromMinutes(
+                        Math.max(0, diffMinutes)
+                    );
+                } else {
+                    trip.duration = "";
+                }
+
+                const fromOrderValue = Number(fromRouteStop.order);
+                const toOrderValue = Number(toRouteStop.order);
+                const lowerOrder = Math.min(fromOrderValue, toOrderValue);
+                const upperOrder = Math.max(fromOrderValue, toOrderValue);
+
+                const relevantRouteStops = routeStopsForTrip.filter((routeStop) => {
+                    const orderValue = Number(routeStop.order);
+                    if (
+                        Number.isFinite(fromOrderValue) &&
+                        Number.isFinite(toOrderValue)
+                    ) {
+                        return (
+                            orderValue >= lowerOrder && orderValue <= upperOrder
+                        );
+                    }
+                    if (Number.isFinite(fromOrderValue)) {
+                        return orderValue >= fromOrderValue;
+                    }
+                    if (Number.isFinite(toOrderValue)) {
+                        return orderValue <= toOrderValue;
+                    }
+                    return true;
+                });
+
+                const timeline = relevantRouteStops
+                    .map((routeStop) => {
+                        const stopRecord = stopRecordMap.get(
+                            String(routeStop.stopId)
+                        );
+                        if (!stopRecord) {
+                            return null;
+                        }
+
+                        const offsetMinutes = resolveOffsetMinutes(routeStop.id);
+                        if (offsetMinutes === null) {
+                            return null;
+                        }
+
+                        const timeText = addMinutesToTimeString(
+                            baseTripTime,
+                            offsetMinutes
+                        );
+
+                        if (!timeText) {
+                            return null;
+                        }
+
+                        return {
+                            title: stopRecord.title,
+                            time: timeText,
+                        };
+                    })
+                    .filter(Boolean);
+
+                if (typeof trip.setDataValue === "function") {
+                    trip.setDataValue("routeTimeline", timeline);
+                } else {
+                    trip.routeTimeline = timeline;
                 }
 
                 const price = await Price.findOne({
@@ -254,12 +486,22 @@ exports.searchAllTrips = async (req, res) => {
                 let newTickets = [];
                 for (const t of tickets) newTickets[t.seatNo] = t;
 
-                const [h, m] = trip.duration.split(":").map(Number);
-                let result = "";
-                if (h > 0) result += `${h} saat `;
-                if (m > 0) result += `${m} dakika`;
+                if (typeof trip.duration === "string") {
+                    if (trip.duration.includes(":")) {
+                        const [h = 0, m = 0] = trip.duration
+                            .split(":")
+                            .map((value) => Number(value));
+                        let result = "";
+                        if (h > 0) result += `${h} saat `;
+                        if (m > 0) result += `${m} dakika`;
 
-                trip.duration = result.trim();
+                        trip.duration = result.trim();
+                    } else {
+                        trip.duration = trip.duration.trim();
+                    }
+                } else {
+                    trip.duration = "";
+                }
                 trip.fromStr = fromStop.title;
                 trip.toStr = toStop.title;
                 trip.fromStopId = fromStop.id;
