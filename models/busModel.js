@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
     },
     captainId: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
     },
     licensePlate: {
       type: DataTypes.STRING,
@@ -25,7 +25,47 @@ module.exports = (sequelize) => {
     },
     owner: {
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+    hasPowerOutlet: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: false,
+    },
+    hasCatering: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasUsbPort: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasSeatScreen: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasComfortableSeat: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasFridge: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasWifi: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    hasSeatPillow: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   });
 };

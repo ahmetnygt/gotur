@@ -1,5 +1,5 @@
-include ../components/place-select
 extends ../layout
+include ../components/place-select
 
 block css
   link(rel='stylesheet' href='/css/personal-information.css')
@@ -70,9 +70,9 @@ block content
               .invalid-feedback#nationality-feedback
             .col-md-6
               label.form-label(for='customerType') Yolcu Tipi
-              select#customerType.form-select(name='customerType' disabled)
+              select#customerType.form-select(name='customerType' disabled value="adult")
                 //- each option in customerTypeOptions
-                option(value="adult" selected) Yetişkin
+                option(value="adult") Yetişkin
               .form-text İndirim uygulanması için lütfen iletişime geçiniz.
               .invalid-feedback#customerType-feedback
           .d-flex.justify-content-between.align-items-center.mt-4.flex-wrap.gap-3
