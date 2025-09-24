@@ -408,12 +408,4 @@
         });
     }
 
-    const $myAccount = $("#myAccount")
-
-    if ($myAccount) {
-        $myAccount.off().on("click", () => {
-            const url = `/user`;
-            window.location.href = url;
-        })
-    }
 })();
