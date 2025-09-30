@@ -339,19 +339,46 @@ exports.searchAllTrips = async (req, res) => {
                 const tripStopTimeMap =
                     tripStopTimesByTripId.get(String(trip.id)) || null;
 
-                const resolveOffsetMinutes = (routeStopId) => {
-                    const key = String(routeStopId);
+                const effectiveOffsets = new Map();
+                let carriedDelay = 0;
+
+                for (const routeStop of routeStopsForTrip) {
+                    const key = String(routeStop.id);
+                    const fallbackOffset = fallbackOffsets.has(key)
+                        ? Number(fallbackOffsets.get(key))
+                        : null;
+
+                    let offsetToUse = null;
 
                     if (tripStopTimeMap && tripStopTimeMap.has(key)) {
                         const entry = tripStopTimeMap.get(key);
                         const numericOffset = Number(entry.offsetMinutes);
+
                         if (Number.isFinite(numericOffset)) {
-                            return numericOffset;
+                            offsetToUse = numericOffset;
+
+                            if (Number.isFinite(fallbackOffset)) {
+                                carriedDelay = numericOffset - fallbackOffset;
+                            } else {
+                                carriedDelay = 0;
+                            }
                         }
                     }
 
-                    if (fallbackOffsets.has(key)) {
-                        return fallbackOffsets.get(key);
+                    if (offsetToUse === null && Number.isFinite(fallbackOffset)) {
+                        offsetToUse = fallbackOffset + carriedDelay;
+                    }
+
+                    if (Number.isFinite(offsetToUse)) {
+                        effectiveOffsets.set(key, offsetToUse);
+                    }
+                }
+
+                const resolveOffsetMinutes = (routeStopId) => {
+                    const key = String(routeStopId);
+
+                    if (effectiveOffsets.has(key)) {
+                        return effectiveOffsets.get(key);
                     }
 
                     return null;
@@ -409,13 +436,11 @@ exports.searchAllTrips = async (req, res) => {
                     return true;
                 });
 
-                console.log(relevantRouteStops.map(r=>r.id))
                 const timeline = relevantRouteStops
                     .map((routeStop) => {
                         const stopRecord = stopRecordMap.get(
                             String(routeStop.stopId)
                         );
-                        console.log(stopRecord.title)
                         if (!stopRecord) {
                             return null;
                         }
