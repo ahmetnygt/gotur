@@ -415,7 +415,7 @@ exports.searchAllTrips = async (req, res) => {
                         const stopRecord = stopRecordMap.get(
                             String(routeStop.stopId)
                         );
-                        console.log(stopRecord)
+                        console.log(stopRecord.title)
                         if (!stopRecord) {
                             return null;
                         }
