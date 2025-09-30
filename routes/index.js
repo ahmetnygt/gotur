@@ -24,7 +24,7 @@ router.get('/', async function (req, res) {
   }
 
   res.render('index', {
-    title: "Götür | Türkiye'nin en yeni biletçisi",
+    title: "Götür | Türkiye'nin en yeni online yazıhanesi",
     promoRoutes,
   });
 });

@@ -263,9 +263,9 @@ exports.searchAllTrips = async (req, res) => {
             const routeStopStopIds = routeStopsOfTrips.map((rs) => rs.stopId);
             const additionalStops = routeStopStopIds.length
                 ? await Stop.findAll({
-                      where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
-                      raw: true,
-                  })
+                    where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
+                    raw: true,
+                })
                 : [];
 
             const stopRecordMap = new Map();
@@ -281,11 +281,11 @@ exports.searchAllTrips = async (req, res) => {
 
             const tripStopTimes = trips.length
                 ? await TripStopTime.findAll({
-                      where: {
-                          tripId: { [Op.in]: trips.map((trip) => trip.id) },
-                      },
-                      raw: true,
-                  })
+                    where: {
+                        tripId: { [Op.in]: trips.map((trip) => trip.id) },
+                    },
+                    raw: true,
+                })
                 : [];
 
             const tripStopTimesByTripId = new Map();
@@ -409,11 +409,13 @@ exports.searchAllTrips = async (req, res) => {
                     return true;
                 });
 
+                console.log(relevantRouteStops.map(r=>r.id))
                 const timeline = relevantRouteStops
                     .map((routeStop) => {
                         const stopRecord = stopRecordMap.get(
                             String(routeStop.stopId)
                         );
+                        console.log(stopRecord)
                         if (!stopRecord) {
                             return null;
                         }
@@ -520,6 +522,7 @@ exports.searchAllTrips = async (req, res) => {
 
                 trip.tickets = newTickets;
                 trip.busFeatures = busFeatures;
+                trip.routeDescription = routesOfTrips.find(r => r.id == trip.routeId)?.description
 
                 // hangi firmadan geldiğini belirt
                 trip.firm = firmKey;

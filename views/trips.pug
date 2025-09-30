@@ -1,4 +1,5 @@
 extends layout
+include ./components/seat.pug
 
 block css
   link(rel='stylesheet' href='/css/trips.css')
@@ -99,7 +100,7 @@ block content
     .row#trip-results-grid
       each t in tripList
         - const [tripHour = '00', tripMinute = '00'] = String(t.time || '').split(':');
-        .col-4.p-3
+        .p-3
           .trip(
             data-trip-id=(t.tripId || t.id)
             data-from-stop-id=t.fromStopId
@@ -112,26 +113,31 @@ block content
             .trip_chevron
               i.fa-solid.fa-chevron-down
             .d-flex.justify-content-between.align-items-center.px-3.mb-2
-              img(src=`/images/${t.firm}.png` alt=t.firm)
-              .d-flex.flex-column.align-items-center
-                span.trip_time
-                  i.fa-solid.fa-clock.me-1
-                  span #{tripHour}:#{tripMinute}
-                span #{t.duration}
-            p.trip_route
-              |#{t.fromStr}
-              i.fa-solid.fa-route.mx-1
-              |#{t.toStr}
-            .d-flex.gap-3.align-items-center
-              .trip_fullness
-                svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
-                  rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
-                  rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                  rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                  rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                  rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                span #{t.fullness}
-              button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
+              .d-flex.justify-content-center.col-2
+                img(src=`/images/${t.firm}.png` alt=t.firm)
+              .d-flex.justify-content-center.col-2
+                .d-flex.flex-column.align-items-center
+                  span.trip_time
+                    i.fa-solid.fa-clock.me-1
+                    span #{tripHour}:#{tripMinute}
+                  span #{t.duration}
+              .d-flex.justify-content-center.col-4
+                p.trip_route
+                  |#{t.fromStr}
+                  i.fa-solid.fa-route.mx-1
+                  |#{t.toStr}
+              .d-flex.justify-content-center.col-2
+                .d-flex.gap-3.align-items-center
+                  .trip_fullness
+                    svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
+                      rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
+                      rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                      rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                      rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                      rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                    span #{t.fullness}
+              .d-flex.justify-content-center.col-2
+                button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
             .trip_content
               if Array.isArray(t.busFeatures) && t.busFeatures.length
                 .trip_features.d-flex.justify-content-evenly
@@ -139,49 +145,63 @@ block content
                     .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
                       img(src=feature.icon alt=feature.label)
                       span=feature.label
-              .d-flex
-                .trip_seat-plan
-                  - const planBinary = t.busPlanBinary
-                  - const plan = t.busPlan
-                  - var index = 0
-                  - var seat = 1
-                  -for(let i = 0; i < 8; i++){
+              .d-flex.mt-3
+                .col-4
+                  p.text-center
+                    b Sefer Açıklaması
+                  p.text-center #{t.routeDescription}
+                .col-4
+                  .trip_seat-plan.d-flex
+                    - const planBinary = t.busPlanBinary
+                    - const plan = t.busPlan
+                    - var index = 0
+                    - var seat = 1
+                    -for(let i = 0; i < 8; i++){
+                      .d-flex.flex-column-reverse
+                        -for(let j = 0; j < 5; j++){
+                          if planBinary[index] == "1"
+                            -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
+                            -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
+                            -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
+                            .trip_seat(
+                              data-is-available=`${t.tickets[seat]?false:true}`
+                              data-seat-number=`${plan[index]}`
+                              data-trip=(t.tripId || t.id)
+                            )
+                              +seat(genderColor,genderColorStroke)
+                              span(style=`position: absolute;top: 50%;left: 45%;transform: translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
+                            -seat++;
+                          else 
+                            svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
+                          -index++;
+                        -}
+                    -}
+                .col-4
+                  .trip_info.p-1
+                    if Array.isArray(t.routeTimeline) && t.routeTimeline.length
+                      ul.trip_route-list.list-unstyled.mb-3
+                        each stopInfo in t.routeTimeline
+                          if stopInfo && stopInfo.time && stopInfo.title
+                            li.fw-bold.text-center #{stopInfo.time} - #{stopInfo.title}
+                          else if stopInfo && stopInfo.title
+                            li.fw-bold.text-center #{stopInfo.title}
                     .d-flex
-                      -for(let j = 0; j < 5; j++){
-                        if planBinary[index] == "1"
-                          -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
-                          -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
-                          -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
-                          .trip_seat(
-                            data-is-available=`${t.tickets[seat]?false:true}`
-                            data-seat-number=`${plan[index]}`
-                            data-trip=(t.tripId || t.id)
-                          )
-                            svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
-                              rect(x="10" y="10" width="80" height="80" rx="10" ry="10" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                              rect(x="75" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                              rect(x="5" y="30" width="20" height="50" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                              rect(x="10" y="70" width="80" height="20" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                              rect(x="30" y="65" width="40" height="30" rx="5" ry="5" fill=genderColor stroke=genderColorStroke stroke-width="2")
-                            span(style=`position: absolute;top: 40%;left: 50%;transform: translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
-                          -seat++;
-                        else 
-                          svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
-                        -index++;
-                      -}
-                  -}
-                .trip_info.p-1
-                  if Array.isArray(t.routeTimeline) && t.routeTimeline.length
-                    ul.trip_route-list.list-unstyled.mb-3
-                      each stopInfo in t.routeTimeline
-                        if stopInfo && stopInfo.time && stopInfo.title
-                          li.fw-bold.text-center #{stopInfo.time} - #{stopInfo.title}
-                        else if stopInfo && stopInfo.title
-                          li.fw-bold.text-center #{stopInfo.title}
-                  p.trip_info-selection.text-center.fw-semibold(
-                    data-placeholder="Koltuk seçimi yapın."
-                  ) Koltuk seçimi yapın.
-                  button.trip_confirm-button.btn.btn-sm.btn-primary.mt-2 Onayla
+                      .d-flex.align-items-center.gap-1
+                        +seat("#2986cc","#216396")
+                        span Dolu Erkek Koltuk
+                      .d-flex.align-items-center.gap-1
+                        +seat("#c90076","#920256")
+                        span Dolu Kadın Koltuk
+                      .d-flex.align-items-center.gap-1
+                        +seat("#fff","#b4b4b4")
+                        span Boş Koltuk
+                      .d-flex.align-items-center.gap-1
+                        +seat("#02ff89","#00c76a")
+                        span Seçilen Koltuk
+                    p.trip_info-selection.text-center.fw-semibold(
+                      data-placeholder="Koltuk seçimi yapın."
+                    ) Koltuk seçimi yapın.
+                    button.trip_confirm-button.btn.btn-sm.btn-primary.mt-2 Onayla
     p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Uygun sefer bulunamadı.
 
 block scripts
