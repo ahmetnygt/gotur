@@ -27,6 +27,7 @@
 
 .trip img {
     height: 5rem;
+    width: 15rem;
     object-fit: contain;
 }
 

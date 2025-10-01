@@ -140,7 +140,7 @@ block content
                 button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
             .trip_content
               if Array.isArray(t.busFeatures) && t.busFeatures.length
-                .trip_features.d-flex.justify-content-evenly
+                .trip_features.d-flex.justify-content-center.gap-3
                   each feature in t.busFeatures
                     .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
                       img(src=feature.icon alt=feature.label)
@@ -150,41 +150,46 @@ block content
                   p.text-center
                     b Sefer Açıklaması
                   p.text-center #{t.routeDescription}
+                  if t.routeTimeline.length
+                    ul.trip_route-list.list-unstyled.mt-3
+                      each stopInfo in t.routeTimeline
+                        if stopInfo && stopInfo.time && stopInfo.title
+                          li
+                            b #{stopInfo.time} 
+                            |- #{stopInfo.title}
+                        else if stopInfo && stopInfo.title
+                          li #{stopInfo.title}
                 .col-4
-                  .trip_seat-plan.d-flex
+                  .trip_seat-plan.d-flex.justify-content-center.gap-1
                     - const planBinary = t.busPlanBinary
                     - const plan = t.busPlan
                     - var index = 0
                     - var seat = 1
-                    -for(let i = 0; i < 8; i++){
-                      .d-flex.flex-column-reverse
-                        -for(let j = 0; j < 5; j++){
-                          if planBinary[index] == "1"
-                            -const genderColor = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076":"#fff"
-                            -const genderColorStroke = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#216396" : "#920256":"#b4b4b4"
-                            -const genderColorText = t.tickets[seat]?t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042":"#1f1f1f"
-                            .trip_seat(
-                              data-is-available=`${t.tickets[seat]?false:true}`
-                              data-seat-number=`${plan[index]}`
-                              data-trip=(t.tripId || t.id)
-                            )
-                              +seat(genderColor,genderColorStroke)
-                              span(style=`position: absolute;top: 50%;left: 45%;transform: translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
-                            -seat++;
-                          else 
-                            svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
-                          -index++;
-                        -}
-                    -}
+                    - for (let i = 0; i < 8; i++) {
+                      - const row = planBinary.slice(i * 5, (i + 1) * 5)
+                      - const rowHasSeat = row.includes("1")
+                      if rowHasSeat
+                        .d-flex.flex-column-reverse.gap-1
+                          - for (let j = 0; j < 5; j++) {
+                            if planBinary[index] == "1"
+                              - const genderColor = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076") : "#fff"
+                              - const genderColorStroke = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#216396" : "#920256") : "#b4b4b4"
+                              - const genderColorText = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042") : "#1f1f1f"
+                              .trip_seat(
+                                data-is-available=`${t.tickets[seat] ? false : true}`
+                                data-seat-number=`${plan[index]}`
+                                data-trip=(t.tripId || t.id)
+                              )
+                                +seat(genderColor, genderColorStroke)
+                                span(style=`position:absolute;top:50%;left:45%;transform:translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
+                              - seat++;
+                            else
+                              svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style=`visibility:hidden;${(index+1)%5==0?"display:none;":""}`)
+                            - index++;
+                          - }
+                    - }
                 .col-4
                   .trip_info.p-1
-                    if Array.isArray(t.routeTimeline) && t.routeTimeline.length
-                      ul.trip_route-list.list-unstyled.mb-3
-                        each stopInfo in t.routeTimeline
-                          if stopInfo && stopInfo.time && stopInfo.title
-                            li.fw-bold.text-center #{stopInfo.time} - #{stopInfo.title}
-                          else if stopInfo && stopInfo.title
-                            li.fw-bold.text-center #{stopInfo.title}
                     .d-flex
                       .d-flex.align-items-center.gap-1
                         +seat("#2986cc","#216396")
