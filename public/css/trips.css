@@ -62,7 +62,8 @@
 }
 
 .trip_pick-button {
-    height: 2rem;
+    height: 3rem;
+    width: 80%;
     font-size: 1.5rem;
     display: flex;
     align-items: center;
@@ -203,7 +204,6 @@
     background-color: slategray;
     display: flex;
     align-items: stretch;
-    height: 10vh;
     padding: 1.2rem 5rem;
     gap: 1rem;
     margin: 1rem 0;
@@ -353,6 +353,11 @@
     text-align: center;
     color: #6c757d;
     font-weight: 500;
+}
+
+.trip_route-list{
+    display: flex;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {

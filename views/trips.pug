@@ -149,7 +149,7 @@ block content
                       rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
                     span #{t.fullness}
               .d-flex.justify-content-center.col-2
-                button.btn.btn-primary.btn-sm.w-100.trip_pick-button #{t.price}TL
+                button.btn.btn-primary.btn-sm.trip_pick-button #{t.price}₺
             .trip_content
               if Array.isArray(t.busFeatures) && t.busFeatures.length
                 .trip_features.d-flex.justify-content-center.gap-3
@@ -166,11 +166,11 @@ block content
                     ul.trip_route-list.list-unstyled.mt-3
                       each stopInfo in t.routeTimeline
                         if stopInfo && stopInfo.time && stopInfo.title
-                          li
+                          li.col-6
                             b #{stopInfo.time} 
                             |- #{stopInfo.title}
                         else if stopInfo && stopInfo.title
-                          li #{stopInfo.title}
+                          li.col-6 #{stopInfo.title}
                 .col-4
                   .trip_seat-plan.d-flex.justify-content-center.gap-1
                     - const planBinary = t.busPlanBinary
