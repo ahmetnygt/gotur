@@ -566,7 +566,7 @@ exports.searchAllTrips = async (req, res) => {
         const places = await req.commonModels.Place.findAll({ where: { id: { [Op.in]: [fromId, toId] } } })
         const title = `Götür | ${places.find(p => p.id == fromId).title}-${places.find(p => p.id == toId).title}`
         // 👉 Şablon render edebilirsin:
-        console.log(fromId,toId)
+        console.log(fromId, toId)
         res.render("trips", { trips: mergedTrips, fromId, toId, date, title });
 
         // 👉 veya JSON API olarak dönebilirsin:
@@ -791,7 +791,7 @@ exports.renderPaymentPage = async (req, res) => {
             });
         }
 
-        const { ticketPayment, models } = context;
+        const { firmKey, ticketPayment, models } = context;
 
         if (ticketPayment.isSuccess) {
             return res.redirect(`/payment/${ticketPaymentId}/success`);
@@ -814,6 +814,7 @@ exports.renderPaymentPage = async (req, res) => {
             ),
             error: null,
             countryOptions: COUNTRY_OPTIONS,
+            firmKey: firmKey
         });
     } catch (error) {
         console.error("renderPaymentPage hata:", error);
