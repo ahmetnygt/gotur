@@ -37,89 +37,148 @@ block content
                                             if seat != seatDetails[seat.length-1]
                                                 span.mx-1 -
                         p.text-center Kalkış saatinden 2 saat önceye kadar açığa alma, iade ve değişim işlemleri yapılabilir.
-            .card.col-6
-                .card-header İletişim
-                .card-body
-                    .d-flex.mb-2.justify-content-around.gap-3
-                        .col-6
-                            label.form-label(for="") E-mail
-                            input.gtr-input-sm.w-100(type="text")
-                        .col-6
-                            label.form-label(for=`passenger-phone`) Telefon
-                            input.gtr-input-sm.w-100(
-                                type="tel"
-                                id=`passenger-phone`
-                                name="phoneNumbers"
-                                required
-                            )
-                    .form-check
-                        input#isSMS.form-check-input(type="checkbox")
-                        label.form-check-label(for="isSMS") 
-                            | Biletimi 
-                            b ÜCRETSİZ SMS  
-                            | ile alıp, kampanya ve duyuruları ticari elektronik ileti ve WhatsApp üzerinden almayı ve kişisel verilerimin pazarlama amacıyla işlenmesini 
-                            b onaylıyorum.
         if seatDetails && seatDetails.length
             form(method="post" action=`/payment/${ticketPaymentId}/complete`)
                 - const genderLabels = { m: "Erkek", f: "Kadın" };
-                .d-flex.gap-3
-                    each seat, index in seatDetails
-                        - const passenger = passengerInputs && passengerInputs[index] ? passengerInputs[index] : { name: '', surname: '', idNumber: '', phoneNumber: '', nationality: 'TR' };
-                        .card.mb-4.col-6
-                            .card-header.d-flex.justify-content-between.align-items-center
-                                span
-                                    strong Koltuk #{seat.seatNumber}
-                                    span.ms-2.badge.bg-secondary #{genderLabels[seat.gender] || 'Belirtilmedi'}
-                                if typeof pricePerSeat !== 'undefined'
-                                    span.text-white #{pricePerSeat} TL
+                .row.g-3
+                    .col-12.col-lg-6
+                        .card.h-100
+                            .card-header İletişim
                             .card-body
                                 .row.g-3
-                                    .col-md-6
-                                        label.form-label(for=`passenger-name-${index}`) Ad
+                                    .col-12
+                                        label.form-label(for="contact-email") E-mail
+                                        input.gtr-input-sm.w-100(
+                                            type="email"
+                                            id="contact-email"
+                                            name="contactEmail"
+                                            required
+                                            value=contactEmail
+                                        )
+                                    .col-12
+                                        label.form-label(for="contact-phone") Telefon
+                                        input.gtr-input-sm.w-100(
+                                            type="tel"
+                                            id="contact-phone"
+                                            name="phoneNumbers"
+                                            required
+                                            value=contactPhone
+                                        )
+                                .form-check.mt-2
+                                    input#isSMS.form-check-input(type="checkbox")
+                                    label.form-check-label(for="isSMS")
+                                        | Biletimi
+                                        b ÜCRETSİZ SMS
+                                        | ile alıp, kampanya ve duyuruları ticari elektronik ileti ve WhatsApp üzerinden almayı ve kişisel verilerimin pazarlama amacıyla işlenmesini
+                                        b onaylıyorum.
+                    each seat, index in seatDetails
+                        - const passenger = passengerInputs && passengerInputs[index] ? passengerInputs[index] : { name: '', surname: '', idNumber: '', phoneNumber: '', nationality: 'TR' };
+                        .col-12.col-lg-6
+                            .card.h-100
+                                .card-header.d-flex.justify-content-between.align-items-center
+                                    span
+                                        strong Koltuk #{seat.seatNumber}
+                                        span.ms-2.badge.bg-secondary #{genderLabels[seat.gender] || 'Belirtilmedi'}
+                                    if typeof pricePerSeat !== 'undefined'
+                                        span.text-white #{pricePerSeat} TL
+                                .card-body
+                                    .row.g-3
+                                        .col-md-6
+                                            label.form-label(for=`passenger-name-${index}`) Ad
+                                            input.gtr-input-sm.w-100(
+                                                type="text"
+                                                id=`passenger-name-${index}`
+                                                name="names"
+                                                required
+                                                value=passenger.name
+                                            )
+                                        .col-md-6
+                                            label.form-label(for=`passenger-surname-${index}`) Soyad
+                                            input.gtr-input-sm.w-100(
+                                                type="text"
+                                                id=`passenger-surname-${index}`
+                                                name="surnames"
+                                                required
+                                                value=passenger.surname
+                                            )
+                                        .col-md-6
+                                            label.form-label(for=`passenger-id-${index}`) Kimlik Numarası
+                                            input.gtr-input-sm.w-100(
+                                                type="text"
+                                                id=`passenger-id-${index}`
+                                                name="idNumbers"
+                                                required
+                                                value=passenger.idNumber
+                                            )
+                                        .col-md-12
+                                            - const passengerNationality = (passenger.nationality || 'TR').toUpperCase()
+                                            - const nationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === passengerNationality) : null
+                                            - const passengerNationalityLabel = nationalityOption ? nationalityOption.displayLabel : null
+                                            label.form-label(for=`passenger-nationality-${index}`) Uyruk
+                                            +placeSelect({
+                                                placeholder: 'Uyruk seçin',
+                                                searchPlaceholder: 'Ülke ara...',
+                                                label: passengerNationalityLabel || undefined,
+                                                attrs: {
+                                                    id: `passenger-nationality-select-${index}`,
+                                                    'data-options-id': 'country-options'
+                                                },
+                                                input: {
+                                                    id: `passenger-nationality-${index}`,
+                                                    name: 'nationalities',
+                                                    value: passengerNationality
+                                                }
+                                            })
+
+                    .col-12.col-lg-6
+                        .card.h-100
+                            .card-header Ödeme Bilgileri
+                            .card-body
+                                .row.g-3
+                                    .col-12
+                                        label.form-label(for="payment-card-name") Kart Üzerindeki İsim
                                         input.gtr-input-sm.w-100(
                                             type="text"
-                                            id=`passenger-name-${index}`
-                                            name="names"
+                                            id="payment-card-name"
+                                            name="cardHolder"
+                                            placeholder="Ad Soyad"
                                             required
-                                            value=passenger.name
                                         )
-                                    .col-md-6
-                                        label.form-label(for=`passenger-surname-${index}`) Soyad
+                                    .col-12
+                                        label.form-label(for="payment-card-number") Kart Numarası
                                         input.gtr-input-sm.w-100(
                                             type="text"
-                                            id=`passenger-surname-${index}`
-                                            name="surnames"
+                                            id="payment-card-number"
+                                            name="cardNumber"
+                                            inputmode="numeric"
+                                            autocomplete="cc-number"
+                                            placeholder="0000 0000 0000 0000"
                                             required
-                                            value=passenger.surname
                                         )
                                     .col-md-6
-                                        label.form-label(for=`passenger-id-${index}`) Kimlik Numarası
+                                        label.form-label(for="payment-card-expiry") Son Kullanma Tarihi
                                         input.gtr-input-sm.w-100(
                                             type="text"
-                                            id=`passenger-id-${index}`
-                                            name="idNumbers"
+                                            id="payment-card-expiry"
+                                            name="cardExpiry"
+                                            placeholder="AA/YY"
+                                            autocomplete="cc-exp"
                                             required
-                                            value=passenger.idNumber
                                         )
                                     .col-md-6
-                                        - const passengerNationality = (passenger.nationality || 'TR').toUpperCase()
-                                        - const nationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === passengerNationality) : null
-                                        - const passengerNationalityLabel = nationalityOption ? nationalityOption.displayLabel : null
-                                        label.form-label(for=`passenger-nationality-${index}`) Uyruk
-                                        +placeSelect({
-                                            placeholder: 'Uyruk seçin',
-                                            searchPlaceholder: 'Ülke ara...',
-                                            label: passengerNationalityLabel || undefined,
-                                            attrs: {
-                                                id: `passenger-nationality-select-${index}`,
-                                                'data-options-id': 'country-options'
-                                            },
-                                            input: {
-                                                id: `passenger-nationality-${index}`,
-                                                name: 'nationalities',
-                                                value: passengerNationality
-                                            }
-                                        })
+                                        label.form-label(for="payment-card-cvv") CVV
+                                        input.gtr-input-sm.w-100(
+                                            type="password"
+                                            id="payment-card-cvv"
+                                            name="cardCvv"
+                                            inputmode="numeric"
+                                            autocomplete="cc-csc"
+                                            maxlength="4"
+                                            placeholder="123"
+                                            required
+                                        )
+                                    .col-12
+                                        small.text-muted Kart bilgileri şu anda sadece ön yüzeyde tutulmaktadır. Sanal POS entegrasyonu ile birlikte bu alanlar işleme alınacaktır.
 
                 .d-flex.justify-content-between.align-items-center.mt-3
                     if typeof pricePerSeat !== 'undefined'

@@ -788,6 +788,9 @@ exports.renderPaymentPage = async (req, res) => {
                 passengerInputs: [],
                 error: "Ödeme isteği bulunamadı.",
                 countryOptions: COUNTRY_OPTIONS,
+                contactPhone: "",
+                contactEmail: "",
+                firmKey: "",
             });
         }
 
@@ -814,7 +817,9 @@ exports.renderPaymentPage = async (req, res) => {
             ),
             error: null,
             countryOptions: COUNTRY_OPTIONS,
-            firmKey: firmKey
+            firmKey: firmKey,
+            contactPhone: "",
+            contactEmail: "",
         });
     } catch (error) {
         console.error("renderPaymentPage hata:", error);
@@ -825,6 +830,9 @@ exports.renderPaymentPage = async (req, res) => {
             passengerInputs: [],
             error: "Ödeme bilgileri yüklenemedi.",
             countryOptions: COUNTRY_OPTIONS,
+            contactPhone: "",
+            contactEmail: "",
+            firmKey: "",
         });
     }
 };
@@ -834,6 +842,8 @@ exports.completePayment = async (req, res) => {
     let context = null;
     let viewData = null;
     let passengerInputs = [];
+    let contactPhone = extractContactPhone(req.body);
+    let contactEmail = extractContactEmail(req.body);
 
     try {
         context = await resolveTicketPaymentContext(req, ticketPaymentId);
@@ -846,6 +856,9 @@ exports.completePayment = async (req, res) => {
                 passengerInputs: [],
                 error: "Ödeme isteği bulunamadı.",
                 countryOptions: COUNTRY_OPTIONS,
+                contactPhone,
+                contactEmail,
+                firmKey: "",
             });
         }
 
@@ -869,7 +882,7 @@ exports.completePayment = async (req, res) => {
         }
 
         const missingField = passengerInputs.find(
-            (p) => !p.name || !p.surname || !p.idNumber || !p.phoneNumber
+            (p) => !p.name || !p.surname || !p.idNumber
         );
         if (missingField) {
             return res.status(400).render("payment", {
@@ -884,6 +897,28 @@ exports.completePayment = async (req, res) => {
                 passengerInputs,
                 error: "Lütfen tüm yolcu bilgilerini doldurun.",
                 countryOptions: COUNTRY_OPTIONS,
+                contactPhone,
+                contactEmail,
+                firmKey: context.firmKey || "",
+            });
+        }
+
+        if (!contactPhone || !contactEmail) {
+            return res.status(400).render("payment", {
+                title: "Ödeme",
+                ticketPaymentId: String(ticketPaymentId),
+                seatDetails: viewData.seatDetails,
+                trip: viewData.trip,
+                fromStop: viewData.fromStop,
+                toStop: viewData.toStop,
+                pricePerSeat: viewData.pricePerSeat,
+                totalPrice: viewData.totalPrice,
+                passengerInputs,
+                error: "Lütfen iletişim bilgilerini doldurun.",
+                countryOptions: COUNTRY_OPTIONS,
+                contactPhone,
+                contactEmail,
+                firmKey: context.firmKey || "",
             });
         }
 
@@ -1019,6 +1054,14 @@ exports.completePayment = async (req, res) => {
             );
         }
 
+        if (!contactPhone) {
+            contactPhone = extractContactPhone(req.body);
+        }
+
+        if (!contactEmail) {
+            contactEmail = extractContactEmail(req.body);
+        }
+
         const statusCode = error && error.isUserError ? 400 : 500;
 
         res.status(statusCode).render("payment", {
@@ -1036,6 +1079,9 @@ exports.completePayment = async (req, res) => {
                     ? error.message
                     : "Ödeme tamamlanırken bir hata oluştu.",
             countryOptions: COUNTRY_OPTIONS,
+            contactPhone,
+            contactEmail,
+            firmKey: context?.firmKey || "",
         });
     }
 };
@@ -1137,12 +1183,60 @@ function normaliseBodyArray(value) {
     return [value];
 }
 
+function normaliseSingleValue(value) {
+    if (Array.isArray(value)) {
+        return value.length ? String(value[0]).trim() : "";
+    }
+
+    if (value === undefined || value === null) {
+        return "";
+    }
+
+    return String(value).trim();
+}
+
+function extractContactPhone(body = {}) {
+    if (!body || typeof body !== "object") {
+        return "";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "contactPhone")) {
+        return normaliseSingleValue(body.contactPhone);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "phoneNumbers")) {
+        return normaliseSingleValue(body.phoneNumbers);
+    }
+
+    return "";
+}
+
+function extractContactEmail(body = {}) {
+    if (!body || typeof body !== "object") {
+        return "";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "contactEmail")) {
+        return normaliseSingleValue(body.contactEmail);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "email")) {
+        return normaliseSingleValue(body.email);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "emails")) {
+        return normaliseSingleValue(body.emails);
+    }
+
+    return "";
+}
+
 function buildPassengerInputsFromBody(seatDetails, body = {}) {
     const names = normaliseBodyArray(body.names);
     const surnames = normaliseBodyArray(body.surnames);
     const idNumbers = normaliseBodyArray(body.idNumbers);
-    const phoneNumbers = normaliseBodyArray(body.phoneNumbers);
     const nationalities = normaliseBodyArray(body.nationalities);
+    const sharedPhoneNumber = extractContactPhone(body);
 
     return seatDetails.map((seat, index) => {
         const rawNationality = nationalities[index]
@@ -1161,9 +1255,7 @@ function buildPassengerInputsFromBody(seatDetails, body = {}) {
             name: names[index] ? String(names[index]).trim() : "",
             surname: surnames[index] ? String(surnames[index]).trim() : "",
             idNumber: idNumbers[index] ? String(idNumbers[index]).trim() : "",
-            phoneNumber: phoneNumbers[index]
-                ? String(phoneNumbers[index]).trim()
-                : "",
+            phoneNumber: sharedPhoneNumber,
             nationality: safeNationality,
         };
     });
