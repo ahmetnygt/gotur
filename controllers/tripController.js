@@ -329,12 +329,18 @@ exports.searchAllTrips = async (req, res) => {
 
                 const fallbackOffsets = new Map();
                 let cumulativeMinutes = 0;
-                for (const routeStop of routeStopsForTrip) {
-                    fallbackOffsets.set(String(routeStop.id), cumulativeMinutes);
-                    cumulativeMinutes += parseDurationStringToMinutes(
-                        routeStop.duration
+                routeStopsForTrip.forEach((routeStop, index) => {
+                    if (index > 0) {
+                        cumulativeMinutes += parseDurationStringToMinutes(
+                            routeStop.duration
+                        );
+                    }
+
+                    fallbackOffsets.set(
+                        String(routeStop.id),
+                        cumulativeMinutes
                     );
-                }
+                });
 
                 const tripStopTimeMap =
                     tripStopTimesByTripId.get(String(trip.id)) || null;
