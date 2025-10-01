@@ -1,50 +1,50 @@
 mixin authModals()
-  //- Login Modal
-  .modal.fade#loginModal(tabindex='-1' aria-labelledby='loginModalLabel' aria-hidden='true')
-    .modal-dialog.modal-dialog-centered
-      .modal-content
-        .modal-header.gtr-modal-header
-          h5#loginModalLabel.modal-title Giriş Yap
-          button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
-        .modal-body
-          .alert.alert-danger.d-none(role='alert' data-error-target='login')
-          form#loginForm(novalidate)
-            .mb-3
-              label.form-label(for='login-identifier') E-posta veya Telefon Numarası
-              input#login-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
-              .invalid-feedback
-            .mb-3
-              label.form-label(for='login-password') Şifre
-              input#login-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='current-password')
-              .invalid-feedback
-            button.btn.btn-primary.w-100(type='submit') Giriş Yap
-        .modal-footer.justify-content-center
-          span.text-muted.small Hesabınız yok mu?
-          button.btn.btn-link.p-0.ms-1(type='button' data-bs-target='#registerModal' data-bs-toggle='modal' data-bs-dismiss='modal') Kayıt Ol
+  //- Login Popup
+  .auth-popup#loginPopup(aria-hidden='true')
+    .auth-popup__overlay(data-popup-close)
+    .auth-popup__dialog(role='dialog' aria-modal='true' aria-labelledby='loginPopupLabel')
+      .auth-popup__header.gtr-modal-header
+        h5#loginPopupLabel.auth-popup__title Giriş Yap
+        button.btn-close(type='button' data-popup-close aria-label='Kapat')
+      .auth-popup__body
+        .alert.alert-danger.d-none(role='alert' data-error-target='login')
+        form#loginForm(novalidate)
+          .mb-3
+            label.form-label(for='login-identifier') E-posta veya Telefon Numarası
+            input#login-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
+            .invalid-feedback
+          .mb-3
+            label.form-label(for='login-password') Şifre
+            input#login-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='current-password')
+            .invalid-feedback
+          button.btn.btn-primary.w-100(type='submit') Giriş Yap
+      .auth-popup__footer
+        span.text-muted.small Hesabınız yok mu?
+        button.btn.btn-link.p-0.ms-1(type='button' data-popup-switch='registerPopup') Kayıt Ol
 
-  //- Register Modal
-  .modal.fade#registerModal(tabindex='-1' aria-labelledby='registerModalLabel' aria-hidden='true')
-    .modal-dialog.modal-dialog-centered
-      .modal-content
-        .modal-header.gtr-modal-header
-          h5#registerModalLabel.modal-title Kayıt Ol
-          button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Kapat')
-        .modal-body
-          .alert.alert-danger.d-none(role='alert' data-error-target='register')
-          form#registerForm(novalidate)
-            .mb-3
-              label.form-label(for='register-identifier') E-posta veya Telefon Numarası
-              input#register-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
-              .invalid-feedback
-            .mb-3
-              label.form-label(for='register-password') Şifre
-              input#register-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='new-password')
-              .invalid-feedback
-            .mb-3
-              label.form-label(for='register-password-confirm') Şifre Tekrarı
-              input#register-password-confirm.form-control(type='password' name='passwordConfirm' placeholder='Şifrenizi tekrar girin' autocomplete='new-password')
-              .invalid-feedback
-            button.btn.btn-primary.w-100(type='submit') Kayıt Ol
-        .modal-footer.justify-content-center
-          span.text-muted.small Zaten hesabınız var mı?
-          button.btn.btn-link.p-0.ms-1(type='button' data-bs-target='#loginModal' data-bs-toggle='modal' data-bs-dismiss='modal') Giriş Yap
+  //- Register Popup
+  .auth-popup#registerPopup(aria-hidden='true')
+    .auth-popup__overlay(data-popup-close)
+    .auth-popup__dialog(role='dialog' aria-modal='true' aria-labelledby='registerPopupLabel')
+      .auth-popup__header.gtr-modal-header
+        h5#registerPopupLabel.auth-popup__title Kayıt Ol
+        button.btn-close(type='button' data-popup-close aria-label='Kapat')
+      .auth-popup__body
+        .alert.alert-danger.d-none(role='alert' data-error-target='register')
+        form#registerForm(novalidate)
+          .mb-3
+            label.form-label(for='register-identifier') E-posta veya Telefon Numarası
+            input#register-identifier.form-control(type='text' name='identifier' placeholder='E-posta veya telefon numarası' autocomplete='username')
+            .invalid-feedback
+          .mb-3
+            label.form-label(for='register-password') Şifre
+            input#register-password.form-control(type='password' name='password' placeholder='Şifrenizi girin' autocomplete='new-password')
+            .invalid-feedback
+          .mb-3
+            label.form-label(for='register-password-confirm') Şifre Tekrarı
+            input#register-password-confirm.form-control(type='password' name='passwordConfirm' placeholder='Şifrenizi tekrar girin' autocomplete='new-password')
+            .invalid-feedback
+          button.btn.btn-primary.w-100(type='submit') Kayıt Ol
+      .auth-popup__footer
+        span.text-muted.small Zaten hesabınız var mı?
+        button.btn.btn-link.p-0.ms-1(type='button' data-popup-switch='loginPopup') Giriş Yap
