@@ -1,8 +1,49 @@
-const tripSearchDate = $(".trip-search_date")
-flatpickr(tripSearchDate, {
-    locale: "tr",
-    defaultDate: new Date(),
-})
+(() => {
+    const placeSelectModule = window.GTR && window.GTR.placeSelect;
+    if (placeSelectModule && typeof placeSelectModule.init === "function") {
+        Promise.resolve(placeSelectModule.init()).catch((error) => {
+            console.error(
+                "Seyahat araması için yer seçici başlatılırken hata oluştu:",
+                error
+            );
+        });
+    }
+
+    const tripSearchDateInput = document.querySelector(".trip-search_date");
+
+    if (tripSearchDateInput) {
+        const defaultDate = tripSearchDateInput.value || new Date();
+        flatpickr(tripSearchDateInput, {
+            locale: "tr",
+            defaultDate,
+            altInput: true,
+            altFormat: "d F Y",
+            altInputClass: "trip-search_date-alt",
+            dateFormat: "Y-m-d",
+        });
+    }
+
+    const searchButton = $(".trip-search_search-button");
+    const getHiddenValue = (selector) => {
+        const element = document.querySelector(selector);
+        return element ? element.value : "";
+    };
+
+    searchButton.off("click");
+    searchButton.on("click", (event) => {
+        event.preventDefault();
+
+        const fromId = getHiddenValue(".trip-search_from");
+        const toId = getHiddenValue(".trip-search_to");
+        const dateValue = tripSearchDateInput ? tripSearchDateInput.value : "";
+
+        if (!fromId || !toId || !dateValue) {
+            return;
+        }
+
+        window.location.href = `/trips/${fromId}-${toId}/${dateValue}`;
+    });
+})();
 
 const parseTimeToMinutes = (value) => {
     if (value === undefined || value === null) {
