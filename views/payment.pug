@@ -8,45 +8,44 @@ block content
     .container.py-4
         if error
             .alert.alert-danger #{error}
-        .d-flex.gap-3.mb-3
-            if trip || fromStop || toStop
-                .card.col-6
-                    .card-header Sefer Bilgisi
-                    .card-body.h-100
-                        .d-flex
-                            .col-5.p-2
-                                img.w-100(src=`/images/${firmKey}.png` alt=firmKey)
-                            .col-7.px-3.py-2
-                                if fromStop && toStop
-                                    p.mb-1
-                                        strong Güzergâh:
-                                        span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
-                                if trip && trip.date
-                                    p.mb-1
-                                        strong Tarih:
-                                        span.ms-1 #{trip.date}
-                                if trip && trip.time
-                                    p.mb-1
-                                        strong Kalkış Saati:
-                                        span.ms-1 #{trip.time}
-                                p.mb-0
-                                    strong Koltuklar:
-                                    span.ms-1 
-                                        each seat in seatDetails
-                                            |#{seat.seatNumber}
-                                            if seat != seatDetails[seat.length-1]
-                                                span.mx-1 -
-                        p.text-center Kalkış saatinden 2 saat önceye kadar açığa alma, iade ve değişim işlemleri yapılabilir.
         if seatDetails && seatDetails.length
             form(method="post" action=`/payment/${ticketPaymentId}/complete`)
                 - const genderLabels = { m: "Erkek", f: "Kadın" };
                 .row.g-3
                     .col-12.col-lg-6
                         .card.h-100
+                            .card-header Sefer Bilgisi
+                            .card-body.h-100
+                                .d-flex
+                                    .col-5.p-2
+                                        img.w-100(src=`/images/${firmKey}.png` alt=firmKey)
+                                    .col-7.px-3.py-2
+                                        if fromStop && toStop
+                                            p.mb-1
+                                                strong Güzergâh:
+                                                span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
+                                        if trip && trip.date
+                                            p.mb-1
+                                                strong Tarih:
+                                                span.ms-1 #{trip.date}
+                                        if trip && trip.time
+                                            p.mb-1
+                                                strong Kalkış Saati:
+                                                span.ms-1 #{trip.time}
+                                        p.mb-0
+                                            strong Koltuklar:
+                                            span.ms-1 
+                                                each seat in seatDetails
+                                                    |#{seat.seatNumber}
+                                                    if seat != seatDetails[seat.length-1]
+                                                        span.mx-1 -
+                                p.text-center Kalkış saatinden 2 saat önceye kadar açığa alma, iade ve değişim işlemleri yapılabilir.
+                    .col-12.col-lg-6
+                        .card.h-100
                             .card-header İletişim
                             .card-body
                                 .row.g-3
-                                    .col-12
+                                    .col-6
                                         label.form-label(for="contact-email") E-mail
                                         input.gtr-input-sm.w-100(
                                             type="email"
@@ -55,7 +54,7 @@ block content
                                             required
                                             value=contactEmail
                                         )
-                                    .col-12
+                                    .col-6
                                         label.form-label(for="contact-phone") Telefon
                                         input.gtr-input-sm.w-100(
                                             type="tel"
@@ -110,7 +109,7 @@ block content
                                                 required
                                                 value=passenger.idNumber
                                             )
-                                        .col-md-12
+                                        .col-md-6
                                             - const passengerNationality = (passenger.nationality || 'TR').toUpperCase()
                                             - const nationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === passengerNationality) : null
                                             - const passengerNationalityLabel = nationalityOption ? nationalityOption.displayLabel : null
@@ -129,13 +128,12 @@ block content
                                                     value: passengerNationality
                                                 }
                                             })
-
                     .col-12.col-lg-6
                         .card.h-100
                             .card-header Ödeme Bilgileri
                             .card-body
                                 .row.g-3
-                                    .col-12
+                                    .col-md-6
                                         label.form-label(for="payment-card-name") Kart Üzerindeki İsim
                                         input.gtr-input-sm.w-100(
                                             type="text"
@@ -144,7 +142,7 @@ block content
                                             placeholder="Ad Soyad"
                                             required
                                         )
-                                    .col-12
+                                    .col-md-6
                                         label.form-label(for="payment-card-number") Kart Numarası
                                         input.gtr-input-sm.w-100(
                                             type="text"
@@ -179,54 +177,6 @@ block content
                                         )
                                     .col-12
                                         small.text-muted Kart bilgileri şu anda sadece ön yüzeyde tutulmaktadır. Sanal POS entegrasyonu ile birlikte bu alanlar işleme alınacaktır.
-                    .card.mb-4.flex-grow-1(style="min-width: 320px; max-width: 420px;")
-                        .card-header Ödeme Bilgileri
-                        .card-body
-                            .row.g-3
-                                .col-12
-                                    label.form-label(for="payment-card-name") Kart Üzerindeki İsim
-                                    input.gtr-input-sm.w-100(
-                                        type="text"
-                                        id="payment-card-name"
-                                        name="cardHolder"
-                                        placeholder="Ad Soyad"
-                                        required
-                                    )
-                                .col-12
-                                    label.form-label(for="payment-card-number") Kart Numarası
-                                    input.gtr-input-sm.w-100(
-                                        type="text"
-                                        id="payment-card-number"
-                                        name="cardNumber"
-                                        inputmode="numeric"
-                                        autocomplete="cc-number"
-                                        placeholder="0000 0000 0000 0000"
-                                        required
-                                    )
-                                .col-md-6
-                                    label.form-label(for="payment-card-expiry") Son Kullanma Tarihi
-                                    input.gtr-input-sm.w-100(
-                                        type="text"
-                                        id="payment-card-expiry"
-                                        name="cardExpiry"
-                                        placeholder="AA/YY"
-                                        autocomplete="cc-exp"
-                                        required
-                                    )
-                                .col-md-6
-                                    label.form-label(for="payment-card-cvv") CVV
-                                    input.gtr-input-sm.w-100(
-                                        type="password"
-                                        id="payment-card-cvv"
-                                        name="cardCvv"
-                                        inputmode="numeric"
-                                        autocomplete="cc-csc"
-                                        maxlength="4"
-                                        placeholder="123"
-                                        required
-                                    )
-                                .col-12
-                                    small.text-muted Kart bilgileri şu anda sadece ön yüzeyde tutulmaktadır. Sanal POS entegrasyonu ile birlikte bu alanlar işleme alınacaktır.
 
                 .d-flex.justify-content-between.align-items-center.mt-3
                     if typeof pricePerSeat !== 'undefined'

@@ -5,6 +5,7 @@ const {
     COUNTRY_OPTIONS,
     COUNTRY_CODE_SET,
 } = require("../utilities/countryOptions");
+const sendEmail = require("../utilities/sendMail");
 
 const BUS_FEATURE_MAPPINGS = [
     { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
@@ -1023,6 +1024,7 @@ exports.completePayment = async (req, res) => {
             await ticketPayment.save({ transaction });
 
             await transaction.commit();
+            await sendEmail("ahmetnygt@hotmail.com","Bilet Mesajı","BİLET ALDIN GÖTÜR H.O DER")
         } catch (innerError) {
             await transaction.rollback();
             throw innerError;
