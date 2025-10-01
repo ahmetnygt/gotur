@@ -1,4 +1,5 @@
 extends layout
+include components/place-select
 include ./components/seat.pug
 
 block css
@@ -12,6 +13,8 @@ block content
   - const fromStopSet = new Set();
   - const uniqueToStops = [];
   - const toStopSet = new Set();
+  - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
+  - const toValue = typeof toId !== 'undefined' ? toId : '';
   - tripList.forEach((trip) => {
   -   const firmKey = trip.firm;
   -   if (firmKey && !firmSet.has(firmKey)) {
@@ -36,32 +39,41 @@ block content
         img(src="/svg/woman.svg" alt="koltuk")
         |KADIN
   .trip-search
-    select.trip-search_from.form-select.form-select-sm(value=fromId)
-      option(value="17000") Çanakkale
-      option(value="17500") Gelibolu
-      option(value="17900") Eceabat
-      option(value="22800") Keşan
-      option(value="34000") İstanbul
-      option(value="34220") Esenler
-      option(value="34520") Beylikdüzü
-      option(value="34710") Kadıköy
-      option(value="59000") Tekirdağ
-      option(value="59300") Malkara
-      option(value="59740") Marmaraereğlisi
-    select.trip-search_to.form-select.form-select-sm(value=toId)
-      option(value="17000") Çanakkale
-      option(value="17500") Gelibolu
-      option(value="17900") Eceabat
-      option(value="22800") Keşan
-      option(value="34000") İstanbul
-      option(value="34220") Esenler
-      option(value="34520") Beylikdüzü
-      option(value="34710") Kadıköy
-      option(value="59000") Tekirdağ
-      option(value="59300") Malkara
-      option(value="59740") Marmaraereğlisi
-    input.trip-search_date.form-control.form-control-sm(type="text" value=date)
-    button.trip-search_search-button.btn.btn-sm.btn-primary.w-100 ARA
+    .trip-search_field
+      span.trip-search_label
+        i.fa-solid.fa-bus-side.me-1
+        span Nereden?
+      +placeSelect({
+        placeholder: 'Kalkış Seçin',
+        searchPlaceholder: 'İl-ilçe adı yazın...',
+        input: {
+          class: 'trip-search_from',
+          name: 'from',
+          value: fromValue
+        }
+      })
+    span.trip-search_change
+      i.fa-solid.fa-arrow-right-arrow-left
+    .trip-search_field
+      span.trip-search_label
+        i.fa-solid.fa-bus-side.me-1
+        span Nereye?
+      +placeSelect({
+        placeholder: 'Varış Seçin',
+        searchPlaceholder: 'İl-ilçe adı yazın...',
+        input: {
+          class: 'trip-search_to',
+          name: 'to',
+          value: toValue
+        }
+      })
+    .trip-search_field.trip-search_date-wrapper
+      span.trip-search_label
+        i.fa-solid.fa-calendar.me-1
+        span Ne Zaman?
+      input.trip-search_date(type='text' value=date)
+    .trip-search_button
+      button.trip-search_search-button.btn.btn-primary.w-100 ARA
   .trip-actions
     .container
       .trip-actions_inner
