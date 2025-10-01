@@ -205,6 +205,133 @@
         });
     };
 
+    const AUTH_POPUP_SELECTOR = ".auth-popup";
+    const AUTH_POPUP_OPEN_CLASS = "is-open";
+    const AUTH_POPUP_BODY_CLASS = "auth-popup-open";
+
+    function clearAuthFormState(form, alertElement) {
+        if (!form) {
+            return;
+        }
+
+        form.reset();
+        clearFormErrors(form);
+        if (alertElement) {
+            clearGlobalError(alertElement);
+        }
+    }
+
+    function openAuthPopup(popup) {
+        if (!popup) {
+            return;
+        }
+
+        popup.classList.add(AUTH_POPUP_OPEN_CLASS);
+        popup.setAttribute("aria-hidden", "false");
+        document.body.classList.add(AUTH_POPUP_BODY_CLASS);
+
+        if (popup.id === "loginPopup") {
+            clearAuthFormState(loginForm, loginAlert);
+        } else if (popup.id === "registerPopup") {
+            clearAuthFormState(registerForm, registerAlert);
+        }
+    }
+
+    function closeAuthPopup(popup) {
+        if (!popup) {
+            return;
+        }
+
+        popup.classList.remove(AUTH_POPUP_OPEN_CLASS);
+        popup.setAttribute("aria-hidden", "true");
+
+        const isAnyPopupOpen = document.querySelector(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`);
+        if (!isAnyPopupOpen) {
+            document.body.classList.remove(AUTH_POPUP_BODY_CLASS);
+        }
+
+        if (popup.id === "loginPopup") {
+            clearAuthFormState(loginForm, loginAlert);
+        } else if (popup.id === "registerPopup") {
+            clearAuthFormState(registerForm, registerAlert);
+        }
+    }
+
+    function setupAuthPopups() {
+        const popups = document.querySelectorAll(AUTH_POPUP_SELECTOR);
+        if (!popups.length) {
+            return;
+        }
+
+        document.querySelectorAll("[data-popup-open]").forEach((trigger) => {
+            trigger.addEventListener("click", (event) => {
+                event.preventDefault();
+                const targetId = trigger.getAttribute("data-popup-open");
+                if (!targetId) {
+                    return;
+                }
+
+                const targetPopup = document.getElementById(targetId);
+                if (!targetPopup) {
+                    return;
+                }
+
+                document.querySelectorAll(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`).forEach((openPopup) => {
+                    if (openPopup !== targetPopup) {
+                        closeAuthPopup(openPopup);
+                    }
+                });
+
+                openAuthPopup(targetPopup);
+            });
+        });
+
+        document.querySelectorAll("[data-popup-close]").forEach((trigger) => {
+            trigger.addEventListener("click", (event) => {
+                event.preventDefault();
+                const popup = trigger.closest(AUTH_POPUP_SELECTOR);
+                if (popup) {
+                    closeAuthPopup(popup);
+                }
+            });
+        });
+
+        document.querySelectorAll("[data-popup-switch]").forEach((trigger) => {
+            trigger.addEventListener("click", (event) => {
+                event.preventDefault();
+                const targetId = trigger.getAttribute("data-popup-switch");
+                if (!targetId) {
+                    return;
+                }
+
+                const currentPopup = trigger.closest(AUTH_POPUP_SELECTOR);
+                const targetPopup = document.getElementById(targetId);
+
+                if (currentPopup) {
+                    closeAuthPopup(currentPopup);
+                }
+
+                if (targetPopup) {
+                    openAuthPopup(targetPopup);
+                }
+            });
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape") {
+                return;
+            }
+
+            const openPopups = document.querySelectorAll(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`);
+            if (!openPopups.length) {
+                return;
+            }
+
+            const lastPopup = openPopups[openPopups.length - 1];
+            closeAuthPopup(lastPopup);
+        });
+    }
+
     const isValidIdentifier = (value = "") => {
         const trimmed = value.trim();
         return emailRegex.test(trimmed) || phoneRegex.test(trimmed);
@@ -276,14 +403,6 @@
             }
         });
 
-        const loginModalElement = document.getElementById("loginModal");
-        if (loginModalElement) {
-            loginModalElement.addEventListener("hidden.bs.modal", () => {
-                loginForm.reset();
-                clearFormErrors(loginForm);
-                clearGlobalError(loginAlert);
-            });
-        }
     }
 
     const registerForm = document.getElementById("registerForm");
@@ -361,15 +480,9 @@
             }
         });
 
-        const registerModalElement = document.getElementById("registerModal");
-        if (registerModalElement) {
-            registerModalElement.addEventListener("hidden.bs.modal", () => {
-                registerForm.reset();
-                clearFormErrors(registerForm);
-                clearGlobalError(registerAlert);
-            });
-        }
     }
+
+    setupAuthPopups();
 
     const logoutButton = document.getElementById("logoutButton");
 
