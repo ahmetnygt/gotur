@@ -1,0 +1,159 @@
+.find-ticket-page {
+  color: #1b1b1b;
+}
+
+.find-ticket-page h1,
+.find-ticket-page p.lead {
+  color: #ffffff;
+}
+
+.find-ticket-card {
+  border: none;
+  border-radius: 18px;
+}
+
+.find-ticket-card .card-body {
+  padding: 2rem;
+}
+
+#find-ticket-form .form-label {
+  font-weight: 600;
+}
+
+.contact-input-wrapper {
+  display: none;
+}
+
+.contact-input-wrapper.is-active {
+  display: block;
+}
+
+.find-ticket-submit-spinner {
+  display: none;
+  margin-left: 0.5rem;
+}
+
+.find-ticket-card .alert-info {
+  background: rgba(13, 110, 253, 0.08);
+  border: none;
+  color: #0a58ca;
+}
+
+.find-ticket-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.find-ticket-result-item {
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.find-ticket-result-item .ticket-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.find-ticket-result-item .ticket-header .pnr-badge {
+  font-weight: 700;
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.12);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+}
+
+.find-ticket-result-item .ticket-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.find-ticket-result-item .ticket-body .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.find-ticket-result-item .ticket-body .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.find-ticket-result-item .ticket-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #b38705;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge.status-canceled,
+.find-ticket-result-item .ticket-footer .status-badge.status-refund {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.find-ticket-result-item .ticket-footer .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.find-ticket-result-item .ticket-footer .meta-item i {
+  color: #0d6efd;
+}
+
+.placeholder-container {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+#find-ticket-status .alert {
+  border-radius: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .find-ticket-card .card-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .find-ticket-card .card-body {
+    padding: 1.25rem;
+  }
+
+  .find-ticket-result-item {
+    padding: 1.25rem;
+  }
+}
