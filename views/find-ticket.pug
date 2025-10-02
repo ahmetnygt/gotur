@@ -1,0 +1,46 @@
+extends layout
+
+block css
+  link(rel='stylesheet', href='/css/find-ticket.css')
+
+block content
+  .container.py-5.find-ticket-page
+    .row.gy-4
+      .col-12
+        h1.display-6.fw-bold.text-white Biletimi Bul
+        p.lead.text-white-50 Satın aldığınız biletleri PNR veya iletişim bilgilerinizle görüntüleyin.
+      .col-lg-4
+        .card.shadow-sm.find-ticket-card
+          .card-body
+            h2.h5.fw-semibold.mb-3 Arama Kriterleri
+            form#find-ticket-form
+              .mb-3
+                label.form-label(for='firm-select') Firma Seç
+                select#firm-select.form-select(name='firmKey' data-placeholder='Firma seçin')
+                  option
+              .mb-3
+                label.form-label(for='pnr-input') Bilet PNR
+                input#pnr-input.form-control(type='text' name='pnr' placeholder='Örn. ANKIST1234')
+                .form-text Büyük/küçük harf fark etmez.
+              .mb-3
+                label.form-label(for='phone-input') Telefon Numarası
+                input#phone-input.form-control(type='text' name='phone' placeholder='+90 5XX XXX XX XX')
+              .mb-3
+                label.form-label(for='email-input') E-posta Adresi
+                input#email-input.form-control(type='email' name='email' placeholder='ornek@mail.com')
+              .alert.alert-info.small.mb-3(role='alert')
+                | En iyi sonuç için PNR ile birlikte iletişim bilgilerinizden en az birini girin.
+              button.btn.btn-primary.w-100(type='submit')
+                span.find-ticket-submit-text Ara
+                span.spinner-border.spinner-border-sm.find-ticket-submit-spinner(role='status' aria-hidden='true')
+            #find-ticket-status.mt-3
+      .col-lg-8
+        .card.shadow-sm.find-ticket-card
+          .card-body
+            h2.h5.fw-semibold.mb-3 Arama Sonuçları
+            #find-ticket-results
+              .placeholder-container
+                p.text-muted Henüz arama yapılmadı.
+
+block scripts
+  script(src='/js/find-ticket.js')
