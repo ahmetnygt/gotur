@@ -98,143 +98,28 @@
     }
 
     resultsContainer.innerHTML = "";
+
+    if (!message) {
+      return;
+    }
+
     const placeholder = document.createElement("div");
     placeholder.className = "placeholder-container";
-    placeholder.innerHTML = `<p class="text-muted mb-0">${message}</p>`;
+
+    const paragraph = document.createElement("p");
+    paragraph.className = "text-muted mb-0";
+    paragraph.textContent = message;
+
+    placeholder.appendChild(paragraph);
     resultsContainer.appendChild(placeholder);
   }
 
-  function formatDate(dateString) {
-    if (!dateString) {
-      return "-";
-    }
-
-    try {
-      const formatter = new Intl.DateTimeFormat("tr-TR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      return formatter.format(new Date(`${dateString}T00:00:00`));
-    } catch (error) {
-      return dateString;
-    }
-  }
-
-  function formatTime(timeString) {
-    if (!timeString) {
-      return "-";
-    }
-
-    const [hours = "00", minutes = "00"] = String(timeString).split(":");
-    return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
-  }
-
-  function buildStatusBadge(status) {
-    if (!status) {
-      return "";
-    }
-
-    const lower = status.toLowerCase();
-    const baseClass = "status-badge";
-    if (lower === "pending") {
-      return `<span class="${baseClass} status-pending">Beklemede</span>`;
-    }
-    if (lower === "canceled" || lower === "refund") {
-      return `<span class="${baseClass} status-canceled">İptal</span>`;
-    }
-    if (lower === "completed" || lower === "web" || lower === "gotur") {
-      return `<span class="${baseClass}">Onaylandı</span>`;
-    }
-    return `<span class="${baseClass}">${status}</span>`;
-  }
-
-  function renderTickets(tickets) {
+  function renderTickets(html) {
     if (!resultsContainer) {
       return;
     }
 
-    resultsContainer.innerHTML = "";
-
-    if (!Array.isArray(tickets) || !tickets.length) {
-      clearResults("Eşleşen bilet bulunamadı.");
-      return;
-    }
-
-    const list = document.createElement("div");
-    list.className = "find-ticket-results-list";
-
-    tickets.forEach((ticket) => {
-      const item = document.createElement("article");
-      item.className = "find-ticket-result-item";
-
-      const header = document.createElement("div");
-      header.className = "ticket-header";
-      header.innerHTML = `
-        <div>
-          <div class="label text-uppercase">Yolcu</div>
-          <div class="value">${ticket.passenger?.fullName || "-"}</div>
-        </div>
-        <div class="pnr-badge">${ticket.pnr || "PNR YOK"}</div>
-      `;
-
-      const body = document.createElement("div");
-      body.className = "ticket-body";
-
-      const fromStop = ticket.fromStop?.title || ticket.trip?.fromPlace || "-";
-      const toStop = ticket.toStop?.title || ticket.trip?.toPlace || "-";
-      const tripDate = formatDate(ticket.trip?.date);
-      const tripTime = formatTime(ticket.trip?.time);
-      const phoneNumber = formatPhoneValue(ticket.phoneNumber || "");
-
-      body.innerHTML = `
-        <div>
-          <div class="label">Kalkış</div>
-          <div class="value">${fromStop}</div>
-        </div>
-        <div>
-          <div class="label">Varış</div>
-          <div class="value">${toStop}</div>
-        </div>
-        <div>
-          <div class="label">Seyahat Tarihi</div>
-          <div class="value">${tripDate}</div>
-        </div>
-        <div>
-          <div class="label">Seyahat Saati</div>
-          <div class="value">${tripTime}</div>
-        </div>
-        <div>
-          <div class="label">Koltuk</div>
-          <div class="value">${ticket.seatNo || "-"}</div>
-        </div>
-        <div>
-          <div class="label">Telefon</div>
-          <div class="value">${phoneNumber || "-"}</div>
-        </div>
-        <div>
-          <div class="label">E-posta</div>
-          <div class="value">${ticket.contactEmail || "-"}</div>
-        </div>
-      `;
-
-      const footer = document.createElement("div");
-      footer.className = "ticket-footer";
-      footer.innerHTML = `
-        ${buildStatusBadge(ticket.status)}
-        <span class="meta-item">
-          <i class="fa-regular fa-calendar"></i>
-          ${ticket.createdAtFormatted || "Oluşturulma tarihi bilinmiyor"}
-        </span>
-      `;
-
-      item.appendChild(header);
-      item.appendChild(body);
-      item.appendChild(footer);
-      list.appendChild(item);
-    });
-
-    resultsContainer.appendChild(list);
+    resultsContainer.innerHTML = html || "";
   }
 
   async function loadFirms() {
@@ -363,12 +248,12 @@
       }
 
       const data = await response.json();
-      renderTickets(data && Array.isArray(data.tickets) ? data.tickets : []);
+      renderTickets(data && typeof data.html === "string" ? data.html : "");
 
-      if (!data || !Array.isArray(data.tickets) || !data.tickets.length) {
-        renderStatus("Eşleşen bilet bulunamadı.", "info");
+      if (data && typeof data.ticketCount === "number" && data.ticketCount > 0) {
+        renderStatus(`${data.ticketCount} bilet bulundu.`, "success");
       } else {
-        renderStatus(`${data.tickets.length} bilet bulundu.`, "success");
+        renderStatus("Eşleşen bilet bulunamadı.", "info");
       }
     } catch (error) {
       console.error("Bilet arama hatası:", error);
