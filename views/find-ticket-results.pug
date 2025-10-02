@@ -8,7 +8,7 @@ else
         .ticket-header
           .ticket-passenger
             .label.text-uppercase Yolcu
-            .value= ticket.passengerName || "-"
+            .value= ticket.passenger.fullName || "-"
           .pnr-badge= ticket.pnr || "PNR YOK"
           .ticket-actions.dropdown
             button.btn.btn-ticket-actions(type='button', id=`ticket-actions-${ticket.id}` data-bs-toggle='dropdown' aria-expanded='false' aria-label='Bilet işlemleri menüsü')
@@ -20,16 +20,16 @@ else
         .ticket-body
           .ticket-body-item
             .label Kalkış
-            .value= ticket.fromTitle || "-"
+            .value= ticket.trip.fromTitle || "-"
           .ticket-body-item
             .label Varış
-            .value= ticket.toTitle || "-"
+            .value= ticket.trip.toTitle || "-"
           .ticket-body-item
             .label Seyahat Tarihi
-            .value= ticket.tripDate || "-"
+            .value= ticket.trip.tripDate || "-"
           .ticket-body-item
             .label Seyahat Saati
-            .value= ticket.tripTime || "-"
+            .value= ticket.trip.tripTime || "-"
           .ticket-body-item
             .label Koltuk
             .value= ticket.seatNo || "-"
