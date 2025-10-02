@@ -32,7 +32,7 @@ block content
                 })
               .mb-3
                 label.form-label(for='pnr-input') Bilet PNR
-                input#pnr-input.form-control(type='text' name='pnr' placeholder='Örn. ANKIST1234')
+                input#pnr-input.gtr-input-sm.w-100(type='text' name='pnr' placeholder='Örn. ANKIST1234')
                 .form-text Büyük/küçük harf fark etmez.
               .mb-3
                 span.form-label.d-block.mb-2 İletişim Bilgisi
@@ -45,11 +45,11 @@ block content
                     label.form-check-label(for='contact-email') E-posta ile ara
               .mb-3.contact-input-wrapper.is-active(data-contact-type='phone')
                 label.form-label(for='phone-input') Telefon Numarası
-                input#phone-input.form-control(type='text' name='phone' placeholder='555 444 33 22' inputmode='numeric')
+                input#phone-input.gtr-input-sm.w-100(type='text' name='phone' placeholder='555 444 33 22' inputmode='numeric')
                 .form-text Numaranız 10 haneli olmalıdır.
               .mb-3.contact-input-wrapper(data-contact-type='email')
                 label.form-label(for='email-input') E-posta Adresi
-                input#email-input.form-control(type='email' name='email' placeholder='ornek@mail.com' disabled)
+                input#email-input.gtr-input-sm.w-100(type='email' name='email' placeholder='ornek@mail.com' disabled)
               button.btn.btn-primary.w-100(type='submit')
                 span.find-ticket-submit-text Ara
                 span.spinner-border.spinner-border-sm.find-ticket-submit-spinner(role='status' aria-hidden='true')
