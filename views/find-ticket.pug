@@ -7,8 +7,8 @@ block content
   .container.py-5.find-ticket-page
     .row.gy-4
       .col-12
-        h1.display-6.fw-bold.text-white Biletimi Bul
-        p.lead.text-white-50 Satın aldığınız biletleri PNR veya iletişim bilgilerinizle görüntüleyin.
+        h1.display-6.fw-bold.text-primary Biletimi Bul
+        p.lead.text-primary Satın aldığınız biletleri PNR veya iletişim bilgilerinizle görüntüleyin.
       .col-lg-4
         .card.shadow-sm.find-ticket-card
           .card-body
@@ -31,15 +31,13 @@ block content
                   .form-check
                     input#contact-email.form-check-input(type='radio' name='contactType' value='email')
                     label.form-check-label(for='contact-email') E-posta ile ara
-              .mb-3.contact-input-wrapper(data-contact-type='phone')
+              .mb-3.contact-input-wrapper.is-active(data-contact-type='phone')
                 label.form-label(for='phone-input') Telefon Numarası
                 input#phone-input.form-control(type='text' name='phone' placeholder='555 444 33 22' inputmode='numeric')
                 .form-text Numaranız 10 haneli olmalıdır.
               .mb-3.contact-input-wrapper(data-contact-type='email')
                 label.form-label(for='email-input') E-posta Adresi
                 input#email-input.form-control(type='email' name='email' placeholder='ornek@mail.com' disabled)
-              .alert.alert-info.small.mb-3(role='alert')
-                | En iyi sonuç için PNR ile birlikte iletişim bilgilerinizden en az birini girin.
               button.btn.btn-primary.w-100(type='submit')
                 span.find-ticket-submit-text Ara
                 span.spinner-border.spinner-border-sm.find-ticket-submit-spinner(role='status' aria-hidden='true')

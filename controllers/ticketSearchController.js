@@ -72,6 +72,8 @@ exports.searchTickets = async (req, res) => {
   const pnr = normalisePnr(req.body?.pnr);
   const phone = normalisePhone(req.body?.phone);
   const email = normaliseEmail(req.body?.email);
+  
+  console.log(firmKey,pnr,phone,email)
 
   if (!firmKey) {
     return res.status(400).json({ message: "Lütfen bir firma seçin." });

@@ -13,6 +13,7 @@
   const contactInputWrappers = form
     ? Array.from(form.querySelectorAll(".contact-input-wrapper"))
     : [];
+  const phoneInput = document.getElementById("phone-input");
   let firmsLoaded = false;
 
   function setSubmitting(isSubmitting) {
