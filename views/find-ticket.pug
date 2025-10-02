@@ -1,5 +1,7 @@
 extends layout
 
+include components/find-ticket-results
+
 block css
   link(rel='stylesheet', href='/css/find-ticket.css')
 
@@ -47,8 +49,7 @@ block content
           .card-body
             h2.h5.fw-semibold.mb-3 Arama Sonuçları
             #find-ticket-results
-              .placeholder-container
-                p.text-muted Henüz arama yapılmadı.
+              +findTicketResults(tickets, resultsMessage)
 
 block scripts
   script(src='/js/find-ticket.js')
