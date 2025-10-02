@@ -73,8 +73,6 @@ exports.searchTickets = async (req, res) => {
   const phone = normalisePhone(req.query?.phone);
   const email = normaliseEmail(req.query?.email);
 
-  console.log(firmKey, pnr, phone, email)
-
   if (!firmKey) {
     return res.status(400).json({ message: "Lütfen bir firma seçin." });
   }
@@ -127,7 +125,7 @@ exports.searchTickets = async (req, res) => {
       if (userEmailUserIds.length) {
         contactConditions.push({ userId: { [Op.in]: userEmailUserIds } });
       } else if (!phone && !pnr) {
-        return res.json({ tickets: [] });
+        return res.json({ html: "", ticketCount: 0 });
       }
     }
 
@@ -144,7 +142,7 @@ exports.searchTickets = async (req, res) => {
     });
 
     if (!tickets.length) {
-      return res.json({ tickets: [] });
+      return res.json({ html: "", ticketCount: 0 });
     }
 
     const tripIds = Array.from(
@@ -275,7 +273,23 @@ exports.searchTickets = async (req, res) => {
       };
     });
 
-    return res.render("find-ticket-results", { tickets: responseTickets });
+    return res.render(
+      "find-ticket-results",
+      { tickets: responseTickets },
+      (renderError, html) => {
+        if (renderError) {
+          console.error("Bilet arama sonuçları oluşturulurken hata oluştu:", renderError);
+          return res.status(500).json({
+            message: "Sonuçlar hazırlanırken bir sorun oluştu.",
+          });
+        }
+
+        return res.json({
+          html: html || "",
+          ticketCount: responseTickets.length,
+        });
+      }
+    );
   } catch (error) {
     console.error("Bilet arama hatası:", error);
     return res.status(500).json({
