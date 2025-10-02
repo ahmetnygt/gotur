@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const tripController = require("../controllers/tripController")
+const ticketSearchController = require("../controllers/ticketSearchController");
 const { fetchRandomRouteSuggestions } = require("../utilities/randomRouteSuggestions");
 
 /* GET home page. */
@@ -29,6 +30,8 @@ router.get('/', async function (req, res) {
   });
 });
 
+router.get('/find-ticket', ticketSearchController.renderFindTicketPage);
+
 router.get('/api/places', async (req, res) => {
   try {
     if (req.app?.locals?.waitForTenants) {
@@ -53,6 +56,40 @@ router.get('/api/places', async (req, res) => {
     res.status(500).json({ message: 'Yerler alınamadı.' });
   }
 });
+
+router.get('/api/firms', async (req, res) => {
+  try {
+    if (req.app?.locals?.waitForTenants) {
+      await req.app.locals.waitForTenants();
+    }
+
+    const { Firm } = req.commonModels ?? {};
+
+    if (!Firm) {
+      return res.status(500).json({ message: 'Firma modeli bulunamadı.' });
+    }
+
+    const firms = await Firm.findAll({
+      where: { status: 'active' },
+      attributes: ['key', 'displayName'],
+      raw: true,
+    });
+
+    const normalized = firms
+      .map((firm) => ({
+        key: firm.key,
+        displayName: firm.displayName || firm.key,
+      }))
+      .sort((a, b) => a.displayName.localeCompare(b.displayName, 'tr'));
+
+    res.json(normalized);
+  } catch (error) {
+    console.error('Firmalar alınırken hata oluştu:', error);
+    res.status(500).json({ message: 'Firmalar alınamadı.' });
+  }
+});
+
+router.post('/api/find-ticket', ticketSearchController.searchTickets);
 
 router.get('/api/places', async (req, res) => {
   try {
