@@ -18,13 +18,29 @@ async function getTenantConnection(firmKey) {
         throw new Error(`Tenant bulunamadı: ${firmKey}`);
     }
 
+    // const sequelize = new Sequelize(
+    //     tenant.dbName,
+    //     "doadmin",
+    //     "AVNS_rfP7FS1Hdg-KSHpn02u",
+    //     {
+    //         host: "dbaas-db-5929049-do-user-22627641-0.g.db.ondigitalocean.com",
+    //         port: 25060,
+    //         dialect: "mysql",
+    //         logging: false,
+    //         pool: {
+    //             max: 10,
+    //             min: 0,
+    //             idle: 10000,
+    //         },
+    //     }
+    // );
     const sequelize = new Sequelize(
         tenant.dbName,
-        "doadmin",
-        "AVNS_rfP7FS1Hdg-KSHpn02u",
+        "root",
+        "anadolutat1071",
         {
-            host: "dbaas-db-5929049-do-user-22627641-0.g.db.ondigitalocean.com",
-            port: 25060,
+            host: "localhost",
+            port: 3306,
             dialect: "mysql",
             logging: false,
             pool: {

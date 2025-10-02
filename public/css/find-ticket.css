@@ -8,12 +8,16 @@
 }
 
 .find-ticket-card {
-  border: none;
-  border-radius: 18px;
+  border-color: #2660ff;
+}
+
+.card-header {
+  color: white;
+  background-color: #2660ff;
 }
 
 .find-ticket-card .card-body {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 #find-ticket-form .form-label {

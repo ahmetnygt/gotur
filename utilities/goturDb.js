@@ -3,12 +3,18 @@ const PlaceFactory = require("../models/placeModel");
 const FirmFactory = require("../models/firmModel");
 const UserFactory = require("../models/userModel");
 
-const goturDB = new Sequelize("gotur", "doadmin", "AVNS_rfP7FS1Hdg-KSHpn02u", {
-    host: "dbaas-db-5929049-do-user-22627641-0.g.db.ondigitalocean.com",
-    port: 25060,
+const goturDB = new Sequelize("gotur", "root", "anadolutat1071", {
+    host: "localhost",
+    port: 3306,
     dialect: "mysql",
     logging: false,
 });
+// const goturDB = new Sequelize("gotur", "doadmin", "AVNS_rfP7FS1Hdg-KSHpn02u", {
+//     host: "dbaas-db-5929049-do-user-22627641-0.g.db.ondigitalocean.com",
+//     port: 25060,
+//     dialect: "mysql",
+//     logging: false,
+// });
 
 function initGoturModels() {
     // const User = UserFactory(goturDb);

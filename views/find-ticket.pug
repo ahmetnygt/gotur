@@ -11,8 +11,9 @@ block content
         p.lead.text-primary Satın aldığınız biletleri PNR veya iletişim bilgilerinizle görüntüleyin.
       .col-lg-4
         .card.shadow-sm.find-ticket-card
+          .card-header
+            p.h5.fw-semibold.m-0 Arama Kriterleri
           .card-body
-            h2.h5.fw-semibold.mb-3 Arama Kriterleri
             form#find-ticket-form
               .mb-3
                 label.form-label(for='firm-select') Firma Seç
@@ -44,9 +45,11 @@ block content
             #find-ticket-status.mt-3
       .col-lg-8
         .card.shadow-sm.find-ticket-card
+          .card-header
+            p.h5.fw-semibold.m-0 Arama Sonuçları
           .card-body
-            h2.h5.fw-semibold.mb-3 Arama Sonuçları
             #find-ticket-results
+              p.text-muted.text-center Biletlerinizi görmek için arama yapın.
 
 block scripts
   script(src='/js/find-ticket.js')
