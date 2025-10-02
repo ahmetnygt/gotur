@@ -1,4 +1,5 @@
 extends layout
+include components/place-select
 
 block css
   link(rel='stylesheet', href='/css/find-ticket.css')
@@ -16,9 +17,19 @@ block content
           .card-body
             form#find-ticket-form
               .mb-3
-                label.form-label(for='firm-select') Firma Seç
-                select#firm-select.form-select(name='firmKey' data-placeholder='Firma seçin')
-                  option
+                label.form-label(for='firm-select-input') Firma Seç
+                +placeSelect({
+                  placeholder: 'Firma seçin',
+                  searchPlaceholder: 'Firma ara...',
+                  attrs: {
+                    id: 'firm-select',
+                    'data-options': '[]'
+                  },
+                  input: {
+                    id: 'firm-select-input',
+                    name: 'firmKey'
+                  }
+                })
               .mb-3
                 label.form-label(for='pnr-input') Bilet PNR
                 input#pnr-input.form-control(type='text' name='pnr' placeholder='Örn. ANKIST1234')
