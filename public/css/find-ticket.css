@@ -20,6 +20,14 @@
   font-weight: 600;
 }
 
+.contact-input-wrapper {
+  display: none;
+}
+
+.contact-input-wrapper.is-active {
+  display: block;
+}
+
 .find-ticket-submit-spinner {
   display: none;
   margin-left: 0.5rem;

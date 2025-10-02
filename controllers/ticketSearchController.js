@@ -10,7 +10,7 @@ function normalisePnr(value) {
 }
 
 function normalisePhone(value) {
-  return normaliseString(value);
+  return normaliseString(value).replace(/\D+/g, "");
 }
 
 function normaliseEmail(value) {

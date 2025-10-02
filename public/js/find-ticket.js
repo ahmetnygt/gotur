@@ -7,6 +7,12 @@
   const submitSpinner = submitButton?.querySelector(".find-ticket-submit-spinner");
   const firmSelectElement = document.getElementById("firm-select");
   const firmSelect = firmSelectElement ? window.jQuery(firmSelectElement) : null;
+  const contactRadios = form
+    ? Array.from(form.querySelectorAll("input[name='contactType']"))
+    : [];
+  const contactInputWrappers = form
+    ? Array.from(form.querySelectorAll(".contact-input-wrapper"))
+    : [];
   let firmsLoaded = false;
 
   function setSubmitting(isSubmitting) {
@@ -17,6 +23,55 @@
     submitButton.disabled = isSubmitting;
     submitSpinner.style.display = isSubmitting ? "inline-block" : "none";
     submitText.style.opacity = isSubmitting ? "0.65" : "1";
+  }
+
+  function getSelectedContactType() {
+    const selectedRadio = contactRadios.find((radio) => radio.checked);
+    return selectedRadio?.value === "email" ? "email" : "phone";
+  }
+
+  function updateContactInputs() {
+    const selectedType = getSelectedContactType();
+
+    contactInputWrappers.forEach((wrapper) => {
+      const wrapperType = wrapper.dataset.contactType;
+      const isActive = wrapperType === selectedType;
+      wrapper.classList.toggle("is-active", isActive);
+
+      const input = wrapper.querySelector("input");
+      if (input) {
+        input.disabled = !isActive;
+      }
+    });
+  }
+
+  function normalisePhoneValue(value) {
+    return (value || "").replace(/\D+/g, "").slice(0, 10);
+  }
+
+  function formatPhoneValue(value) {
+    const digits = normalisePhoneValue(value);
+    const segments = [];
+
+    if (digits.length > 0) {
+      segments.push(digits.slice(0, 3));
+    }
+    if (digits.length > 3) {
+      segments.push(digits.slice(3, 6));
+    }
+    if (digits.length > 6) {
+      segments.push(digits.slice(6, 8));
+    }
+    if (digits.length > 8) {
+      segments.push(digits.slice(8, 10));
+    }
+
+    return segments.join(" ");
+  }
+
+  function handlePhoneInput(event) {
+    const { value } = event.target;
+    event.target.value = formatPhoneValue(value);
   }
 
   function renderStatus(message, type = "info") {
@@ -129,6 +184,7 @@
       const toStop = ticket.toStop?.title || ticket.trip?.toPlace || "-";
       const tripDate = formatDate(ticket.trip?.date);
       const tripTime = formatTime(ticket.trip?.time);
+      const phoneNumber = formatPhoneValue(ticket.phoneNumber || "");
 
       body.innerHTML = `
         <div>
@@ -153,7 +209,7 @@
         </div>
         <div>
           <div class="label">Telefon</div>
-          <div class="value">${ticket.phoneNumber || "-"}</div>
+          <div class="value">${phoneNumber || "-"}</div>
         </div>
         <div>
           <div class="label">E-posta</div>
@@ -238,11 +294,16 @@
       payload[key] = typeof value === "string" ? value.trim() : value;
     }
 
+    const contactType = payload.contactType === "email" ? "email" : "phone";
+    const phone = contactType === "phone" ? normalisePhoneValue(payload.phone) : "";
+    const email = contactType === "email" ? payload.email || "" : "";
+
     return {
       firmKey: payload.firmKey || "",
       pnr: payload.pnr || "",
-      phone: payload.phone || "",
-      email: payload.email || "",
+      contactType,
+      phone,
+      email,
     };
   }
 
@@ -262,6 +323,14 @@
     if (!payload.pnr && !payload.phone && !payload.email) {
       renderStatus(
         "Lütfen PNR veya iletişim bilgilerinizden en az birini girin.",
+        "warning"
+      );
+      return;
+    }
+
+    if (payload.contactType === "phone" && payload.phone && payload.phone.length !== 10) {
+      renderStatus(
+        "Telefon numarası 10 haneli olmalıdır.",
         "warning"
       );
       return;
@@ -312,6 +381,17 @@
   if (form) {
     form.addEventListener("submit", handleSubmit);
   }
+
+  contactRadios.forEach((radio) => {
+    radio.addEventListener("change", updateContactInputs);
+  });
+
+  if (phoneInput) {
+    phoneInput.addEventListener("input", handlePhoneInput);
+    phoneInput.addEventListener("blur", handlePhoneInput);
+  }
+
+  updateContactInputs();
 
   if (firmSelect) {
     window.jQuery(document).ready(initialiseSelect);

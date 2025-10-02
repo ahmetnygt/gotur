@@ -23,11 +23,21 @@ block content
                 input#pnr-input.form-control(type='text' name='pnr' placeholder='Örn. ANKIST1234')
                 .form-text Büyük/küçük harf fark etmez.
               .mb-3
+                span.form-label.d-block.mb-2 İletişim Bilgisi
+                .d-flex.gap-3.flex-wrap
+                  .form-check
+                    input#contact-phone.form-check-input(type='radio' name='contactType' value='phone' checked)
+                    label.form-check-label(for='contact-phone') Telefon ile ara
+                  .form-check
+                    input#contact-email.form-check-input(type='radio' name='contactType' value='email')
+                    label.form-check-label(for='contact-email') E-posta ile ara
+              .mb-3.contact-input-wrapper(data-contact-type='phone')
                 label.form-label(for='phone-input') Telefon Numarası
-                input#phone-input.form-control(type='text' name='phone' placeholder='+90 5XX XXX XX XX')
-              .mb-3
+                input#phone-input.form-control(type='text' name='phone' placeholder='555 444 33 22' inputmode='numeric')
+                .form-text Numaranız 10 haneli olmalıdır.
+              .mb-3.contact-input-wrapper(data-contact-type='email')
                 label.form-label(for='email-input') E-posta Adresi
-                input#email-input.form-control(type='email' name='email' placeholder='ornek@mail.com')
+                input#email-input.form-control(type='email' name='email' placeholder='ornek@mail.com' disabled)
               .alert.alert-info.small.mb-3(role='alert')
                 | En iyi sonuç için PNR ile birlikte iletişim bilgilerinizden en az birini girin.
               button.btn.btn-primary.w-100(type='submit')
