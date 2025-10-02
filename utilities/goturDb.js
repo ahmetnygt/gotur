@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const PlaceFactory = require("../models/placeModel");
 const FirmFactory = require("../models/firmModel");
 const UserFactory = require("../models/userModel");
+const placesSeedData = require("../places.json");
 
 const goturDB = new Sequelize("gotur", "root", "anadolutat1071", {
     host: "localhost",
@@ -16,14 +17,36 @@ const goturDB = new Sequelize("gotur", "root", "anadolutat1071", {
 //     logging: false,
 // });
 
-function initGoturModels() {
-    // const User = UserFactory(goturDb);
-    const Place = PlaceFactory(goturDB);
-    const User = UserFactory(goturDB);
-    const Firm = FirmFactory(goturDB);
-    goturDB.sync();
+let cachedModels = null;
+let seedPromise = null;
 
-    return { Place, Firm, User };
+async function seedPlacesIfNecessary(Place) {
+    try {
+        await goturDB.sync();
+        const placeCount = await Place.count();
+
+        if (placeCount === 0 && Array.isArray(placesSeedData) && placesSeedData.length > 0) {
+            await Place.bulkCreate(placesSeedData, { ignoreDuplicates: true });
+        }
+    } catch (error) {
+        console.error("Places tablosu başlangıç verileri yüklenirken hata oluştu:", error);
+    }
+}
+
+function initGoturModels() {
+    if (!cachedModels) {
+        const Place = PlaceFactory(goturDB);
+        const User = UserFactory(goturDB);
+        const Firm = FirmFactory(goturDB);
+
+        cachedModels = { Place, Firm, User };
+
+        if (!seedPromise) {
+            seedPromise = seedPlacesIfNecessary(Place);
+        }
+    }
+
+    return cachedModels;
 }
 
 module.exports = { goturDB, initGoturModels };
