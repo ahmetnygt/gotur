@@ -226,13 +226,7 @@
     setSubmitting(true);
 
     try {
-      const response = await fetch("/api/find-ticket", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await $.get("/api/find-ticket", { ...payload });
 
       if (!response.ok) {
         let message = "Bilet aranırken bir hata oluştu.";
@@ -248,7 +242,8 @@
       }
 
       const data = await response.json();
-      renderTickets(data && typeof data.html === "string" ? data.html : "");
+      $("#find-ticket-results").html(response)
+      // renderTickets(data && typeof data.html === "string" ? data.html : "");
 
       if (data && typeof data.ticketCount === "number" && data.ticketCount > 0) {
         renderStatus(`${data.ticketCount} bilet bulundu.`, "success");

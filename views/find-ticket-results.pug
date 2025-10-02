@@ -1,0 +1,47 @@
+if !tickets.length
+  .placeholder-container
+    p.text-muted.mb-0= emptyMessage
+else
+  .find-ticket-results-list
+    each ticket in tickets
+      article.find-ticket-result-item
+        .ticket-header
+          .ticket-passenger
+            .label.text-uppercase Yolcu
+            .value= ticket.passengerName || "-"
+          .pnr-badge= ticket.pnr || "PNR YOK"
+          .ticket-actions.dropdown
+            button.btn.btn-ticket-actions(type='button', id=`ticket-actions-${ticket.id}` data-bs-toggle='dropdown' aria-expanded='false' aria-label='Bilet işlemleri menüsü')
+              i.fa-solid.fa-ellipsis-vertical
+            .dropdown-menu.dropdown-menu-end(aria-labelledby=`ticket-actions-${ticket.id}`)
+              button.dropdown-item(type='button') Açığa Al
+              button.dropdown-item(type='button') İade Et
+              button.dropdown-item(type='button') Başka Sefere Taşı
+        .ticket-body
+          .ticket-body-item
+            .label Kalkış
+            .value= ticket.fromTitle || "-"
+          .ticket-body-item
+            .label Varış
+            .value= ticket.toTitle || "-"
+          .ticket-body-item
+            .label Seyahat Tarihi
+            .value= ticket.tripDate || "-"
+          .ticket-body-item
+            .label Seyahat Saati
+            .value= ticket.tripTime || "-"
+          .ticket-body-item
+            .label Koltuk
+            .value= ticket.seatNo || "-"
+          .ticket-body-item
+            .label Telefon
+            .value= ticket.phoneNumber || "-"
+          .ticket-body-item
+            .label E-posta
+            .value= ticket.contactEmail || "-"
+        .ticket-footer
+          if ticket.statusLabel
+            span.status-badge(class=ticket.statusClass)= ticket.statusLabel
+          span.meta-item
+            i.fa-regular.fa-calendar
+            span= ticket.createdAtText || "Oluşturulma tarihi bilinmiyor"

@@ -89,7 +89,7 @@ router.get('/api/firms', async (req, res) => {
   }
 });
 
-router.post('/api/find-ticket', ticketSearchController.searchTickets);
+router.get('/api/find-ticket', ticketSearchController.searchTickets);
 
 router.get('/api/places', async (req, res) => {
   try {

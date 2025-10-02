@@ -40,127 +40,6 @@ function formatCreatedAt(dateValue) {
   }
 }
 
-function formatTripDate(dateString) {
-  if (!dateString) {
-    return "";
-  }
-
-  try {
-    const formatter = new Intl.DateTimeFormat("tr-TR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    return formatter.format(new Date(`${dateString}T00:00:00`));
-  } catch (error) {
-    return "";
-  }
-}
-
-function formatTripTime(timeString) {
-  if (!timeString) {
-    return "";
-  }
-
-  const [hours = "00", minutes = "00"] = String(timeString).split(":");
-  return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
-}
-
-function formatPhoneNumber(value) {
-  const digits = normalisePhone(value).slice(0, 10);
-  const segments = [];
-
-  if (digits.length > 0) {
-    segments.push(digits.slice(0, 3));
-  }
-  if (digits.length > 3) {
-    segments.push(digits.slice(3, 6));
-  }
-  if (digits.length > 6) {
-    segments.push(digits.slice(6, 8));
-  }
-  if (digits.length > 8) {
-    segments.push(digits.slice(8, 10));
-  }
-
-  return segments.join(" ");
-}
-
-function getStatusInfo(status) {
-  const normalised = normaliseString(status).toLowerCase();
-
-  if (!normalised) {
-    return { label: "", className: "" };
-  }
-
-  if (normalised === "pending") {
-    return { label: "Beklemede", className: "status-pending" };
-  }
-
-  if (normalised === "canceled" || normalised === "refund") {
-    return { label: "İptal", className: "status-canceled" };
-  }
-
-  if (["completed", "web", "gotur"].includes(normalised)) {
-    return { label: "Onaylandı", className: "" };
-  }
-
-  return { label: status, className: "" };
-}
-
-function buildTicketViewModel(ticket) {
-  if (!ticket) {
-    return null;
-  }
-
-  const fallbackIdentifier = `ticket-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
-  const identifierSource = ticket.id ?? ticket.pnr ?? fallbackIdentifier;
-  const trimmedIdentifier = String(identifierSource).trim();
-  const ticketId = trimmedIdentifier
-    ? trimmedIdentifier.replace(/[^a-zA-Z0-9_-]/g, "-")
-    : fallbackIdentifier;
-
-  const fromTitle =
-    ticket.fromStop?.title || ticket.trip?.fromPlace || "";
-  const toTitle = ticket.toStop?.title || ticket.trip?.toPlace || "";
-  const statusInfo = getStatusInfo(ticket.status);
-
-  return {
-    id: ticketId,
-    passengerName: ticket.passenger?.fullName || "",
-    pnr: ticket.pnr || "",
-    fromTitle,
-    toTitle,
-    tripDate: formatTripDate(ticket.trip?.date),
-    tripTime: formatTripTime(ticket.trip?.time),
-    seatNo: ticket.seatNo || "",
-    phoneNumber: formatPhoneNumber(ticket.phoneNumber),
-    contactEmail: ticket.contactEmail || "",
-    statusLabel: statusInfo.label,
-    statusClass: statusInfo.className,
-    createdAtText: ticket.createdAtFormatted || "",
-  };
-}
-
-function renderTicketResultsView(app, locals) {
-  if (!app) {
-    return Promise.resolve("");
-  }
-
-  return new Promise((resolve, reject) => {
-    app.render("components/find-ticket-results", locals, (error, html) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      resolve(html || "");
-    });
-  });
-}
-
 async function ensureTenantsReady(req) {
   if (req.app?.locals?.waitForTenants) {
     await req.app.locals.waitForTenants();
@@ -176,8 +55,6 @@ exports.renderFindTicketPage = async (req, res) => {
 
   res.render("find-ticket", {
     title: "Biletimi Bul",
-    tickets: [],
-    resultsMessage: "Henüz arama yapılmadı.",
   });
 };
 
@@ -191,40 +68,12 @@ exports.searchTickets = async (req, res) => {
     });
   }
 
-  const firmKey = normaliseString(req.body?.firmKey);
-  const pnr = normalisePnr(req.body?.pnr);
-  const phone = normalisePhone(req.body?.phone);
-  const email = normaliseEmail(req.body?.email);
+  const firmKey = normaliseString(req.query?.firmKey);
+  const pnr = normalisePnr(req.query?.pnr);
+  const phone = normalisePhone(req.query?.phone);
+  const email = normaliseEmail(req.query?.email);
 
-  const defaultEmptyMessage = "Eşleşen bilet bulunamadı.";
-  const sendTicketResponse = async (
-    tickets,
-    emptyMessage = defaultEmptyMessage
-  ) => {
-    const viewTickets = tickets
-      .map((ticket) => buildTicketViewModel(ticket))
-      .filter(Boolean);
-
-    try {
-      const html = await renderTicketResultsView(req.app, {
-        tickets: viewTickets,
-        emptyMessage,
-      });
-
-      return res.json({
-        html,
-        ticketCount: viewTickets.length,
-      });
-    } catch (renderError) {
-      console.error(
-        "Bilet sonuçları render edilirken hata oluştu:",
-        renderError
-      );
-      return res.status(500).json({
-        message: "Biletler hazırlanırken bir sorun oluştu.",
-      });
-    }
-  };
+  console.log(firmKey, pnr, phone, email)
 
   if (!firmKey) {
     return res.status(400).json({ message: "Lütfen bir firma seçin." });
@@ -278,7 +127,7 @@ exports.searchTickets = async (req, res) => {
       if (userEmailUserIds.length) {
         contactConditions.push({ userId: { [Op.in]: userEmailUserIds } });
       } else if (!phone && !pnr) {
-        return sendTicketResponse([], defaultEmptyMessage);
+        return res.json({ tickets: [] });
       }
     }
 
@@ -295,7 +144,7 @@ exports.searchTickets = async (req, res) => {
     });
 
     if (!tickets.length) {
-      return sendTicketResponse([], defaultEmptyMessage);
+      return res.json({ tickets: [] });
     }
 
     const tripIds = Array.from(
@@ -331,9 +180,9 @@ exports.searchTickets = async (req, res) => {
         : [],
       allRouteStopIds.length
         ? RouteStop.findAll({
-            where: { id: { [Op.in]: allRouteStopIds } },
-            raw: true,
-          })
+          where: { id: { [Op.in]: allRouteStopIds } },
+          raw: true,
+        })
         : [],
     ]);
 
@@ -408,12 +257,12 @@ exports.searchTickets = async (req, res) => {
         },
         trip: trip
           ? {
-              id: trip.id,
-              date: trip.date || null,
-              time: trip.time || null,
-              fromPlace: trip.fromPlaceString || "",
-              toPlace: trip.toPlaceString || "",
-            }
+            id: trip.id,
+            date: trip.date || null,
+            time: trip.time || null,
+            fromPlace: trip.fromPlaceString || "",
+            toPlace: trip.toPlaceString || "",
+          }
           : null,
         fromStop: fromStop
           ? { id: fromStop.id, title: fromStop.title }
@@ -426,7 +275,7 @@ exports.searchTickets = async (req, res) => {
       };
     });
 
-    return sendTicketResponse(responseTickets, defaultEmptyMessage);
+    return res.render("find-ticket-results", { tickets: responseTickets });
   } catch (error) {
     console.error("Bilet arama hatası:", error);
     return res.status(500).json({
