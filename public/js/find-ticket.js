@@ -226,7 +226,12 @@
     setSubmitting(true);
 
     try {
-      const response = await $.get("/api/find-ticket", { ...payload });
+      const query = new URLSearchParams(payload).toString();
+      const response = await fetch(`/api/find-ticket?${query}`, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
       if (!response.ok) {
         let message = "Bilet aranırken bir hata oluştu.";
@@ -236,14 +241,13 @@
             message = errorPayload.message;
           }
         } catch (error) {
-          // Yoksay
+          // JSON parse edilemedi, varsayılan mesaj kullanılacak
         }
         throw new Error(message);
       }
 
       const data = await response.json();
-      $("#find-ticket-results").html(response)
-      // renderTickets(data && typeof data.html === "string" ? data.html : "");
+      renderTickets(data && typeof data.html === "string" ? data.html : "");
 
       if (data && typeof data.ticketCount === "number" && data.ticketCount > 0) {
         renderStatus(`${data.ticketCount} bilet bulundu.`, "success");
