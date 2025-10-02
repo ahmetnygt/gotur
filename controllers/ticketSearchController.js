@@ -40,6 +40,28 @@ function formatCreatedAt(dateValue) {
   }
 }
 
+function mapTicketStatus(status) {
+  const normalisedStatus = String(status || "").toLowerCase();
+
+  const statusMap = {
+    pending: { label: "Beklemede", cssClass: "status-pending" },
+    reservation: { label: "Rezervasyon", cssClass: "status-pending" },
+    canceled: { label: "İptal Edildi", cssClass: "status-canceled" },
+    refund: { label: "İade Edildi", cssClass: "status-refund" },
+    completed: { label: "Tamamlandı", cssClass: "" },
+    web: { label: "Web", cssClass: "" },
+    gotur: { label: "GöTÜR", cssClass: "" },
+    open: { label: "Açık", cssClass: "" },
+  };
+
+  const mapping = statusMap[normalisedStatus] || {
+    label: normalisedStatus ? normalisedStatus.toUpperCase() : "",
+    cssClass: "",
+  };
+
+  return mapping;
+}
+
 async function ensureTenantsReady(req) {
   if (req.app?.locals?.waitForTenants) {
     await req.app.locals.waitForTenants();
@@ -242,6 +264,10 @@ exports.searchTickets = async (req, res) => {
         .join(" ")
         .trim();
 
+      const { label: statusLabel, cssClass: statusClass } = mapTicketStatus(
+        ticket.status
+      );
+
       return {
         id: ticket.id,
         pnr: ticket.pnr || "",
@@ -253,15 +279,13 @@ exports.searchTickets = async (req, res) => {
           lastName: ticket.surname || "",
           fullName: passengerName || "",
         },
-        trip: trip
-          ? {
-            id: trip.id,
-            date: trip.date || null,
-            time: trip.time || null,
-            fromPlace: trip.fromPlaceString || "",
-            toPlace: trip.toPlaceString || "",
-          }
-          : null,
+        trip: {
+          id: trip?.id || null,
+          tripDate: trip?.date || "",
+          tripTime: trip?.time || "",
+          fromTitle: trip?.fromPlaceString || fromStop?.title || "",
+          toTitle: trip?.toPlaceString || toStop?.title || "",
+        },
         fromStop: fromStop
           ? { id: fromStop.id, title: fromStop.title }
           : null,
@@ -269,6 +293,9 @@ exports.searchTickets = async (req, res) => {
         contactEmail: user?.email || "",
         createdAt: ticket.createdAt || null,
         createdAtFormatted: formatCreatedAt(ticket.createdAt),
+        createdAtText: formatCreatedAt(ticket.createdAt),
+        statusLabel,
+        statusClass,
         firmKey,
       };
     });
