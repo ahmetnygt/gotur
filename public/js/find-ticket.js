@@ -5,8 +5,10 @@
   const submitButton = form?.querySelector("button[type='submit']");
   const submitText = submitButton?.querySelector(".find-ticket-submit-text");
   const submitSpinner = submitButton?.querySelector(".find-ticket-submit-spinner");
-  const firmSelectElement = document.getElementById("firm-select");
-  const firmSelect = firmSelectElement ? window.jQuery(firmSelectElement) : null;
+  const firmSelectRoot = document.getElementById("firm-select");
+  const firmInput = form
+    ? form.querySelector("input[name='firmKey']")
+    : null;
   const contactRadios = form
     ? Array.from(form.querySelectorAll("input[name='contactType']"))
     : [];
@@ -15,6 +17,123 @@
     : [];
   const phoneInput = document.getElementById("phone-input");
   let firmsLoaded = false;
+  let firmSelectInstance = null;
+  let firmSelectInitPromise = null;
+
+  function toLocaleLower(value) {
+    if (typeof value !== "string") {
+      return "";
+    }
+
+    try {
+      return value.toLocaleLowerCase("tr-TR");
+    } catch (error) {
+      return value.toLowerCase();
+    }
+  }
+
+  function normaliseFirmOptions(firms) {
+    if (!Array.isArray(firms)) {
+      return [];
+    }
+
+    const normalised = firms
+      .map((firm) => {
+        if (!firm || typeof firm !== "object") {
+          return null;
+        }
+
+        const id = firm.key ? String(firm.key).trim() : "";
+        const baseLabel = firm.displayName || firm.name || firm.key || "";
+        const label = baseLabel ? String(baseLabel).trim() : "";
+
+        if (!id || !label) {
+          return null;
+        }
+
+        const extraSearchParts = [firm.legalName, firm.brandName, firm.title]
+          .filter((part) => typeof part === "string" && part.trim())
+          .map((part) => part.trim())
+          .join(" ");
+
+        const searchSource = [label, id, extraSearchParts]
+          .filter(Boolean)
+          .join(" ");
+
+        return {
+          id,
+          displayTitle: label,
+          searchText: toLocaleLower(searchSource),
+        };
+      })
+      .filter(Boolean);
+
+    normalised.sort((a, b) =>
+      a.displayTitle.localeCompare(b.displayTitle, "tr")
+    );
+
+    return normalised;
+  }
+
+  async function ensureFirmSelectInstance() {
+    if (!firmSelectRoot) {
+      return null;
+    }
+
+    if (firmSelectInstance) {
+      return firmSelectInstance;
+    }
+
+    const placeSelectApi = window.GTR && window.GTR.placeSelect;
+    if (!placeSelectApi) {
+      console.error("GTR.placeSelect bulunamadı.");
+      return null;
+    }
+
+    const existing = placeSelectApi.getInstance
+      ? placeSelectApi.getInstance(firmSelectRoot)
+      : null;
+
+    if (existing) {
+      firmSelectInstance = existing;
+      return existing;
+    }
+
+    if (!firmSelectInitPromise) {
+      firmSelectInitPromise = Promise.resolve(
+        placeSelectApi.init ? placeSelectApi.init(firmSelectRoot) : []
+      )
+        .catch((error) => {
+          console.error("Firma seçici başlatılamadı:", error);
+          throw error;
+        })
+        .finally(() => {
+          firmSelectInitPromise = null;
+        });
+    }
+
+    try {
+      const created = await firmSelectInitPromise;
+      if (Array.isArray(created) && created.length) {
+        const fromResult = created.find(
+          (instance) => instance && instance.root === firmSelectRoot
+        );
+        if (fromResult) {
+          firmSelectInstance = fromResult;
+          return firmSelectInstance;
+        }
+      }
+    } catch (error) {
+      return null;
+    }
+
+    const resolvedInstance = placeSelectApi.getInstance
+      ? placeSelectApi.getInstance(firmSelectRoot)
+      : null;
+
+    firmSelectInstance = resolvedInstance || null;
+    return firmSelectInstance;
+  }
 
   function setSubmitting(isSubmitting) {
     if (!submitButton || !submitText || !submitSpinner) {
@@ -123,7 +242,12 @@
   }
 
   async function loadFirms() {
-    if (!firmSelect || firmsLoaded) {
+    if (!firmSelectRoot || firmsLoaded) {
+      return;
+    }
+
+    const instance = await ensureFirmSelectInstance();
+    if (!instance) {
       return;
     }
 
@@ -132,20 +256,18 @@
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
+
       const data = await response.json();
-      const firms = Array.isArray(data) ? data : [];
+      const options = normaliseFirmOptions(data);
+      instance.setPlaces(options);
 
-      firms.forEach((firm) => {
-        const option = new Option(
-          firm.displayName || firm.key,
-          firm.key,
-          false,
-          false
-        );
-        firmSelect.append(option);
-      });
+      const currentValue = firmInput ? String(firmInput.value || "") : "";
+      if (currentValue) {
+        instance.selectById(currentValue);
+      } else {
+        instance.clear();
+      }
 
-      firmSelect.trigger("change");
       firmsLoaded = true;
     } catch (error) {
       console.error("Firmalar yüklenirken hata oluştu:", error);
@@ -156,22 +278,13 @@
     }
   }
 
-  function initialiseSelect() {
-    if (!firmSelect) {
+  async function initialiseFirmSelect() {
+    if (!firmSelectRoot) {
       return;
     }
 
-    firmSelect.select2({
-      placeholder: firmSelectElement?.dataset.placeholder || "Firma seçin",
-      width: "100%",
-      allowClear: true,
-      language: {
-        noResults: () => "Sonuç bulunamadı",
-        searching: () => "Aranıyor...",
-      },
-    });
-
-    loadFirms();
+    await ensureFirmSelectInstance();
+    await loadFirms();
   }
 
   function buildPayload(formData) {
@@ -278,7 +391,11 @@
 
   updateContactInputs();
 
-  if (firmSelect) {
-    window.jQuery(document).ready(initialiseSelect);
+  if (firmSelectRoot) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initialiseFirmSelect);
+    } else {
+      initialiseFirmSelect();
+    }
   }
 })();
