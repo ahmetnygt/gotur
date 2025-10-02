@@ -5,6 +5,20 @@
     let placesPromise = null;
     const staticOptionsCache = new Map();
 
+    let trCollator = null;
+    try {
+        trCollator = new Intl.Collator("tr", { sensitivity: "base" });
+    } catch (error) {
+        trCollator = null;
+    }
+
+    const compareTurkish = (a, b) => {
+        if (trCollator) {
+            return trCollator.compare(a, b);
+        }
+        return String(a).localeCompare(String(b), "tr");
+    };
+
     const toLocaleLower = value => {
         if (typeof value !== "string") {
             return "";
@@ -15,6 +29,64 @@
         } catch (error) {
             return value.toLowerCase();
         }
+    };
+
+    const getNormalizedTitle = place => {
+        if (!place) {
+            return "";
+        }
+
+        if (typeof place.normalizedTitle === "string") {
+            return place.normalizedTitle;
+        }
+
+        if (typeof place.title === "string") {
+            return toLocaleLower(place.title);
+        }
+
+        if (typeof place.displayTitle === "string") {
+            return toLocaleLower(place.displayTitle);
+        }
+
+        return "";
+    };
+
+    const sortPlacesForTerm = (places, normalizedTerm) => {
+        if (!Array.isArray(places)) {
+            return [];
+        }
+
+        const normalized = typeof normalizedTerm === "string" ? normalizedTerm : "";
+        if (!normalized) {
+            return places.slice();
+        }
+
+        return places.slice().sort((a, b) => {
+            const aNormalizedTitle = getNormalizedTitle(a);
+            const bNormalizedTitle = getNormalizedTitle(b);
+
+            const aExact = aNormalizedTitle === normalized;
+            const bExact = bNormalizedTitle === normalized;
+            if (aExact !== bExact) {
+                return aExact ? -1 : 1;
+            }
+
+            const aStarts = Boolean(a && a.searchText && a.searchText.startsWith(normalized));
+            const bStarts = Boolean(b && b.searchText && b.searchText.startsWith(normalized));
+            if (aStarts !== bStarts) {
+                return aStarts ? -1 : 1;
+            }
+
+            const aProvince = Boolean(a && a.isProvince);
+            const bProvince = Boolean(b && b.isProvince);
+            if (aProvince !== bProvince) {
+                return aProvince ? -1 : 1;
+            }
+
+            const aDisplay = a && a.displayTitle ? a.displayTitle : aNormalizedTitle;
+            const bDisplay = b && b.displayTitle ? b.displayTitle : bNormalizedTitle;
+            return compareTurkish(aDisplay, bDisplay);
+        });
     };
 
     const parseStaticJson = text => {
@@ -135,8 +207,10 @@
         );
 
         const enhanced = rawPlaces.map(place => {
+            const isProvince =
+                place.provinceId && String(place.provinceId) === String(place.id);
             const province =
-                place.provinceId && String(place.provinceId) !== String(place.id)
+                !isProvince && place.provinceId
                     ? placeMap.get(String(place.provinceId))
                     : null;
             const provinceTitle =
@@ -149,6 +223,8 @@
                 Object.assign({}, place, {
                     provinceTitle,
                     displayTitle,
+                    isProvince,
+                    normalizedTitle: toLocaleLower(place.title),
                     searchText: toLocaleLower(
                         `${place.title} ${provinceTitle}`.trim()
                     ),
@@ -156,9 +232,7 @@
             );
         });
 
-        enhanced.sort((a, b) =>
-            a.displayTitle.localeCompare(b.displayTitle, "tr")
-        );
+        enhanced.sort((a, b) => compareTurkish(a.displayTitle, b.displayTitle));
 
         return Object.freeze(enhanced);
     };
@@ -217,6 +291,23 @@
                 ".place-select_options"
             );
             this.placeholder = this.root.dataset.placeholder || "";
+            const parsedBatch = Number.parseInt(
+                this.root.dataset.visibleBatchSize,
+                10
+            );
+            this.visibleBatchSize = Number.isFinite(parsedBatch)
+                ? Math.max(parsedBatch, 1)
+                : 5;
+            this.renderLimit = this.visibleBatchSize;
+            this.renderedCount = 0;
+            this.handleOptionsScroll = () => this.onOptionsScroll();
+
+            if (this.optionsContainer) {
+                this.optionsContainer.addEventListener(
+                    "scroll",
+                    this.handleOptionsScroll
+                );
+            }
 
             const searchPlaceholder = this.root.dataset.searchPlaceholder;
             if (searchPlaceholder && this.searchInput) {
@@ -227,6 +318,7 @@
             this.updateDisplay();
             this.filteredPlaces = this.places;
             this.syncHighlightWithValue();
+            this.resetRenderState();
             this.renderOptions();
             this.root.dataset.placeSelectReady = "true";
         }
@@ -305,6 +397,7 @@
             }
             this.filteredPlaces = this.places;
             this.syncHighlightWithValue();
+            this.resetRenderState();
             this.renderOptions();
 
             if (this.searchInput) {
@@ -336,12 +429,54 @@
             if (!normalized) {
                 this.filteredPlaces = this.places;
             } else {
-                this.filteredPlaces = this.places.filter(place =>
+                const filtered = this.places.filter(place =>
                     place.searchText.includes(normalized)
                 );
+                this.filteredPlaces = sortPlacesForTerm(filtered, normalized);
             }
             this.syncHighlightWithValue();
+            this.resetRenderState();
             this.renderOptions();
+        }
+
+        resetRenderState() {
+            const available = Array.isArray(this.filteredPlaces)
+                ? this.filteredPlaces.length
+                : 0;
+            const base = Math.max(this.visibleBatchSize, 1);
+            const highlightTarget =
+                this.highlightIndex >= 0 ? this.highlightIndex + 1 : 0;
+            const desired = Math.max(base, highlightTarget);
+            this.renderLimit = available ? Math.min(available, desired) : 0;
+            this.renderedCount = 0;
+        }
+
+        loadMoreOptions() {
+            if (
+                !Array.isArray(this.filteredPlaces) ||
+                this.renderLimit >= this.filteredPlaces.length
+            ) {
+                return;
+            }
+
+            const increment = Math.max(this.visibleBatchSize, 1);
+            this.renderLimit = Math.min(
+                this.filteredPlaces.length,
+                this.renderLimit + increment
+            );
+            this.renderOptions({ append: true });
+        }
+
+        onOptionsScroll() {
+            if (!this.optionsContainer) {
+                return;
+            }
+
+            const { scrollTop, clientHeight, scrollHeight } =
+                this.optionsContainer;
+            if (scrollTop + clientHeight >= scrollHeight - 8) {
+                this.loadMoreOptions();
+            }
         }
 
         syncHighlightWithValue() {
@@ -358,24 +493,43 @@
             }
         }
 
-        renderOptions() {
+        renderOptions({ append = false } = {}) {
             if (!this.optionsContainer) {
                 return;
             }
-            this.optionsContainer.innerHTML = "";
+
+            if (!append) {
+                this.optionsContainer.innerHTML = "";
+                this.renderedCount = 0;
+            }
+
             if (!this.filteredPlaces.length) {
-                const empty = document.createElement("div");
-                empty.className = "place-select_empty";
-                empty.textContent = "Sonuç bulunamadı";
-                this.optionsContainer.appendChild(empty);
+                if (!append) {
+                    const empty = document.createElement("div");
+                    empty.className = "place-select_empty";
+                    empty.textContent = "Sonuç bulunamadı";
+                    this.optionsContainer.appendChild(empty);
+                }
                 return;
             }
 
             const currentValue = this.input
                 ? String(this.input.value || "")
                 : "";
+            const startIndex = append ? this.renderedCount : 0;
+            const endIndex = Math.min(
+                this.renderLimit,
+                this.filteredPlaces.length
+            );
 
-            this.filteredPlaces.forEach((place, index) => {
+            if (startIndex >= endIndex) {
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            for (let index = startIndex; index < endIndex; index += 1) {
+                const place = this.filteredPlaces[index];
                 const option = document.createElement("div");
                 option.className = "place-select_option";
                 option.setAttribute("role", "option");
@@ -397,14 +551,28 @@
                     this.highlightIndex = index;
                     this.updateHighlightedOption();
                 });
-                this.optionsContainer.appendChild(option);
-            });
+                fragment.appendChild(option);
+            }
+
+            this.optionsContainer.appendChild(fragment);
+            this.renderedCount = endIndex;
+
+            if (!append) {
+                this.optionsContainer.scrollTop = 0;
+            }
 
             this.updateHighlightedOption();
         }
 
         updateHighlightedOption() {
             if (!this.optionsContainer) {
+                return;
+            }
+            if (
+                this.highlightIndex >= this.renderLimit &&
+                this.highlightIndex < this.filteredPlaces.length
+            ) {
+                this.loadMoreOptions();
                 return;
             }
             const options = this.optionsContainer.querySelectorAll(
@@ -559,6 +727,10 @@
                 );
             }
             if (this.optionsContainer) {
+                this.optionsContainer.removeEventListener(
+                    "scroll",
+                    this.handleOptionsScroll
+                );
                 this.optionsContainer.innerHTML = "";
             }
             this.root.classList.remove("place-select_open", "has-value");

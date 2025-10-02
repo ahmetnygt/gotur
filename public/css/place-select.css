@@ -94,11 +94,12 @@
 }
 
 .place-select_options {
-    max-height: 240px;
+    max-height: calc(5 * 2.75rem);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    scrollbar-gutter: stable;
 }
 
 .place-select_option {
@@ -107,6 +108,9 @@
     cursor: pointer;
     font-size: 0.95rem;
     color: #1f2937;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
 }
 
 .place-select_option:hover,
