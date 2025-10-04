@@ -317,6 +317,14 @@ exports.searchAllTrips = async (req, res) => {
                         (a, b) => Number(a.order || 0) - Number(b.order || 0)
                     );
 
+                const routeStopOrderMap = new Map();
+                for (const routeStop of routeStopsForTrip) {
+                    const orderValue = Number(routeStop.order);
+                    if (Number.isFinite(orderValue)) {
+                        routeStopOrderMap.set(String(routeStop.id), orderValue);
+                    }
+                }
+
                 const fromRouteStop = routeStopsForTrip.find(
                     (rs) => rs.stopId == fromStop.id
                 );
@@ -423,6 +431,8 @@ exports.searchAllTrips = async (req, res) => {
                 const toOrderValue = Number(toRouteStop.order);
                 const lowerOrder = Math.min(fromOrderValue, toOrderValue);
                 const upperOrder = Math.max(fromOrderValue, toOrderValue);
+                const hasValidRequestOrders =
+                    Number.isFinite(lowerOrder) && Number.isFinite(upperOrder);
 
                 const relevantRouteStops = routeStopsForTrip.filter((routeStop) => {
                     const orderValue = Number(routeStop.order);
@@ -515,8 +525,44 @@ exports.searchAllTrips = async (req, res) => {
                     order: [["seatNo", "ASC"]],
                 });
 
+                const seatBlockingTickets = hasValidRequestOrders
+                    ? tickets.filter((ticket) => {
+                          const ticketFromOrder = routeStopOrderMap.get(
+                              String(ticket.fromRouteStopId)
+                          );
+                          const ticketToOrder = routeStopOrderMap.get(
+                              String(ticket.toRouteStopId)
+                          );
+
+                          if (
+                              !Number.isFinite(ticketFromOrder) ||
+                              !Number.isFinite(ticketToOrder)
+                          ) {
+                              return true;
+                          }
+
+                          const ticketLower = Math.min(
+                              ticketFromOrder,
+                              ticketToOrder
+                          );
+                          const ticketUpper = Math.max(
+                              ticketFromOrder,
+                              ticketToOrder
+                          );
+
+                          if (
+                              ticketUpper <= lowerOrder ||
+                              upperOrder <= ticketLower
+                          ) {
+                              return false;
+                          }
+
+                          return true;
+                      })
+                    : tickets;
+
                 let newTickets = [];
-                for (const t of tickets) newTickets[t.seatNo] = t;
+                for (const t of seatBlockingTickets) newTickets[t.seatNo] = t;
 
                 if (typeof trip.duration === "string") {
                     if (trip.duration.includes(":")) {
@@ -541,11 +587,14 @@ exports.searchAllTrips = async (req, res) => {
                 trip.price = price ? price.webPrice : 0;
 
                 if (busModel) {
-                    trip.fullness = tickets.length + "/" + busModel.maxPassenger;
+                    trip.fullness =
+                        seatBlockingTickets.length +
+                        "/" +
+                        busModel.maxPassenger;
                     trip.busPlanBinary = busModel.planBinary;
                     trip.busPlan = JSON.parse(busModel.plan);
                 } else {
-                    trip.fullness = tickets.length.toString();
+                    trip.fullness = seatBlockingTickets.length.toString();
                     trip.busPlanBinary = "";
                     trip.busPlan = [];
                 }
