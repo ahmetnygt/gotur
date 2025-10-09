@@ -114,6 +114,22 @@
     margin-top: .5rem;
 }
 
+.coming-soon-firm {
+    object-fit: contain;
+    width: 15%;
+}
+
+.coming-soon-firm:hover {
+    transform: translateY(-5px);
+}
+
+.coming-soon p {
+    font-size: 1.5rem;
+    color: #2660ff;
+    /* text-align: center; */
+    margin-bottom: 1rem;
+}
+
 .attribute {
     padding: 1rem;
     display: flex;
@@ -126,7 +142,7 @@
     user-select: none;
 }
 
-.attribute:hover{
+.attribute:hover {
     transform: scale(1.05);
 }
 
@@ -146,6 +162,6 @@
     background-color: #f7f9ff;
 }
 
-.attribute-routes li + li {
+.attribute-routes li+li {
     margin-top: 0.35rem;
 }
