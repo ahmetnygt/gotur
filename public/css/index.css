@@ -128,7 +128,6 @@
     flex-direction: column;
     gap: 0.5rem;
     overflow: hidden;
-    margin-bottom: 1rem;
 }
 
 .coming-soon-marquee .marquee {
@@ -136,20 +135,20 @@
     white-space: nowrap;
 }
 
-.coming-soon-marquee .marquee span {
+.coming-soon-marquee .marquee p {
     display: inline-block;
     font-size: 1.5rem;
     color: #2660ff;
-    animation-duration: 12s;
+    animation-duration: 30s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
 
-.coming-soon-marquee .marquee--ltr span {
+.coming-soon-marquee .marquee--ltr p {
     animation-name: marquee-ltr;
 }
 
-.coming-soon-marquee .marquee--rtl span {
+.coming-soon-marquee .marquee--rtl p {
     animation-name: marquee-rtl;
 }
 
