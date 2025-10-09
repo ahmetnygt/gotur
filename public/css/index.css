@@ -199,11 +199,122 @@
 
 .attribute-routes {
     border: 2px solid #2660ff1a;
-    border-radius: 5px;
-    padding: 1.5rem;
-    background-color: #f7f9ff;
+    border-radius: 12px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f7f9ff 0%, #eef3ff 100%);
+    box-shadow: 0 12px 24px -18px rgba(38, 96, 255, 0.6);
 }
 
-.attribute-routes li+li {
-    margin-top: 0.35rem;
+.attribute-routes__header {
+    gap: 1rem;
+}
+
+.attribute-routes__badge {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #2660ff;
+    color: #fff;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 6px 12px -6px rgba(38, 96, 255, 0.7);
+}
+
+.attribute-routes__lead {
+    color: #4a5568;
+    max-width: 40rem;
+}
+
+.attribute-routes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.attribute-route {
+    background: #fff;
+    border: 1px solid #dbe4ff;
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 10px 18px -14px rgba(29, 59, 156, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.attribute-route:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 26px -16px rgba(29, 59, 156, 0.75);
+}
+
+.attribute-route__destinations {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #1f3a87;
+    flex-wrap: wrap;
+}
+
+.attribute-route__city {
+    word-break: break-word;
+}
+
+.attribute-route__destinations i {
+    color: #2660ff;
+    font-size: 1rem;
+}
+
+.attribute-route__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.attribute-route__tag {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(38, 96, 255, 0.12);
+    color: #2851ff;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.attribute-route__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.1rem;
+    font-weight: 700;
+    color: #1a2d6d;
+}
+
+.attribute-route__price-value {
+    font-size: 1.35rem;
+}
+
+.attribute-route__price-currency {
+    font-size: 0.95rem;
+}
+
+.attribute-route__price-note {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #5f677d;
+    margin-left: 0.35rem;
+}
+
+@media (max-width: 576px) {
+    .attribute-routes {
+        padding: 1.5rem;
+    }
+
+    .attribute-route {
+        padding: 1rem;
+    }
 }
