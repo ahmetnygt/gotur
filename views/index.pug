@@ -135,9 +135,8 @@ html
           p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
       if promoRoutes && promoRoutes.length
         .attribute-routes.mt-4
-          .attribute-routes__header.d-flex.align-items-center.justify-content-between
+          .attribute-routes__header
             h5.text-uppercase.text-secondary.mb-0 Küçük Bir İlham
-            span.attribute-routes__badge Trend Rotalar
           p.attribute-routes__lead.mb-4 Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
           ul.list-unstyled.mb-0.attribute-routes__grid
             each route in promoRoutes
