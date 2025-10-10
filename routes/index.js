@@ -160,8 +160,8 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
     res.render("bus-ticket", {
       fromTitle: fromPlace.title,
       toTitle: toPlace.title,
-      fromValue:fromPlace,
-      toValue:toPlace,
+      fromValue: fromPlace.id,
+      toValue: toPlace.id,
       title,
       description,
       request: req
