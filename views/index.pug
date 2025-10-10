@@ -140,17 +140,19 @@ html
           p.attribute-routes__lead.mb-4 Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
           ul.list-unstyled.mb-0.attribute-routes__grid
             each route in promoRoutes
-              li.attribute-route
-                .attribute-route__destinations
-                  span.attribute-route__city #{route.fromTitle}
-                  i.fa-solid.fa-arrow-right-long.mx-2
-                  span.attribute-route__city #{route.toTitle}
-                .attribute-route__meta
-                  span.attribute-route__tag Seferleri Gör
-                  span.attribute-route__price
-                    span.attribute-route__price-value #{route.formattedPrice}
-                    span.attribute-route__price-currency ₺
-                    span.attribute-route__price-note 'den başlayan
+              - const routeUrl = `/bus-ticket/${route.fromSlug}-${route.toSlug}`;
+              li
+                a.attribute-route(href=routeUrl)
+                  .attribute-route__destinations
+                    span.attribute-route__city #{route.fromTitle}
+                    i.fa-solid.fa-arrow-right-long.mx-2
+                    span.attribute-route__city #{route.toTitle}
+                  .attribute-route__meta
+                    span.attribute-route__tag Seferleri Gör
+                    span.attribute-route__price
+                      span.attribute-route__price-value #{route.formattedPrice}
+                      span.attribute-route__price-currency ₺
+                      span.attribute-route__price-note 'den başlayan
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")

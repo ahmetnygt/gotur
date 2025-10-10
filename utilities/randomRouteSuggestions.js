@@ -250,7 +250,7 @@ async function fetchRandomRouteSuggestions({
     where: {
       id: { [Op.in]: placeIds },
     },
-    attributes: ["id", "title"],
+    attributes: ["id", "title", "slug"],
     raw: true,
   });
 
@@ -262,7 +262,10 @@ async function fetchRandomRouteSuggestions({
   for (const place of places) {
     const id = toFiniteNumber(place.id);
     if (id !== null) {
-      placeMap.set(id, place.title);
+      placeMap.set(id, {
+        title: place.title,
+        slug: place.slug,
+      });
     }
   }
 
@@ -273,14 +276,21 @@ async function fetchRandomRouteSuggestions({
 
   const suggestions = [];
   for (const combo of selected) {
-    const fromTitle = placeMap.get(combo.fromPlaceId);
-    const toTitle = placeMap.get(combo.toPlaceId);
-    if (!fromTitle || !toTitle) {
+    const fromPlace = placeMap.get(combo.fromPlaceId);
+    const toPlace = placeMap.get(combo.toPlaceId);
+    if (!fromPlace || !toPlace) {
+      continue;
+    }
+    const fromSlug = typeof fromPlace.slug === "string" ? fromPlace.slug.trim() : "";
+    const toSlug = typeof toPlace.slug === "string" ? toPlace.slug.trim() : "";
+    if (!fromSlug || !toSlug) {
       continue;
     }
     suggestions.push({
-      fromTitle,
-      toTitle,
+      fromTitle: fromPlace.title,
+      fromSlug,
+      toTitle: toPlace.title,
+      toSlug,
       price: combo.price,
       formattedPrice: formatter.format(combo.price),
     });
