@@ -13,6 +13,15 @@
     position: relative;
 }
 
+.gtr-header-no-image {
+    width: 100%;
+    height: 10vh;
+    background-color: #2660ff;
+    padding: 1rem 3rem;
+    color: white;
+    position: relative;
+}
+
 body {
     padding-bottom: 2rem;
 }
@@ -31,7 +40,18 @@ body {
     border-radius: 1rem;
 }
 
+.trip-finder-static {
+    background-color: white;
+    padding: 1rem;
+    /* width: 70vw; */
+    height: 15vh;
+    display: flex;
+    gap: 2rem;
+    border-radius: 1rem;
+}
+
 .trip-finder input,
+.trip-finder-static input,
 .place-select {
     height: 70%;
 }
@@ -46,6 +66,7 @@ body {
     color: #2660ff9c;
 }
 
+.trip-finder-static .place-select,
 .trip-finder .place-select {
     width: 13vw;
 }
@@ -326,4 +347,17 @@ body {
     .attribute-route {
         padding: 1rem;
     }
+}
+
+.bus-ticket-header{
+    font-size: 2rem;
+    color: #2660ff;
+}
+
+.trip-finder-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background-color: #2660ff;
 }

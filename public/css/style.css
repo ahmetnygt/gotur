@@ -129,7 +129,8 @@ body {
 }
 
 .gtr-header img,
-.gtr-header-invert img {
+.gtr-header-invert img,
+.gtr-header-no-image img{
   width: 10vw;
 }
 
