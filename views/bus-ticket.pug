@@ -1,0 +1,58 @@
+extends layout
+include components/place-select
+
+block head
+    title #{title}
+    meta(name="description" content=description)
+    meta(property="og:title" content=title)
+    meta(property="og:description" content=description)
+    meta(property="og:type" content="website")
+    meta(property="og:url" content=request.url)
+    meta(property="og:site_name" content="Götür")
+    link(rel="canonical" href=request.url)
+
+block css
+    link(rel='stylesheet' href='/css/style.css')
+    link(rel='stylesheet' href='/css/index.css')
+    link(rel='stylesheet' href='/css/place-select.css')
+
+block content
+    .trip-finder.border
+        .trip-finder_selects
+            .d-flex.flex-column
+                span
+                    i.fa-solid.fa-bus-side.me-1
+                    span Nereden?
+                +placeSelect({
+                    placeholder: 'Kalkış Seçin',
+                    searchPlaceholder: 'İl-ilçe adı yazın...',
+                    input: {
+                        class: 'trip-finder_from',
+                        name: 'from',
+                        value: fromValue
+                    }
+                })
+            span.trip-finder_change
+                i.fa-solid.fa-arrow-right-arrow-left
+            .d-flex.flex-column
+                span
+                    i.fa-solid.fa-bus-side.me-1
+                    span Nereye?
+                +placeSelect({
+                    placeholder: 'Varış Seçin',
+                    searchPlaceholder: 'İl-ilçe adı yazın...',
+                    input: {
+                        class: 'trip-finder_to',
+                        name: 'to',
+                        value: toValue
+                    }
+                })
+            .d-flex.flex-column
+                span
+                    i.fa-solid.fa-calendar.me-1
+                    span Ne Zaman?
+                input.trip-finder_date(type='text')
+            .trip-finder_day-buttons
+                button.trip-finder_day-button(data-day='today' type='button') Bugün
+                button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
+            button.trip-finder_search-button ARA

@@ -3,6 +3,7 @@ var router = express.Router();
 const tripController = require("../controllers/tripController")
 const ticketSearchController = require("../controllers/ticketSearchController");
 const { fetchRandomRouteSuggestions } = require("../utilities/randomRouteSuggestions");
+const { Op } = require('sequelize');
 
 /* GET home page. */
 router.get('/', async function (req, res) {
@@ -117,6 +118,59 @@ router.get('/api/places', async (req, res) => {
 });
 
 router.get('/trips/:route/:date', tripController.searchAllTrips)
+
+router.get("/bus-ticket/:from-:to", async (req, res) => {
+  const { from, to } = req.params;
+
+  // normalize edilmiş parametreler
+  const normalize = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[çÇ]/g, "c")
+      .replace(/[ğĞ]/g, "g")
+      .replace(/[ıİ]/g, "i")
+      .replace(/[öÖ]/g, "o")
+      .replace(/[şŞ]/g, "s")
+      .replace(/[üÜ]/g, "u")
+      .replace(/\s+/g, "-");
+
+  const fromSlug = normalize(from);
+  const toSlug = normalize(to);
+
+  try {
+    const fromPlace = await req.commonModels.Place.findOne({
+      where: {
+        [Op.or]: [{ slug: fromSlug }, { title: from }],
+      },
+    });
+
+    const toPlace = await req.commonModels.Place.findOne({
+      where: {
+        [Op.or]: [{ slug: toSlug }, { title: to }],
+      },
+    });
+
+    if (!fromPlace || !toPlace) {
+      return res.status(404).render("404", { message: "Rota bulunamadı." });
+    }
+
+    const title = `${fromPlace.title} ${toPlace.title} Otobüs Bileti - Götür`;
+    const description = `${fromPlace.title}’den ${toPlace.title}’ne en uygun otobüs biletlerini Götür ile bulun. Güvenli, konforlu ve ekonomik seyahat için hemen yerinizi ayırtın.`;
+
+    res.render("bus-ticket", {
+      fromTitle: fromPlace.title,
+      toTitle: toPlace.title,
+      fromValue:fromPlace,
+      toValue:toPlace,
+      title,
+      description,
+      request: req
+    });
+  } catch (err) {
+    console.error("Hata:", err);
+    res.status(500).render("500", { message: "Bir hata oluştu." });
+  }
+});
 
 router.post('/payment', tripController.createTicketPayment)
 router.get('/payment/:ticketPaymentId', tripController.renderPaymentPage)
