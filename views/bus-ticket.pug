@@ -15,8 +15,38 @@ block css
     link(rel='stylesheet' href='/css/style.css')
     link(rel='stylesheet' href='/css/index.css')
     link(rel='stylesheet' href='/css/place-select.css')
+    link(rel='stylesheet' href='/css/bus-ticket.css')
 
 block content
+    - const tripCards = Array.isArray(popularTrips) ? popularTrips : [];
+    - const formatTime = (value) => {
+    -     if (!value) return '--:--';
+    -     const [hour = '00', minute = '00'] = String(value).split(':');
+    -     return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+    - };
+    - const formatPrice = (value) => {
+    -     const numeric = Number(value);
+    -     if (!Number.isFinite(numeric) || numeric <= 0) {
+    -         return '';
+    -     }
+    -     try {
+    -         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(numeric);
+    -     } catch (error) {
+    -         return `${numeric} TL`;
+    -     }
+    - };
+    - const getFirmInitials = (text) => {
+    -     const normalized = String(text || '').trim();
+    -     if (!normalized) {
+    -         return '?';
+    -     }
+    -     const parts = normalized.split(/\s+/);
+    -     const initials = parts
+    -         .slice(0, 2)
+    -         .map((part) => part.charAt(0).toUpperCase())
+    -         .join('');
+    -     return initials || normalized.charAt(0).toUpperCase();
+    - };
     .container.px-4
         h1.bus-ticket-header.my-3 #{fromTitle} - #{toTitle} Otobüs Bileti
     .trip-finder-container
@@ -59,6 +89,74 @@ block content
                     button.trip-finder_day-button(data-day='today' type='button') Bugün
                     button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
                 button.trip-finder_search-button ARA
+    section.bus-ticket-results
+        .container
+            .bus-ticket-results__header
+                .bus-ticket-results__title
+                    h2 #{fromTitle} - #{toTitle} Popüler Seferler
+                    p.bus-ticket-results__subtitle Bu rotada öne çıkan seferleri sizin için derledik.
+            if tripCards.length
+                .bus-ticket-results__grid(role='list')
+                    each trip in tripCards
+                        - const firmLabel = trip?.firmName || trip?.firm || 'Otobüs Firması';
+                        - const departureTime = formatTime(trip?.time);
+                        - const arrivalTime = formatTime(trip?.arrivalTime);
+                        - const priceText = formatPrice(trip?.price);
+                        - const durationText = typeof trip?.duration === 'string' && trip.duration.trim() ? trip.duration.trim() : '';
+                        - const fromLabel = trip?.fromStr || '';
+                        - const toLabel = trip?.arrivalLocation || trip?.toStr || '';
+                        article.bus-ticket-card(role='listitem')
+                            .bus-ticket-card__header
+                                .bus-ticket-card__firm
+                                    .bus-ticket-card__firm-logo #{getFirmInitials(firmLabel)}
+                                    p.bus-ticket-card__firm-name #{firmLabel}
+                                .bus-ticket-card__price
+                                    if priceText
+                                        strong= priceText
+                                        span Kişi başı bilet
+                                    else
+                                        strong Fiyat bekleniyor
+                                        span Satın alma sırasında netleşir
+                            .bus-ticket-card__body
+                                .bus-ticket-card__time
+                                    .bus-ticket-card__time-row
+                                        strong #{departureTime}
+                                        span
+                                            | Kalkış
+                                            if fromLabel
+                                                |  · #{fromLabel}
+                                    .bus-ticket-card__time-row
+                                        strong #{arrivalTime}
+                                        span
+                                            | Varış
+                                            if toLabel
+                                                |  · #{toLabel}
+                                .bus-ticket-card__route
+                                    strong #{trip?.fromStr || 'Kalkış'} → #{trip?.toStr || 'Varış'}
+                                    if durationText
+                                        span Tahmini süre: #{durationText}
+                                    if Array.isArray(trip?.routeTimeline) && trip.routeTimeline.length
+                                        ul.bus-ticket-card__timeline
+                                            each stopInfo in trip.routeTimeline
+                                                if stopInfo && (stopInfo.time || stopInfo.title)
+                                                    li
+                                                        if stopInfo.time
+                                                            strong #{formatTime(stopInfo.time)}
+                                                            if stopInfo.title
+                                                                span · #{stopInfo.title}
+                                                        else if stopInfo.title
+                                                            span #{stopInfo.title}
+                            if Array.isArray(trip?.busFeatures) && trip.busFeatures.length
+                                .bus-ticket-card__meta
+                                    each feature in trip.busFeatures
+                                        .bus-ticket-card__feature
+                                            if feature?.icon
+                                                img(src=feature.icon alt=feature?.label || 'Özellik')
+                                            span #{feature?.label || 'Özellik'}
+                            .bus-ticket-card__actions
+                                span.bus-ticket-card__fullness #{trip?.fullness ? `Doluluk: ${trip.fullness}` : 'Koltuk durumu: Anlık olarak güncellenir'}
+            else
+                .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 
 block scripts
     script(src='/js/index.js')
