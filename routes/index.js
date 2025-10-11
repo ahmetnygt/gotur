@@ -138,6 +138,14 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
   const toSlug = normalize(to);
 
   try {
+    const now = new Date();
+    const tomorrow = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    );
+    const defaultDate = `${tomorrow.getUTCFullYear()}-${String(
+      tomorrow.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(tomorrow.getUTCDate()).padStart(2, "0")}`;
+
     const fromPlace = await req.commonModels.Place.findOne({
       where: {
         [Op.or]: [{ slug: fromSlug }, { title: from }],
@@ -157,11 +165,142 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
     const title = `${fromPlace.title} ${toPlace.title} Otobüs Bileti - Götür`;
     const description = `${fromPlace.title}’den ${toPlace.title}’ne en uygun otobüs biletlerini Götür ile bulun. Güvenli, konforlu ve ekonomik seyahat için hemen yerinizi ayırtın.`;
 
+    const defaultDateDisplay = tomorrow.toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const defaultDateWeekday = tomorrow.toLocaleDateString("tr-TR", {
+      weekday: "long",
+    });
+
+    const { trips: upcomingTrips } = await tripController.fetchTripsForRouteDate(req, {
+      fromId: fromPlace.id,
+      toId: toPlace.id,
+      date: defaultDate,
+    });
+
+    const parseTimeToMinutes = (value) => {
+      if (!value) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      const [hour = "0", minute = "0"] = String(value).split(":");
+      const h = Number(hour);
+      const m = Number(minute);
+
+      if (!Number.isFinite(h) || !Number.isFinite(m)) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      return h * 60 + m;
+    };
+
+    const formatTime = (value) => {
+      if (!value) return "--:--";
+      const [hour = "00", minute = "00"] = String(value).split(":");
+      return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}`;
+    };
+
+    const formatPrice = (value) => {
+      const numeric = Number(value);
+
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        return "";
+      }
+
+      try {
+        return new Intl.NumberFormat("tr-TR", {
+          style: "currency",
+          currency: "TRY",
+          maximumFractionDigits: 0,
+        }).format(numeric);
+      } catch (error) {
+        return `${numeric} TL`;
+      }
+    };
+
+    const getFirmInitials = (text) => {
+      const normalized = String(text || "").trim();
+      if (!normalized) {
+        return "?";
+      }
+
+      const parts = normalized.split(/\s+/);
+      const initials = parts
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("");
+      return initials || normalized.charAt(0).toUpperCase();
+    };
+
+    const popularTrips = (Array.isArray(upcomingTrips) ? upcomingTrips : [])
+      .slice()
+      .sort((a, b) => parseTimeToMinutes(a?.time) - parseTimeToMinutes(b?.time))
+      .slice(0, 4)
+      .map((trip) => {
+        const timelineEntries = Array.isArray(trip?.routeTimeline)
+          ? trip.routeTimeline.filter(Boolean)
+          : [];
+        const arrivalEntry = timelineEntries.length
+          ? timelineEntries[timelineEntries.length - 1]
+          : null;
+        const firmLabel = trip?.firmName || trip?.firm || "Otobüs Firması";
+        const priceText = formatPrice(trip?.price);
+        const durationText =
+          typeof trip?.duration === "string" && trip.duration.trim()
+            ? trip.duration.trim()
+            : "";
+
+        return {
+          firm: {
+            name: firmLabel,
+            initials: getFirmInitials(firmLabel),
+          },
+          price: {
+            primary: priceText || "Fiyat bekleniyor",
+            secondary: priceText
+              ? "Kişi başı bilet"
+              : "Satın alma sırasında netleşir",
+            hasValue: Boolean(priceText),
+          },
+          departure: {
+            time: formatTime(trip?.time),
+            location: trip?.fromStr || "",
+          },
+          arrival: {
+            time: formatTime(arrivalEntry?.time || trip?.arrivalTime),
+            location: arrivalEntry?.title || trip?.toStr || "",
+          },
+          routeTitle: `${trip?.fromStr || "Kalkış"} → ${trip?.toStr || "Varış"}`,
+          durationText,
+          timeline: timelineEntries
+            .filter((stop) => stop && (stop.time || stop.title))
+            .map((stop) => ({
+              time: stop?.time ? formatTime(stop.time) : null,
+              title: stop?.title || "",
+            })),
+          features: Array.isArray(trip?.busFeatures)
+            ? trip.busFeatures.slice(0, 3).map((feature) => ({
+                icon: feature?.icon || null,
+                label: feature?.label || "Özellik",
+              }))
+            : [],
+          fullnessText: trip?.fullness
+            ? `Doluluk: ${trip.fullness}`
+            : "Koltuk durumu: Anlık olarak güncellenir",
+        };
+      });
+
     res.render("bus-ticket", {
       fromTitle: fromPlace.title,
       toTitle: toPlace.title,
       fromValue: fromPlace.id,
       toValue: toPlace.id,
+      defaultDate,
+      defaultDateDisplay,
+      defaultDateWeekday,
+      popularTrips,
       title,
       description,
       request: req
