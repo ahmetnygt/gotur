@@ -613,34 +613,10 @@ exports.searchAllTrips = async (req, res) => {
         // Tüm firmaların sonuçlarını birleştir
         const mergedTrips = results.flatMap((r) => r.result || []);
 
-        const wantsJson =
-            String(req.query?.format || "").toLowerCase() === "json" ||
-            (typeof req.headers?.accept === "string" &&
-                req.headers.accept.includes("application/json"));
-
-        if (wantsJson) {
-            return res.json({
-                count: mergedTrips.length,
-                trips: mergedTrips,
-                meta: {
-                    fromId,
-                    toId,
-                    date,
-                },
-            });
-        }
-
-        const places = await req.commonModels.Place.findAll({
-            where: { id: { [Op.in]: [fromId, toId] } },
-        });
-
-        const placeMap = new Map(places.map((place) => [String(place.id), place]));
-        const fromPlaceTitle = placeMap.get(String(fromId))?.title || "";
-        const toPlaceTitle = placeMap.get(String(toId))?.title || "";
-
-        const title = `Götür | ${fromPlaceTitle}-${toPlaceTitle}`;
+        const places = await req.commonModels.Place.findAll({ where: { id: { [Op.in]: [fromId, toId] } } })
+        const title = `Götür | ${places.find(p => p.id == fromId).title}-${places.find(p => p.id == toId).title}`
         // 👉 Şablon render edebilirsin:
-        console.log(fromId, toId);
+        console.log(fromId, toId)
         res.render("trips", { trips: mergedTrips, fromId, toId, date, title });
 
         // 👉 veya JSON API olarak dönebilirsin:
