@@ -15,6 +15,7 @@ block css
     link(rel='stylesheet' href='/css/style.css')
     link(rel='stylesheet' href='/css/index.css')
     link(rel='stylesheet' href='/css/place-select.css')
+    link(rel='stylesheet' href='/css/bus-ticket.css')
 
 block content
     .container.px-4
@@ -59,6 +60,50 @@ block content
                     button.trip-finder_day-button(data-day='today' type='button') Bugün
                     button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
                 button.trip-finder_search-button ARA
+    section.bus-ticket-results
+        .container
+            .bus-ticket-results__header
+                .bus-ticket-results__title
+                    h2 #{fromTitle} - #{toTitle} Popüler Seferler
+                    p.bus-ticket-results__subtitle Bu rotada öne çıkan seferleri sizin için derledik.
+            if popularTrips.length
+                .bus-ticket-results__grid(role='list')
+                    each trip in popularTrips
+                        article.bus-ticket-card(role='listitem')
+                            .bus-ticket-card__header
+                                .bus-ticket-card__firm
+                                    .bus-ticket-card__firm-logo #{trip?.firm?.initials}
+                                    p.bus-ticket-card__firm-name #{trip?.firm?.name}
+                                .bus-ticket-card__price
+                                    strong #{trip?.price?.primary}
+                                    span #{trip?.price?.secondary}
+                            .bus-ticket-card__body
+                                .bus-ticket-card__time
+                                    .bus-ticket-card__time-row
+                                        strong #{trip?.departure?.time}
+                                        span
+                                            | Kalkış
+                                            if trip?.departure?.location
+                                                |  · #{trip?.departure?.location}
+                                    .bus-ticket-card__time-row
+                                        strong #{trip?.arrival?.time}
+                                        span
+                                            | Varış
+                                            if trip?.arrival?.location
+                                                |  · #{trip?.arrival?.location}
+                                .bus-ticket-card__route
+                                    strong #{trip?.routeTitle}
+                                    if trip?.durationText
+                                        span Tahmini süre: #{trip?.durationText}
+                            if Array.isArray(trip?.features) && trip.features.length
+                                .bus-ticket-card__meta
+                                    each feature in trip.features
+                                        .bus-ticket-card__feature
+                                            if feature?.icon
+                                                img(src=feature.icon alt=feature?.label || 'Özellik')
+                                            span #{feature?.label}
+            else
+                .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 
 block scripts
     script(src='/js/index.js')
