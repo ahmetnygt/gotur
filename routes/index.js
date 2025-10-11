@@ -138,6 +138,14 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
   const toSlug = normalize(to);
 
   try {
+    const now = new Date();
+    const tomorrow = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    );
+    const defaultDate = `${tomorrow.getUTCFullYear()}-${String(
+      tomorrow.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(tomorrow.getUTCDate()).padStart(2, "0")}`;
+
     const fromPlace = await req.commonModels.Place.findOne({
       where: {
         [Op.or]: [{ slug: fromSlug }, { title: from }],
@@ -157,11 +165,23 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
     const title = `${fromPlace.title} ${toPlace.title} Otobüs Bileti - Götür`;
     const description = `${fromPlace.title}’den ${toPlace.title}’ne en uygun otobüs biletlerini Götür ile bulun. Güvenli, konforlu ve ekonomik seyahat için hemen yerinizi ayırtın.`;
 
+    const defaultDateDisplay = tomorrow.toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const defaultDateWeekday = tomorrow.toLocaleDateString("tr-TR", {
+      weekday: "long",
+    });
+
     res.render("bus-ticket", {
       fromTitle: fromPlace.title,
       toTitle: toPlace.title,
       fromValue: fromPlace.id,
       toValue: toPlace.id,
+      defaultDate,
+      defaultDateDisplay,
+      defaultDateWeekday,
       title,
       description,
       request: req
