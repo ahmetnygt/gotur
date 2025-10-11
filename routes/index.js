@@ -138,6 +138,14 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
   const toSlug = normalize(to);
 
   try {
+    const now = new Date();
+    const tomorrow = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    );
+    const defaultDate = `${tomorrow.getUTCFullYear()}-${String(
+      tomorrow.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(tomorrow.getUTCDate()).padStart(2, "0")}`;
+
     const fromPlace = await req.commonModels.Place.findOne({
       where: {
         [Op.or]: [{ slug: fromSlug }, { title: from }],
@@ -157,11 +165,67 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
     const title = `${fromPlace.title} ${toPlace.title} Otobüs Bileti - Götür`;
     const description = `${fromPlace.title}’den ${toPlace.title}’ne en uygun otobüs biletlerini Götür ile bulun. Güvenli, konforlu ve ekonomik seyahat için hemen yerinizi ayırtın.`;
 
+    const defaultDateDisplay = tomorrow.toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const defaultDateWeekday = tomorrow.toLocaleDateString("tr-TR", {
+      weekday: "long",
+    });
+
+    const { trips: upcomingTrips } = await tripController.fetchTripsForRouteDate(req, {
+      fromId: fromPlace.id,
+      toId: toPlace.id,
+      date: defaultDate,
+    });
+
+    const parseTimeToMinutes = (value) => {
+      if (!value) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      const [hour = "0", minute = "0"] = String(value).split(":");
+      const h = Number(hour);
+      const m = Number(minute);
+
+      if (!Number.isFinite(h) || !Number.isFinite(m)) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      return h * 60 + m;
+    };
+
+    const popularTrips = (Array.isArray(upcomingTrips) ? upcomingTrips : [])
+      .slice()
+      .sort((a, b) => parseTimeToMinutes(a?.time) - parseTimeToMinutes(b?.time))
+      .slice(0, 4)
+      .map((trip) => {
+        const timeline = Array.isArray(trip?.routeTimeline)
+          ? trip.routeTimeline.filter(Boolean)
+          : [];
+        const arrivalEntry = timeline.length ? timeline[timeline.length - 1] : null;
+
+        return {
+          ...trip,
+          routeTimeline: timeline,
+          arrivalTime: arrivalEntry?.time || null,
+          arrivalLocation: arrivalEntry?.title || trip?.toStr || "",
+          busFeatures: Array.isArray(trip?.busFeatures)
+            ? trip.busFeatures.slice(0, 3)
+            : [],
+        };
+      });
+
     res.render("bus-ticket", {
       fromTitle: fromPlace.title,
       toTitle: toPlace.title,
       fromValue: fromPlace.id,
       toValue: toPlace.id,
+      defaultDate,
+      defaultDateDisplay,
+      defaultDateWeekday,
+      popularTrips,
       title,
       description,
       request: req
