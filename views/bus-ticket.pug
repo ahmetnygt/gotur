@@ -95,17 +95,6 @@ block content
                                     strong #{trip?.routeTitle}
                                     if trip?.durationText
                                         span Tahmini süre: #{trip?.durationText}
-                                    if Array.isArray(trip?.timeline) && trip.timeline.length
-                                        ul.bus-ticket-card__timeline
-                                            each stopInfo in trip.timeline
-                                                if stopInfo && (stopInfo.time || stopInfo.title)
-                                                    li
-                                                        if stopInfo.time
-                                                            strong #{stopInfo.time}
-                                                            if stopInfo.title
-                                                                span · #{stopInfo.title}
-                                                        else if stopInfo.title
-                                                            span #{stopInfo.title}
                             if Array.isArray(trip?.features) && trip.features.length
                                 .bus-ticket-card__meta
                                     each feature in trip.features
@@ -113,8 +102,6 @@ block content
                                             if feature?.icon
                                                 img(src=feature.icon alt=feature?.label || 'Özellik')
                                             span #{feature?.label}
-                            .bus-ticket-card__actions
-                                span.bus-ticket-card__fullness #{trip?.fullnessText}
             else
                 .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 

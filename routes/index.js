@@ -274,21 +274,12 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
           },
           routeTitle: `${trip?.fromStr || "Kalkış"} → ${trip?.toStr || "Varış"}`,
           durationText,
-          timeline: timelineEntries
-            .filter((stop) => stop && (stop.time || stop.title))
-            .map((stop) => ({
-              time: stop?.time ? formatTime(stop.time) : null,
-              title: stop?.title || "",
-            })),
           features: Array.isArray(trip?.busFeatures)
             ? trip.busFeatures.slice(0, 3).map((feature) => ({
                 icon: feature?.icon || null,
                 label: feature?.label || "Özellik",
               }))
             : [],
-          fullnessText: trip?.fullness
-            ? `Doluluk: ${trip.fullness}`
-            : "Koltuk durumu: Anlık olarak güncellenir",
         };
       });
 
