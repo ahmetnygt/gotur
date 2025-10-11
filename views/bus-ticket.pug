@@ -15,8 +15,10 @@ block css
     link(rel='stylesheet' href='/css/style.css')
     link(rel='stylesheet' href='/css/index.css')
     link(rel='stylesheet' href='/css/place-select.css')
+    link(rel='stylesheet' href='/css/bus-ticket.css')
 
 block content
+    - const defaultTripsUrl = `/trips/${fromValue}-${toValue}/${defaultDate}`;
     .container.px-4
         h1.bus-ticket-header.my-3 #{fromTitle} - #{toTitle} Otobüs Bileti
     .trip-finder-container
@@ -59,6 +61,20 @@ block content
                     button.trip-finder_day-button(data-day='today' type='button') Bugün
                     button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
                 button.trip-finder_search-button ARA
+    section.bus-ticket-results(data-from-id=fromValue data-to-id=toValue data-default-date=defaultDate data-default-date-display=defaultDateDisplay data-default-date-weekday=defaultDateWeekday)
+        .container
+            .bus-ticket-results__header
+                .bus-ticket-results__title
+                    h2 #{fromTitle} - #{toTitle} Popüler Seferler
+                    p.bus-ticket-results__subtitle Yarın için uygun seferleri sizin için listeliyoruz.
+                a.bus-ticket-results__see-all.btn.btn-outline-primary.btn-sm(href=defaultTripsUrl) Tüm seferleri gör
+            .bus-ticket-results__status
+                .bus-ticket-results__loading
+                    span.spinner-border.spinner-border-sm(role='status' aria-hidden='true')
+                    span.ms-2 Yarın (#{defaultDateDisplay}) için seferler yükleniyor...
+                .bus-ticket-results__error.alert.alert-danger.d-none Seferler yüklenemedi. Lütfen daha sonra tekrar deneyin.
+                .bus-ticket-results__empty.alert.alert-warning.d-none Bu rota için yarına ait sefer bulamadık.
+            .bus-ticket-results__grid(role='list')
 
 block scripts
     script(src='/js/index.js')

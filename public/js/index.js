@@ -482,6 +482,308 @@
 
     }
 
+    function initBusTicketResults() {
+        const section = document.querySelector(".bus-ticket-results");
+        if (!section) {
+            return;
+        }
+
+        const { fromId, toId, defaultDate } = section.dataset;
+        if (!fromId || !toId || !defaultDate) {
+            return;
+        }
+
+        const grid = section.querySelector(".bus-ticket-results__grid");
+        const loadingEl = section.querySelector(".bus-ticket-results__loading");
+        const errorEl = section.querySelector(".bus-ticket-results__error");
+        const emptyEl = section.querySelector(".bus-ticket-results__empty");
+        const seeAllLink = section.querySelector(".bus-ticket-results__see-all");
+
+        const dateDisplay = section.dataset.defaultDateDisplay || defaultDate;
+        const weekday = section.dataset.defaultDateWeekday || "";
+
+        if (seeAllLink) {
+            seeAllLink.href = `/trips/${fromId}-${toId}/${defaultDate}`;
+        }
+
+        const loadingText = loadingEl?.querySelector("span.ms-2");
+        const dayLabel = weekday
+            ? `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}`
+            : "Yarın";
+
+        const subtitle = section.querySelector(".bus-ticket-results__subtitle");
+        if (subtitle) {
+            subtitle.textContent = `${dayLabel} (${dateDisplay}) için uygun seferleri sizin için listeliyoruz.`;
+        }
+
+        if (loadingText) {
+            loadingText.textContent = `${dayLabel} (${dateDisplay}) için seferler yükleniyor...`;
+        }
+
+        const setVisibility = (element, isVisible) => {
+            if (!element) {
+                return;
+            }
+
+            element.classList.toggle("d-none", !isVisible);
+        };
+
+        const showState = (state) => {
+            setVisibility(loadingEl, state === "loading");
+            setVisibility(errorEl, state === "error");
+            setVisibility(emptyEl, state === "empty");
+        };
+
+        const formatTime = (value) => {
+            if (!value) {
+                return "--:--";
+            }
+
+            const [hour = "", minute = ""] = String(value).split(":");
+            const formattedHour = hour.padStart(2, "0");
+            const formattedMinute = minute.padStart(2, "0");
+            return `${formattedHour}:${formattedMinute}`;
+        };
+
+        const formatPrice = (value) => {
+            const numericValue = Number(value);
+            if (!Number.isFinite(numericValue) || numericValue <= 0) {
+                return null;
+            }
+
+            try {
+                return new Intl.NumberFormat("tr-TR", {
+                    style: "currency",
+                    currency: "TRY",
+                    maximumFractionDigits: 0,
+                }).format(numericValue);
+            } catch (error) {
+                console.warn("Fiyat biçimlendirme başarısız oldu:", error);
+                return `${numericValue} TL`;
+            }
+        };
+
+        const getFirmInitials = (text) => {
+            const normalized = String(text || "").trim();
+            if (!normalized) {
+                return "?";
+            }
+
+            const parts = normalized.split(/\s+/);
+            const initials = parts
+                .slice(0, 2)
+                .map((part) => part.charAt(0).toUpperCase())
+                .join("");
+
+            return initials || normalized.charAt(0).toUpperCase();
+        };
+
+        const createTimeRow = (label, timeText, location) => {
+            const row = document.createElement("div");
+            row.className = "bus-ticket-card__time-row";
+
+            const time = document.createElement("strong");
+            time.textContent = timeText;
+
+            const detail = document.createElement("span");
+            detail.textContent = location ? `${label} · ${location}` : label;
+
+            row.append(time, detail);
+            return row;
+        };
+
+        const renderTrips = (trips) => {
+            if (!grid) {
+                return;
+            }
+
+            grid.innerHTML = "";
+
+            trips.forEach((trip) => {
+                const firmName = trip?.firmName || trip?.firm || "Otobüs Firması";
+                const departureTime = formatTime(trip?.time);
+                const timeline = Array.isArray(trip?.routeTimeline)
+                    ? trip.routeTimeline.filter(Boolean)
+                    : [];
+                const arrivalEntry = timeline.length ? timeline[timeline.length - 1] : null;
+                const arrivalTime = formatTime(arrivalEntry?.time || null);
+                const arrivalLocation = arrivalEntry?.title || trip?.toStr || "Varış";
+
+                const priceText = formatPrice(trip?.price);
+                const durationText = typeof trip?.duration === "string" && trip.duration.trim()
+                    ? trip.duration.trim()
+                    : null;
+                const features = Array.isArray(trip?.busFeatures)
+                    ? trip.busFeatures.slice(0, 3)
+                    : [];
+
+                const card = document.createElement("article");
+                card.className = "bus-ticket-card";
+                card.setAttribute("role", "listitem");
+
+                const header = document.createElement("div");
+                header.className = "bus-ticket-card__header";
+
+                const firmWrapper = document.createElement("div");
+                firmWrapper.className = "bus-ticket-card__firm";
+
+                const firmLogo = document.createElement("div");
+                firmLogo.className = "bus-ticket-card__firm-logo";
+                firmLogo.textContent = getFirmInitials(firmName);
+                firmWrapper.appendChild(firmLogo);
+
+                const firmTitle = document.createElement("p");
+                firmTitle.className = "bus-ticket-card__firm-name";
+                firmTitle.textContent = firmName;
+                firmWrapper.appendChild(firmTitle);
+
+                header.appendChild(firmWrapper);
+
+                const priceWrapper = document.createElement("div");
+                priceWrapper.className = "bus-ticket-card__price";
+
+                const priceValue = document.createElement("strong");
+                priceValue.textContent = priceText || "Fiyat bekleniyor";
+                priceWrapper.appendChild(priceValue);
+
+                const priceHint = document.createElement("span");
+                priceHint.textContent = priceText ? "Kişi başı bilet" : "Satın alma sırasında netleşir";
+                priceWrapper.appendChild(priceHint);
+
+                header.appendChild(priceWrapper);
+
+                card.appendChild(header);
+
+                const body = document.createElement("div");
+                body.className = "bus-ticket-card__body";
+
+                const timeBlock = document.createElement("div");
+                timeBlock.className = "bus-ticket-card__time";
+                timeBlock.appendChild(
+                    createTimeRow("Kalkış", departureTime, trip?.fromStr || "")
+                );
+                timeBlock.appendChild(
+                    createTimeRow("Varış", arrivalTime, arrivalLocation)
+                );
+
+                const routeBlock = document.createElement("div");
+                routeBlock.className = "bus-ticket-card__route";
+
+                const routeTitle = document.createElement("strong");
+                routeTitle.textContent = `${trip?.fromStr || "Kalkış"} → ${trip?.toStr || "Varış"}`;
+                routeBlock.appendChild(routeTitle);
+
+                if (durationText) {
+                    const durationEl = document.createElement("span");
+                    durationEl.textContent = `Tahmini süre: ${durationText}`;
+                    routeBlock.appendChild(durationEl);
+                }
+
+                if (trip?.routeDescription) {
+                    const descriptionEl = document.createElement("span");
+                    descriptionEl.textContent = trip.routeDescription;
+                    routeBlock.appendChild(descriptionEl);
+                }
+
+                body.appendChild(timeBlock);
+                body.appendChild(routeBlock);
+
+                card.appendChild(body);
+
+                if (features.length) {
+                    const featuresWrapper = document.createElement("div");
+                    featuresWrapper.className = "bus-ticket-card__meta";
+
+                    features.forEach((feature) => {
+                        const badge = document.createElement("span");
+                        badge.className = "bus-ticket-card__feature";
+
+                        if (feature?.icon) {
+                            const icon = document.createElement("img");
+                            icon.src = feature.icon;
+                            icon.alt = feature?.label || "Özellik";
+                            icon.loading = "lazy";
+                            badge.appendChild(icon);
+                        }
+
+                        const label = document.createElement("span");
+                        label.textContent = feature?.label || "Özellik";
+                        badge.appendChild(label);
+
+                        featuresWrapper.appendChild(badge);
+                    });
+
+                    card.appendChild(featuresWrapper);
+                }
+
+                const actions = document.createElement("div");
+                actions.className = "bus-ticket-card__actions";
+
+                const fullness = document.createElement("span");
+                fullness.className = "bus-ticket-card__fullness";
+                fullness.textContent = trip?.fullness
+                    ? `Doluluk: ${trip.fullness}`
+                    : "Koltuk durumu: Anlık olarak güncellenir";
+                actions.appendChild(fullness);
+
+                const actionUrl = `/trips/${fromId}-${toId}/${defaultDate}`;
+                const actionBtn = document.createElement("a");
+                actionBtn.className = "bus-ticket-card__action-btn";
+                actionBtn.href = actionUrl;
+                actionBtn.textContent = "SATIN AL";
+                actionBtn.setAttribute(
+                    "aria-label",
+                    `${firmName} seferi için bilet satın al`
+                );
+
+                actions.appendChild(actionBtn);
+                card.appendChild(actions);
+
+                grid.appendChild(card);
+            });
+        };
+
+        const fetchTrips = async () => {
+            showState("loading");
+
+            try {
+                const response = await fetch(
+                    `/trips/${fromId}-${toId}/${defaultDate}?format=json`,
+                    {
+                        headers: {
+                            Accept: "application/json",
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const trips = Array.isArray(data?.trips) ? data.trips : [];
+
+                if (!trips.length) {
+                    if (grid) {
+                        grid.innerHTML = "";
+                    }
+                    showState("empty");
+                    return;
+                }
+
+                showState(null);
+                renderTrips(trips);
+            } catch (error) {
+                console.error("Yarınki seferler alınamadı:", error);
+                showState("error");
+            }
+        };
+
+        fetchTrips();
+    }
+
+    initBusTicketResults();
+
     setupAuthPopups();
 
     const logoutButton = document.getElementById("logoutButton");
