@@ -141,14 +141,21 @@ async function generatePNR(models, fromId, toId, stops) {
     return pnr;
 };
 
-async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
-    if (!fromId || !toId || !date) {
-        return { fromId, toId, date, trips: [] };
-    }
+exports.searchAllTrips = async (req, res) => {
+    try {
+        // /trips/:route/:date → örn: /trips/1-2/2025-09-25
+        const [fromId, toId] = (req.params.route || "").split("-");
+        const date = req.params.date;
 
-    await ensureTenantsReady(req);
+        if (!fromId || !toId || !date) {
+            return res
+                .status(400)
+                .json({ message: "Eksik parametre: /trips/:fromId-:toId/:date" });
+        }
 
-    const results = await runForAllTenants(async ({ firmKey, models }) => {
+        await ensureTenantsReady(req);
+
+        const results = await runForAllTenants(async ({ firmKey, models }) => {
             const {
                 Trip,
                 RouteStop,
@@ -599,89 +606,21 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                 // hangi firmadan geldiğini belirt
                 trip.firm = firmKey;
             }
+
             return trips;
         });
 
-    const mergedTrips = results.flatMap((r) => r.result || []);
+        // Tüm firmaların sonuçlarını birleştir
+        const mergedTrips = results.flatMap((r) => r.result || []);
 
-    if (mergedTrips.length && req?.commonModels?.Firm) {
-        const firmKeys = Array.from(
-            new Set(
-                mergedTrips
-                    .map((trip) => (trip?.firm ? String(trip.firm) : null))
-                    .filter(Boolean)
-            )
-        );
+        const places = await req.commonModels.Place.findAll({ where: { id: { [Op.in]: [fromId, toId] } } })
+        const title = `Götür | ${places.find(p => p.id == fromId).title}-${places.find(p => p.id == toId).title}`
+        // 👉 Şablon render edebilirsin:
+        console.log(fromId, toId)
+        res.render("trips", { trips: mergedTrips, fromId, toId, date, title });
 
-        if (firmKeys.length) {
-            try {
-                const firms = await req.commonModels.Firm.findAll({
-                    where: { key: { [Op.in]: firmKeys } },
-                    attributes: ["key", "displayName"],
-                    raw: true,
-                });
-
-                const firmNameMap = new Map(
-                    firms.map((firm) => [String(firm.key), firm.displayName])
-                );
-
-                mergedTrips.forEach((trip) => {
-                    const displayName = firmNameMap.get(String(trip.firm));
-                    if (displayName) {
-                        trip.firmName = displayName;
-                    }
-                });
-            } catch (error) {
-                console.error("Firma isimleri alınırken hata oluştu:", error);
-            }
-        }
-    }
-
-    return { fromId, toId, date, trips: mergedTrips };
-}
-
-exports.fetchTripsForRouteDate = fetchTripsForRouteDate;
-
-exports.searchAllTrips = async (req, res) => {
-    try {
-        const [fromId, toId] = (req.params.route || "").split("-");
-        const date = req.params.date;
-
-        if (!fromId || !toId || !date) {
-            return res
-                .status(400)
-                .json({ message: "Eksik parametre: /trips/:fromId-:toId/:date" });
-        }
-
-        const { trips } = await fetchTripsForRouteDate(req, { fromId, toId, date });
-
-        const wantsJson =
-            String(req.query?.format || "").toLowerCase() === "json" ||
-            (typeof req.headers?.accept === "string" &&
-                req.headers.accept.includes("application/json"));
-
-        if (wantsJson) {
-            return res.json({
-                count: trips.length,
-                trips,
-                meta: {
-                    fromId,
-                    toId,
-                    date,
-                },
-            });
-        }
-
-        const places = await req.commonModels.Place.findAll({
-            where: { id: { [Op.in]: [fromId, toId] } },
-        });
-
-        const placeMap = new Map(places.map((place) => [String(place.id), place]));
-        const fromPlaceTitle = placeMap.get(String(fromId))?.title || "";
-        const toPlaceTitle = placeMap.get(String(toId))?.title || "";
-
-        const title = `Götür | ${fromPlaceTitle}-${toPlaceTitle}`;
-        res.render("trips", { trips, fromId, toId, date, title });
+        // 👉 veya JSON API olarak dönebilirsin:
+        // res.json({ count: mergedTrips.length, trips: mergedTrips });
     } catch (err) {
         console.error("searchAllTrips hata:", err);
         res.status(500).json({ error: err.message });
