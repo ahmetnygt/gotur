@@ -482,19 +482,6 @@
 
     }
 
-    function initBusTicketResults() {
-        const section = document.querySelector(".bus-ticket-results");
-        if (!section) {
-            return;
-        }
-
-        section
-            .querySelectorAll(".bus-ticket-card")
-            .forEach((card) => card.setAttribute("role", "listitem"));
-    }
-
-    initBusTicketResults();
-
     setupAuthPopups();
 
     const logoutButton = document.getElementById("logoutButton");
