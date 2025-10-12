@@ -136,9 +136,10 @@ html
           p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
       if promoRoutes && promoRoutes.length
         .attribute-routes.mt-4
-          .attribute-routes__header
-            h5.text-uppercase.text-secondary.mb-0 Küçük Bir İlham
-          p.attribute-routes__lead.mb-4 Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
+          .bus-ticket-results__header
+            .bus-ticket-results__title
+              h2 Küçük Bir İlham
+              p.bus-ticket-results__subtitle Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
           ul.list-unstyled.mb-0.attribute-routes__grid
             each route in promoRoutes
               - const routeUrl = `/bus-ticket/${route.fromSlug}-${route.toSlug}`;
