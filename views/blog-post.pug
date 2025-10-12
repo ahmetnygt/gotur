@@ -1,20 +1,49 @@
 extends layout_invert_blog
 
 block css
-//-   link(rel='stylesheet' href='/css/blog.css')
+  link(rel='stylesheet' href='/css/blog.css')
 
 block content
-    .container.mt-5
-        if post.coverImage
-            img.cover.mb-4(src=`/blog/images/${post.coverImage}` alt=post.title)
-        h1.mb-3= post.title
+    section.blog-hero.blog-hero--post
+        .container
+            span.blog-hero-kicker= post.tags.length ? post.tags[0].trim() : 'Blog'
+            h1.blog-hero-title= post.title
+            .blog-meta
+                span.meta-item
+                    i.fa-solid.fa-calendar-days
+                    |  #{post.createdAt.toLocaleDateString("tr-TR")}
+                span.meta-item
+                    i.fa-solid.fa-eye
+                    |  #{post.viewCount || 0} okunma
 
-        .meta.mb-4
-            span.date= post.createdAt.toLocaleDateString("tr-TR")
-            if post.tags.length
-                ul.tags
-                    each tag in post.tags
-                        li.tag #{tag.trim()}
-
-        // Markdown içeriği HTML'e dönüştürülmüş haliyle
-        .blog-content!= htmlContent
+    section.blog-post-layout
+        .container
+            .row.g-4
+                .col-lg-8
+                    article.blog-post-card
+                        if post.coverImage
+                            figure.post-cover
+                                img(src=`/blog/images/${post.coverImage}` alt=post.title)
+                        .post-body
+                            if post.tags.length
+                                ul.blog-card-tags.mb-4
+                                    each tag in post.tags
+                                        li.blog-card-tag #{tag.trim()}
+                            .blog-content!= htmlContent
+                .col-lg-4
+                    aside.blog-sidebar
+                        .sidebar-card
+                            h3.sidebar-title Diğer Yazılar
+                            if recommendedPosts && recommendedPosts.length
+                                each item in recommendedPosts
+                                    a.recommended-card(href=`/blog/${item.slug}`)
+                                        if item.coverImage
+                                            .recommended-thumbnail
+                                                img(src=`/blog/images/${item.coverImage}` alt=item.title)
+                                        .recommended-card-body
+                                            h4.recommended-title= item.title
+                                            span.recommended-meta
+                                                i.fa-solid.fa-eye
+                                                |  #{item.viewCount || 0} okunma · #{item.createdAt.toLocaleDateString("tr-TR")}
+                            else
+                                p.sidebar-empty Şimdilik başka önerimiz yok.
