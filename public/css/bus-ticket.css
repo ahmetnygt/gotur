@@ -6,7 +6,7 @@
 }
 
 .bus-ticket-results {
-    background: linear-gradient(180deg, #f6f8ff 0%, #ffffff 100%);
+    /* background: linear-gradient(180deg, #f6f8ff 0%, #ffffff 100%); */
     padding: 3rem 0;
 }
 
@@ -218,11 +218,6 @@
     padding: 0.35rem 0.6rem;
     border-radius: 999px;
     background: rgba(17, 38, 77, 0.06);
-}
-
-.bus-ticket-blog {
-    background: linear-gradient(180deg, #ffffff 0%, #f4f7ff 100%);
-    padding: 3rem 0;
 }
 
 .bus-ticket-blog__header {

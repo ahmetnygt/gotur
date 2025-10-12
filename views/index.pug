@@ -135,7 +135,7 @@ html
           h4 Kullanıcı Dostu Kampanyalar
           p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
       if promoRoutes && promoRoutes.length
-        .attribute-routes.mt-4
+        .attribute-routes.mt-5
           .bus-ticket-results__header
             .bus-ticket-results__title
               h2 Küçük Bir İlham
@@ -162,7 +162,9 @@ html
               .bus-ticket-blog__title
                 h2 En Yeni Blog Yazıları
                 p.bus-ticket-blog__subtitle Seyahat tutkunları için hazırladığımız son içerikleri keşfedin.
-              a.bus-ticket-blog__all(href='/blog') Tüm Yazılar
+              a.bus-ticket-blog__all(href='/blog')
+                |Tüm Yazılar
+                i.fa-solid.fa-arrow-right
             .row.g-4
               each post in blogPosts
                 .col-12.col-md-6.col-xl-3

@@ -11,6 +11,10 @@ module.exports = (sequelize) => {
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    goturUserId: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
     userId: {
       type: DataTypes.BIGINT,
       allowNull: true,
@@ -61,6 +65,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     gender: {
       type: DataTypes.ENUM("m", "f"),
       allowNull: false,
@@ -89,6 +97,14 @@ module.exports = (sequelize) => {
     },
     toRouteStopId: {
       type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    takeOnText: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    takeOffText: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
     pnr: {
