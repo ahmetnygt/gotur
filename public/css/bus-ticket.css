@@ -126,16 +126,15 @@
 }
 
 .bus-ticket-card__firm-logo {
-    width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: #f0f3ff;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: #11264d;
-    font-size: 1rem;
+    justify-content: space-between;    
+}
+
+.bus-ticket-card__firm-logo img {
+    height: 100%;
 }
 
 .bus-ticket-card__firm-name {
@@ -151,7 +150,7 @@
 
 .bus-ticket-card__price strong {
     font-size: 1.25rem;
-    color: #d33047;
+    color: #2660ff;
     display: block;
 }
 
@@ -161,22 +160,21 @@
 }
 
 .bus-ticket-card__body {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    align-items: center;
+    /* width: 100%; */
 }
 
 .bus-ticket-card__time {
     display: flex;
-    flex-direction: column;
     gap: 0.35rem;
+    width: 100%;
 }
 
 .bus-ticket-card__time-row {
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
+    width: 45%;
+    text-align: center;
 }
 
 .bus-ticket-card__time strong {

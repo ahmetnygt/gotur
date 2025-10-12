@@ -70,38 +70,34 @@ block content
                 .bus-ticket-results__grid(role='list')
                     each trip in popularTrips
                         article.bus-ticket-card(role='listitem')
-                            .bus-ticket-card__header
-                                .bus-ticket-card__firm
-                                    .bus-ticket-card__firm-logo #{trip?.firm?.initials}
-                                    p.bus-ticket-card__firm-name #{trip?.firm?.name}
+                            .bus-ticket-card__firm-logo 
+                                img(src=`/images/${trip.firm.key}.png`)
+                                //- p.bus-ticket-card__firm-name #{trip.firm.name}
                                 .bus-ticket-card__price
-                                    strong #{trip?.price?.primary}
-                                    span #{trip?.price?.secondary}
+                                    strong #{trip.price.primary}
+                            .bus-ticket-card__route.text-center
+                                strong #{trip.routeTitle}
+                                if trip.durationText
+                                    span Tahmini süre: #{trip.durationText} #{trip.firm.firmKey}
                             .bus-ticket-card__body
                                 .bus-ticket-card__time
                                     .bus-ticket-card__time-row
-                                        strong #{trip?.departure?.time}
+                                        strong #{trip.departure.time}
                                         span
-                                            | Kalkış
-                                            if trip?.departure?.location
-                                                |  · #{trip?.departure?.location}
+                                            if trip.departure.location
+                                                |#{trip.departure.location}
                                     .bus-ticket-card__time-row
-                                        strong #{trip?.arrival?.time}
+                                        strong #{trip.arrival.time}
                                         span
-                                            | Varış
-                                            if trip?.arrival?.location
-                                                |  · #{trip?.arrival?.location}
-                                .bus-ticket-card__route
-                                    strong #{trip?.routeTitle}
-                                    if trip?.durationText
-                                        span Tahmini süre: #{trip?.durationText}
-                            if Array.isArray(trip?.features) && trip.features.length
+                                            if trip.arrival.location
+                                                |#{trip.arrival.location}
+                            if Array.isArray(trip.features) && trip.features.length
                                 .bus-ticket-card__meta
                                     each feature in trip.features
                                         .bus-ticket-card__feature
-                                            if feature?.icon
-                                                img(src=feature.icon alt=feature?.label || 'Özellik')
-                                            span #{feature?.label}
+                                            if feature.icon
+                                                img(src=feature.icon alt=feature.label || 'Özellik')
+                                            span #{feature.label}
             else
                 .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 

@@ -252,10 +252,11 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
             ? trip.duration.trim()
             : "";
 
+
         return {
           firm: {
             name: firmLabel,
-            initials: getFirmInitials(firmLabel),
+            key: trip.firm,
           },
           price: {
             primary: priceText || "Fiyat bekleniyor",
@@ -276,9 +277,9 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
           durationText,
           features: Array.isArray(trip?.busFeatures)
             ? trip.busFeatures.slice(0, 3).map((feature) => ({
-                icon: feature?.icon || null,
-                label: feature?.label || "Özellik",
-              }))
+              icon: feature?.icon || null,
+              label: feature?.label || "Özellik",
+            }))
             : [],
         };
       });
