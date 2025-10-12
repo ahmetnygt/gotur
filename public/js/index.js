@@ -94,6 +94,82 @@
         window.location.href = url;
     });
 
+    const changeButton = $(".trip-finder_change");
+    changeButton.off("click");
+    changeButton.on("click", event => {
+        event.preventDefault();
+
+        const fromInput = $(".trip-finder_from");
+        const toInput = $(".trip-finder_to");
+
+        if (!fromInput.length || !toInput.length) {
+            return;
+        }
+
+        const fromValue = fromInput.val();
+        const toValue = toInput.val();
+
+        if (!fromValue && !toValue) {
+            return;
+        }
+
+        let handledByPlaceSelect = false;
+        const placeSelectModule = window.GTR && window.GTR.placeSelect;
+
+        if (placeSelectModule && typeof placeSelectModule.getInstance === "function") {
+            const fromRoot = fromInput.closest(".place-select");
+            const toRoot = toInput.closest(".place-select");
+
+            const fromInstance =
+                fromRoot.length && placeSelectModule.getInstance(fromRoot.get(0));
+            const toInstance =
+                toRoot.length && placeSelectModule.getInstance(toRoot.get(0));
+
+            const applyValue = (instance, value, fallbackInput) => {
+                if (!instance) {
+                    return false;
+                }
+
+                if (value) {
+                    if (typeof instance.selectById === "function") {
+                        instance.selectById(value);
+                        return true;
+                    }
+                    if (typeof instance.setSelected === "function") {
+                        const match = Array.isArray(instance.places)
+                            ? instance.places.find(
+                                  place => String(place.id) === String(value)
+                              )
+                            : null;
+                        if (match) {
+                            instance.setSelected(match);
+                            return true;
+                        }
+                    }
+                } else if (typeof instance.clear === "function") {
+                    instance.clear();
+                    return true;
+                }
+
+                if (fallbackInput && fallbackInput.length) {
+                    fallbackInput.val(value || "").trigger("change");
+                }
+
+                return false;
+            };
+
+            const fromHandled = applyValue(fromInstance, toValue, fromInput);
+            const toHandled = applyValue(toInstance, fromValue, toInput);
+
+            handledByPlaceSelect = fromHandled || toHandled;
+        }
+
+        if (!handledByPlaceSelect) {
+            fromInput.val(toValue || "").trigger("change");
+            toInput.val(fromValue || "").trigger("change");
+        }
+    });
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?\d{10,15}$/;
 
