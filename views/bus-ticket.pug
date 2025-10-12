@@ -107,7 +107,9 @@ block content
                     .bus-ticket-blog__title
                         h2 #{fromTitle} - #{toTitle} Seyahat Rehberleri
                         p.bus-ticket-blog__subtitle Bu rota hakkında ilham verecek blog yazılarını keşfedin.
-                    a.bus-ticket-blog__all(href='/blog') Tüm Yazılar
+                    a.bus-ticket-blog__all(href='/blog') 
+                        |Tüm Yazılar
+                        i.fa-solid.fa-arrow-right
                 .row.g-4
                     each post in blogPosts
                         .col-12.col-md-6.col-xl-3
