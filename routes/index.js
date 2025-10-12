@@ -25,9 +25,45 @@ router.get('/', async function (req, res) {
     console.error("Anasayfa rota önerileri alınırken hata oluştu:", error);
   }
 
+  let blogPosts = [];
+  const Blog = req.commonModels?.Blog;
+
+  if (Blog) {
+    try {
+      blogPosts = await Blog.findAll({
+        order: [["createdAt", "DESC"]],
+        limit: 4,
+      });
+
+      blogPosts = (Array.isArray(blogPosts) ? blogPosts : []).map((post) => {
+        const plain = post?.get ? post.get({ plain: true }) : post;
+        const tags = Array.isArray(plain?.tags)
+          ? plain.tags
+          : typeof plain?.tags === "string"
+          ? plain.tags.split(",")
+          : [];
+
+        return {
+          ...plain,
+          tags: tags
+            .map((tag) => String(tag || "").trim())
+            .filter((tag) => tag.length > 0),
+          createdAt: plain?.createdAt ? new Date(plain.createdAt) : null,
+          displayDate: plain?.createdAt
+            ? new Date(plain.createdAt).toLocaleDateString("tr-TR")
+            : "",
+        };
+      });
+    } catch (error) {
+      console.error("Anasayfa blog yazıları alınırken hata oluştu:", error);
+      blogPosts = [];
+    }
+  }
+
   res.render('index', {
     title: "Götür | Türkiye'nin en yeni online yazıhanesi",
     promoRoutes,
+    blogPosts,
   });
 });
 
