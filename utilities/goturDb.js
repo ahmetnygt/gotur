@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const PlaceFactory = require("../models/placeModel");
 const FirmFactory = require("../models/firmModel");
 const UserFactory = require("../models/userModel");
+const BlogFactory = require("../models/blogModel");
 const placesSeedData = require("../places.json");
 
 const goturDB = new Sequelize("gotur", "root", "anadolutat1071", {
@@ -38,8 +39,9 @@ function initGoturModels() {
         const Place = PlaceFactory(goturDB);
         const User = UserFactory(goturDB);
         const Firm = FirmFactory(goturDB);
+        const Blog = BlogFactory(goturDB);
 
-        cachedModels = { Place, Firm, User };
+        cachedModels = { Place, Firm, User,Blog };
 
         if (!seedPromise) {
             seedPromise = seedPlacesIfNecessary(Place);

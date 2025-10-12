@@ -251,8 +251,6 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
           typeof trip?.duration === "string" && trip.duration.trim()
             ? trip.duration.trim()
             : "";
-
-
         return {
           firm: {
             name: firmLabel,
@@ -276,7 +274,7 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
           routeTitle: `${trip?.fromStr || "Kalkış"} → ${trip?.toStr || "Varış"}`,
           durationText,
           features: Array.isArray(trip?.busFeatures)
-            ? trip.busFeatures.slice(0, 3).map((feature) => ({
+            ? trip.busFeatures.map((feature) => ({
               icon: feature?.icon || null,
               label: feature?.label || "Özellik",
             }))

@@ -1,0 +1,26 @@
+extends layout_invert_blog
+
+block css
+  link(rel='stylesheet' href='/css/blog.css')
+
+block content
+    .container.mt-5
+        h1.mb-4 Blog Yazıları
+
+        if posts.length
+            each post in posts
+                .blog-card.mb-4
+                    if post.coverImage
+                        img.cover(src=`/blog/images/${post.coverImage}` alt=post.title)
+                    h2
+                        a(href=`/blog/${post.slug}`)= post.title
+                    if post.description
+                        p.excerpt= post.description
+                    .meta
+                        span.date= post.createdAt.toLocaleDateString("tr-TR")
+                        if post.tags.length
+                            ul.tags
+                                each tag in post.tags
+                                    li.tag #{tag.trim()}
+        else
+            p Henüz blog yazısı bulunmuyor.

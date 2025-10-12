@@ -18,8 +18,7 @@ block css
     link(rel='stylesheet' href='/css/bus-ticket.css')
 
 block content
-    .container.px-4
-        h1.bus-ticket-header.my-3 #{fromTitle} - #{toTitle} Otobüs Bileti
+    h1.bus-ticket-header #{fromTitle} - #{toTitle} Otobüs Bileti
     .trip-finder-container
         .trip-finder-static.border
             .trip-finder_selects
@@ -97,7 +96,7 @@ block content
                                         .bus-ticket-card__feature
                                             if feature.icon
                                                 img(src=feature.icon alt=feature.label || 'Özellik')
-                                            span #{feature.label}
+                                            //- span #{feature.label}
             else
                 .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 

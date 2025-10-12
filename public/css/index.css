@@ -38,6 +38,7 @@ body {
     display: flex;
     gap: 2rem;
     border-radius: 1rem;
+    z-index: 40;
 }
 
 .trip-finder-static {

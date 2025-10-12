@@ -1,7 +1,13 @@
+.bus-ticket-header {
+    font-weight: 600;
+    text-align: center;
+    background-color: #2660ff;
+    color: white;
+}
+
 .bus-ticket-results {
     background: linear-gradient(180deg, #f6f8ff 0%, #ffffff 100%);
     padding: 3rem 0;
-    margin-top: 2rem;
 }
 
 .bus-ticket-results__header {
@@ -130,7 +136,7 @@
     border-radius: 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;    
+    justify-content: space-between;
 }
 
 .bus-ticket-card__firm-logo img {
@@ -157,10 +163,6 @@
 .bus-ticket-card__price span {
     font-size: 0.85rem;
     color: #6c7796;
-}
-
-.bus-ticket-card__body {
-    /* width: 100%; */
 }
 
 .bus-ticket-card__time {
@@ -203,6 +205,7 @@
 .bus-ticket-card__meta {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     gap: 0.5rem;
     font-size: 0.8rem;
     color: #4a587a;

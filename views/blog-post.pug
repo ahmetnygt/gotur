@@ -1,0 +1,20 @@
+extends layout_invert_blog
+
+block css
+//-   link(rel='stylesheet' href='/css/blog.css')
+
+block content
+    .container.mt-5
+        if post.coverImage
+            img.cover.mb-4(src=`/blog/images/${post.coverImage}` alt=post.title)
+        h1.mb-3= post.title
+
+        .meta.mb-4
+            span.date= post.createdAt.toLocaleDateString("tr-TR")
+            if post.tags.length
+                ul.tags
+                    each tag in post.tags
+                        li.tag #{tag.trim()}
+
+        // Markdown içeriği HTML'e dönüştürülmüş haliyle
+        .blog-content!= htmlContent
