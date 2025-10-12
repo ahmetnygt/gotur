@@ -100,5 +100,34 @@ block content
             else
                 .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
 
+    if blogPosts && blogPosts.length
+        section.bus-ticket-blog
+            .container
+                .bus-ticket-blog__header
+                    .bus-ticket-blog__title
+                        h2 #{fromTitle} - #{toTitle} Seyahat Rehberleri
+                        p.bus-ticket-blog__subtitle Bu rota hakkında ilham verecek blog yazılarını keşfedin.
+                    a.bus-ticket-blog__all(href='/blog') Tüm Yazılar
+                .row.g-4
+                    each post in blogPosts
+                        .col-12.col-md-6.col-xl-3
+                            article.bus-ticket-blog-card
+                                a.bus-ticket-blog-card__link(href=`/blog/${post.slug}`)
+                                    if post.coverImage
+                                        figure.bus-ticket-blog-card__media
+                                            img(src=`/blog/images/${post.coverImage}` alt=post.title loading='lazy')
+                                    else
+                                        figure.bus-ticket-blog-card__media.bus-ticket-blog-card__media--placeholder
+                                            - const postInitial = (post.title || '').charAt(0) || '?'
+                                            span.bus-ticket-blog-card__placeholder-initials #{postInitial}
+                                    .bus-ticket-blog-card__body
+                                        if post.displayDate
+                                            span.bus-ticket-blog-card__date #{post.displayDate}
+                                        h3.bus-ticket-blog-card__heading #{post.title}
+                                        if post.tags && post.tags.length
+                                            ul.bus-ticket-blog-card__tags
+                                                each tag in post.tags.slice(0, 3)
+                                                    li #{tag}
+
 block scripts
     script(src='/js/index.js')
