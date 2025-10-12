@@ -220,6 +220,145 @@
     background: rgba(17, 38, 77, 0.06);
 }
 
+.bus-ticket-blog {
+    background: linear-gradient(180deg, #ffffff 0%, #f4f7ff 100%);
+    padding: 3rem 0;
+}
+
+.bus-ticket-blog__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.bus-ticket-blog__title h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #11264d;
+    margin: 0;
+}
+
+.bus-ticket-blog__subtitle {
+    margin: 0.25rem 0 0;
+    color: #4a587a;
+    font-size: 0.95rem;
+}
+
+.bus-ticket-blog__all {
+    font-weight: 600;
+    color: #2660ff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.bus-ticket-blog__all::after {
+    content: '\f061';
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+.bus-ticket-blog-card {
+    height: 100%;
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid rgba(17, 38, 77, 0.08);
+    box-shadow: 0 18px 32px -22px rgba(17, 38, 77, 0.2);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bus-ticket-blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 40px -24px rgba(17, 38, 77, 0.28);
+}
+
+.bus-ticket-blog-card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+.bus-ticket-blog-card__media {
+    position: relative;
+    width: 100%;
+    padding-top: 60%;
+    background: #ecf1ff;
+    overflow: hidden;
+}
+
+.bus-ticket-blog-card__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bus-ticket-blog-card__media--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2660ff, #4c82ff);
+    color: white;
+}
+
+.bus-ticket-blog-card__placeholder-initials {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.bus-ticket-blog-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.25rem;
+}
+
+.bus-ticket-blog-card__date {
+    font-size: 0.8rem;
+    color: #6c7796;
+}
+
+.bus-ticket-blog-card__heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #11264d;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.bus-ticket-blog-card__tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.bus-ticket-blog-card__tags li {
+    background: rgba(38, 96, 255, 0.1);
+    color: #2660ff;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+@media (max-width: 575.98px) {
+    .bus-ticket-blog__title h2 {
+        font-size: 1.45rem;
+    }
+}
+
 .bus-ticket-card__feature img {
     width: 16px;
     height: 16px;

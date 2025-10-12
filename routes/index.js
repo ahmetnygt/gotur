@@ -282,6 +282,72 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
         };
       });
 
+    let blogPosts = [];
+    const Blog = req.commonModels?.Blog;
+
+    if (Blog) {
+      try {
+        const tagConditions = [];
+
+        if (fromSlug) {
+          tagConditions.push({ tags: { [Op.like]: `%${fromSlug}%` } });
+        }
+
+        if (toSlug) {
+          tagConditions.push({ tags: { [Op.like]: `%${toSlug}%` } });
+        }
+
+        if (tagConditions.length > 0) {
+          blogPosts = await Blog.findAll({
+            where: {
+              [Op.or]: tagConditions,
+            },
+            order: [["createdAt", "DESC"]],
+            limit: 4,
+          });
+        }
+
+        if (!Array.isArray(blogPosts) || blogPosts.length === 0) {
+          const fallbackQuery = {
+            limit: 4,
+          };
+
+          if (Blog.sequelize?.random) {
+            fallbackQuery.order = Blog.sequelize.random();
+          } else if (Blog.sequelize?.literal) {
+            fallbackQuery.order = [Blog.sequelize.literal("RAND()")];
+          } else {
+            fallbackQuery.order = [["createdAt", "DESC"]];
+          }
+
+          blogPosts = await Blog.findAll(fallbackQuery);
+        }
+
+        blogPosts = (Array.isArray(blogPosts) ? blogPosts : []).map((post) => {
+          const plain = post?.get ? post.get({ plain: true }) : post;
+          const tags = Array.isArray(plain?.tags)
+            ? plain.tags
+            : typeof plain?.tags === "string"
+            ? plain.tags.split(",")
+            : [];
+
+          return {
+            ...plain,
+            tags: tags
+              .map((tag) => String(tag || "").trim())
+              .filter((tag) => tag.length > 0),
+            createdAt: plain?.createdAt ? new Date(plain.createdAt) : null,
+            displayDate: plain?.createdAt
+              ? new Date(plain.createdAt).toLocaleDateString("tr-TR")
+              : "",
+          };
+        });
+      } catch (error) {
+        console.error("Blog yazıları alınırken hata oluştu:", error);
+        blogPosts = [];
+      }
+    }
+
     res.render("bus-ticket", {
       fromTitle: fromPlace.title,
       toTitle: toPlace.title,
@@ -291,6 +357,7 @@ router.get("/bus-ticket/:from-:to", async (req, res) => {
       defaultDateDisplay,
       defaultDateWeekday,
       popularTrips,
+      blogPosts,
       title,
       description,
       request: req
