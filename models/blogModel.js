@@ -47,6 +47,12 @@ module.exports = (sequelize) => {
             allowNull: true,
         },
 
+        viewCount: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
