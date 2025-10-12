@@ -6,9 +6,8 @@ block css
 block content
     section.blog-hero
         .container
-            span.blog-hero-kicker Blog
             h1.blog-hero-title İlham Veren Yazılar
-            p.blog-hero-subtitle Seyahat planına eşlik edecek güncel ipuçları, hikâyeler ve rehberler.
+            p.blog-hero-subtitle Seyahat macerana eşlik edecek güncel ipuçları, hikâyeler ve rehberler.
 
     section.blog-listing
         .container
@@ -34,7 +33,7 @@ block content
                                     if post.tags.length
                                         ul.blog-card-tags
                                             each tag in post.tags
-                                                li.blog-card-tag #{tag.trim()}
+                                                li.blog-card-tag ##{tag.trim()}
             else
                 .empty-state
                     h2 Henüz blog yazısı bulunmuyor.

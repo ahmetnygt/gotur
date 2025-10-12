@@ -28,7 +28,7 @@ block content
                             if post.tags.length
                                 ul.blog-card-tags.mb-4
                                     each tag in post.tags
-                                        li.blog-card-tag #{tag.trim()}
+                                        li.blog-card-tag ##{tag.trim()}
                             .blog-content!= htmlContent
                 .col-lg-4
                     aside.blog-sidebar

@@ -1,11 +1,11 @@
 .blog-hero {
   background: linear-gradient(135deg, rgba(38, 96, 255, 0.08), rgba(38, 96, 255, 0.2));
-  padding: 5rem 0 4rem;
+  padding: 1rem;
   color: #1a2c68;
 }
 
 .blog-hero--post {
-  padding-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .blog-hero-kicker {
@@ -34,7 +34,7 @@
 }
 
 .blog-listing {
-  padding: 3rem 0 4rem;
+  padding: 1.5rem 0 4rem;
 }
 
 .blog-card {
@@ -191,7 +191,7 @@
 }
 
 .post-body {
-  padding: 2rem 2.2rem 2.5rem;
+  padding: 1rem 2.2rem 2.5rem;
 }
 
 .blog-content {
