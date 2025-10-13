@@ -37,6 +37,19 @@ module.exports = (sequelize) => {
             },
         },
 
+        seoTags: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            get() {
+                const raw = this.getDataValue("tags");
+                return raw ? raw.split(",") : [];
+            },
+            set(val) {
+                if (Array.isArray(val)) this.setDataValue("tags", val.join(","));
+                else this.setDataValue("tags", val);
+            },
+        },
+
         coverImage: {
             type: DataTypes.STRING,
             allowNull: true,
