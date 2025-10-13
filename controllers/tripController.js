@@ -795,7 +795,7 @@ exports.createTicketPayment = async (req, res) => {
         });
 
         const { models, sequelize } = await getTenantConnection(firmKey);
-        const { Ticket } = models;
+        const { Ticket,TicketGroup } = models;
         const transaction = await sequelize.transaction();
 
         let ticketPayment = null;
@@ -834,11 +834,18 @@ exports.createTicketPayment = async (req, res) => {
                 { transaction }
             );
 
+            const ticketGroup = await models.TicketGroup.create(
+                {
+                    tripId: numericTripId,
+                },
+                { transaction }
+            );
+
             const pendingPnr = buildPendingPnr(ticketPayment.id);
 
             const pendingTickets = numericSeatNumbers.map((seatNumber, index) => ({
                 tripId: numericTripId,
-                ticketGroupId: 0,
+                ticketGroupId: ticketGroup.id,
                 seatNo: seatNumber,
                 price: 0,
                 status: "pending",
@@ -1104,7 +1111,7 @@ exports.completePayment = async (req, res) => {
                 await Ticket.create(
                     {
                         tripId: ticketPayment.tripId,
-                        userId: 1,
+                        userId: 3, //götür.com kullanıcısı  
                         ticketGroupId: ticketGroupId,
                         seatNo: numericSeatNumbers[i],
                         price: viewData.pricePerSeat || 0,
