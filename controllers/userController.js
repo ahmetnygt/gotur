@@ -51,28 +51,74 @@ function sanitizeIdNumber(value = "") {
     return String(value || "").replace(/\D+/g, "");
 }
 
-function formatTicketTimestamp(dateValue) {
-    if (!dateValue) {
+function createDate(value) {
+    if (!value) {
+        return null;
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (!Number.isNaN(date?.getTime?.())) {
+        return date;
+    }
+
+    return null;
+}
+
+function formatTripDate(dateValue) {
+    const date = createDate(dateValue);
+    if (!date) {
         return "";
     }
 
-    try {
-        const date = new Date(dateValue);
+    return new Intl.DateTimeFormat("tr-TR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    }).format(date);
+}
 
-        if (Number.isNaN(date.getTime())) {
-            return "";
+function formatTripTime(timeValue) {
+    if (!timeValue && timeValue !== 0) {
+        return "";
+    }
+
+    if (typeof timeValue === "string") {
+        const trimmed = timeValue.trim();
+        if (trimmed) {
+            const match = trimmed.match(/^(\d{1,2}):(\d{2})/);
+            if (match) {
+                const hours = match[1].padStart(2, "0");
+                return `${hours}:${match[2]}`;
+            }
         }
+    }
 
-        return new Intl.DateTimeFormat("tr-TR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        }).format(date);
-    } catch (error) {
+    const date = createDate(timeValue);
+    if (!date) {
         return "";
     }
+
+    return new Intl.DateTimeFormat("tr-TR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(date);
+}
+
+function formatTicketTimestamp(dateValue) {
+    const date = createDate(dateValue);
+
+    if (!date) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat("tr-TR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
 }
 
 function mapTicketStatus(status) {
@@ -118,8 +164,10 @@ function buildTicketResponse({ ticket, trip, fromStop, toStop, user, firmKey }) 
         },
         trip: {
             id: trip?.id || null,
-            tripDate: trip?.date || "",
-            tripTime: trip?.time || "",
+            tripDate: formatTripDate(trip?.date),
+            tripDateRaw: trip?.date || "",
+            tripTime: formatTripTime(trip?.time),
+            tripTimeRaw: trip?.time || "",
             fromTitle: trip?.fromPlaceString || fromStop?.title || "",
             toTitle: trip?.toPlaceString || toStop?.title || "",
         },
