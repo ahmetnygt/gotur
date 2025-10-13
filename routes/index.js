@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const tripController = require("../controllers/tripController")
 const ticketSearchController = require("../controllers/ticketSearchController");
+const userController = require("../controllers/userController");
 const { fetchRandomRouteSuggestions } = require("../utilities/randomRouteSuggestions");
 const { Op } = require('sequelize');
 
@@ -68,6 +69,7 @@ router.get('/', async function (req, res) {
 });
 
 router.get('/find-ticket', ticketSearchController.renderFindTicketPage);
+router.get('/user/my-trips', userController.renderMyTripsPage);
 
 router.get('/api/places', async (req, res) => {
   try {

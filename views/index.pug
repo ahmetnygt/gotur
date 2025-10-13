@@ -25,8 +25,8 @@ html
           a.gtr-link#findMyTicket(href='/find-ticket')
             i.fa-solid.fa-magnifying-glass.me-1
             |Biletimi Bul
-          if currentUser
-            a.gtr-link#myTrips(href='#' role='button')
+            if currentUser
+              a.gtr-link#myTrips(href='/user/my-trips' role='button')
               i.fa-solid.fa-road.me-1
               |Seyahatlerim
             a.gtr-link#accounrPersonalInfo(href='/user?section=personal' role='button')
