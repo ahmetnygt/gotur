@@ -1,8 +1,10 @@
 const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
 const {
     COUNTRY_OPTIONS,
     COUNTRY_CODE_SET,
 } = require("../utilities/countryOptions");
+const { runForAllTenants } = require("../utilities/runAllTenants");
 
 const SALT_ROUNDS = 10;
 
@@ -47,6 +49,238 @@ function normalizeText(value = "") {
 
 function sanitizeIdNumber(value = "") {
     return String(value || "").replace(/\D+/g, "");
+}
+
+function formatTicketTimestamp(dateValue) {
+    if (!dateValue) {
+        return "";
+    }
+
+    try {
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("tr-TR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(date);
+    } catch (error) {
+        return "";
+    }
+}
+
+function mapTicketStatus(status) {
+    const normalisedStatus = String(status || "").toLowerCase();
+
+    const statusMap = {
+        pending: { label: "Beklemede", cssClass: "status-pending" },
+        reservation: { label: "Rezervasyon", cssClass: "status-pending" },
+        canceled: { label: "İptal Edildi", cssClass: "status-canceled" },
+        refund: { label: "İade Edildi", cssClass: "status-refund" },
+        completed: { label: "Tamamlandı", cssClass: "" },
+        web: { label: "Web", cssClass: "" },
+        gotur: { label: "GöTÜR", cssClass: "" },
+        open: { label: "Açık", cssClass: "" },
+    };
+
+    const mapping = statusMap[normalisedStatus] || {
+        label: normalisedStatus ? normalisedStatus.toUpperCase() : "",
+        cssClass: "",
+    };
+
+    return mapping;
+}
+
+function buildTicketResponse({ ticket, trip, fromStop, toStop, user, firmKey }) {
+    const passengerName = [ticket.name, ticket.surname]
+        .filter((part) => Boolean(part))
+        .join(" ")
+        .trim();
+
+    const { label: statusLabel, cssClass: statusClass } = mapTicketStatus(ticket.status);
+
+    return {
+        id: ticket.id,
+        pnr: ticket.pnr || "",
+        seatNo: ticket.seatNo,
+        phoneNumber: ticket.phoneNumber || "",
+        status: ticket.status || "",
+        passenger: {
+            firstName: ticket.name || "",
+            lastName: ticket.surname || "",
+            fullName: passengerName || "",
+        },
+        trip: {
+            id: trip?.id || null,
+            tripDate: trip?.date || "",
+            tripTime: trip?.time || "",
+            fromTitle: trip?.fromPlaceString || fromStop?.title || "",
+            toTitle: trip?.toPlaceString || toStop?.title || "",
+        },
+        fromStop: fromStop ? { id: fromStop.id, title: fromStop.title } : null,
+        toStop: toStop ? { id: toStop.id, title: toStop.title } : null,
+        contactEmail: user?.email || "",
+        createdAt: ticket.createdAt || null,
+        createdAtFormatted: formatTicketTimestamp(ticket.createdAt),
+        createdAtText: formatTicketTimestamp(ticket.createdAt),
+        statusLabel,
+        statusClass,
+        firmKey,
+    };
+}
+
+async function fetchTicketsForUser({ searchFilters }) {
+    if (!Array.isArray(searchFilters) || !searchFilters.length) {
+        return [];
+    }
+
+    const tenantResults = await runForAllTenants(async ({ firmKey, models }) => {
+        const { Ticket, Trip, RouteStop, Stop, User: TenantUser } = models;
+
+        if (!Ticket || !Trip || !RouteStop || !Stop) {
+            return [];
+        }
+
+        const whereClause =
+            searchFilters.length === 1 ? searchFilters[0] : { [Op.or]: searchFilters };
+
+        const tickets = await Ticket.findAll({
+            where: whereClause,
+            order: [["createdAt", "DESC"]],
+            raw: true,
+        });
+
+        if (!tickets.length) {
+            return [];
+        }
+
+        const tripIds = Array.from(
+            new Set(
+                tickets
+                    .map((ticket) => ticket.tripId)
+                    .filter((tripId) => Number.isFinite(Number(tripId))),
+            ),
+        );
+
+        const fromRouteStopIds = Array.from(
+            new Set(
+                tickets
+                    .map((ticket) => ticket.fromRouteStopId)
+                    .filter((id) => Number.isFinite(Number(id))),
+            ),
+        );
+
+        const toRouteStopIds = Array.from(
+            new Set(
+                tickets
+                    .map((ticket) => ticket.toRouteStopId)
+                    .filter((id) => Number.isFinite(Number(id))),
+            ),
+        );
+
+        const allRouteStopIds = Array.from(new Set([...fromRouteStopIds, ...toRouteStopIds]));
+
+        const [trips, routeStops] = await Promise.all([
+            tripIds.length
+                ? Trip.findAll({ where: { id: { [Op.in]: tripIds } }, raw: true })
+                : [],
+            allRouteStopIds.length
+                ? RouteStop.findAll({
+                      where: { id: { [Op.in]: allRouteStopIds } },
+                      raw: true,
+                  })
+                : [],
+        ]);
+
+        const stopIds = Array.from(
+            new Set(
+                routeStops
+                    .map((routeStop) => routeStop.stopId)
+                    .filter((id) => Number.isFinite(Number(id))),
+            ),
+        );
+
+        const stops = stopIds.length
+            ? await Stop.findAll({ where: { id: { [Op.in]: stopIds } }, raw: true })
+            : [];
+
+        const usersById = new Map();
+        if (TenantUser) {
+            const ticketUserIds = Array.from(
+                new Set(
+                    tickets
+                        .map((ticket) => ticket.userId)
+                        .filter((id) => Number.isFinite(Number(id))),
+                ),
+            );
+
+            if (ticketUserIds.length) {
+                const userRows = await TenantUser.findAll({
+                    where: { id: { [Op.in]: ticketUserIds } },
+                    attributes: ["id", "email", "name", "surname"],
+                    raw: true,
+                });
+
+                for (const row of userRows) {
+                    usersById.set(String(row.id), row);
+                }
+            }
+        }
+
+        const tripMap = new Map(trips.map((trip) => [String(trip.id), trip]));
+        const routeStopMap = new Map(routeStops.map((routeStop) => [String(routeStop.id), routeStop]));
+        const stopMap = new Map(stops.map((stop) => [String(stop.id), stop]));
+
+        return tickets.map((ticket) => {
+            const trip = tripMap.get(String(ticket.tripId)) || null;
+            const fromRouteStop = routeStopMap.get(String(ticket.fromRouteStopId));
+            const toRouteStop = routeStopMap.get(String(ticket.toRouteStopId));
+            const fromStop = fromRouteStop ? stopMap.get(String(fromRouteStop.stopId)) : null;
+            const toStop = toRouteStop ? stopMap.get(String(toRouteStop.stopId)) : null;
+            const user = ticket.userId ? usersById.get(String(ticket.userId)) || null : null;
+
+            return buildTicketResponse({
+                ticket,
+                trip,
+                fromStop,
+                toStop,
+                user,
+                firmKey,
+            });
+        });
+    });
+
+    const mergedTickets = [];
+    const seenKeys = new Set();
+
+    for (const tenantResult of tenantResults) {
+        const tickets = Array.isArray(tenantResult.result) ? tenantResult.result : [];
+
+        for (const ticket of tickets) {
+            const dedupeKey = `${ticket.firmKey || ""}-${ticket.id}`;
+
+            if (seenKeys.has(dedupeKey)) {
+                continue;
+            }
+
+            seenKeys.add(dedupeKey);
+            mergedTickets.push(ticket);
+        }
+    }
+
+    mergedTickets.sort((a, b) => {
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+    });
+
+    return mergedTickets;
 }
 
 function isEmail(value = "") {
@@ -462,6 +696,73 @@ exports.changePassword = async (req, res) => {
         console.error("Şifre değiştirilirken hata oluştu:", error);
         return res.status(500).json({ success: false, message: "Şifreniz güncellenemedi." });
     }
+};
+
+exports.renderMyTripsPage = async (req, res) => {
+    if (!req.session?.user) {
+        return res.redirect("/");
+    }
+
+    try {
+        if (req.app?.locals?.waitForTenants) {
+            await req.app.locals.waitForTenants();
+        }
+    } catch (error) {
+        console.error("Tenant bilgileri hazırlanırken hata oluştu:", error);
+        return res.status(500).render("error", {
+            message: "Sistem geçici olarak kullanılamıyor.",
+            error,
+        });
+    }
+
+    const { User } = req.commonModels ?? {};
+    const sessionUserId = req.session.user?.id;
+    let idNumber = "";
+
+    if (User && sessionUserId) {
+        try {
+            const userRecord = await User.findByPk(sessionUserId, {
+                attributes: ["idNumber"],
+            });
+
+            if (userRecord?.idNumber) {
+                idNumber = sanitizeIdNumber(userRecord.idNumber);
+            }
+        } catch (error) {
+            console.error("Kullanıcı bilgisi alınırken hata oluştu:", error);
+        }
+    }
+
+    const searchFilters = [];
+
+    if (sessionUserId) {
+        searchFilters.push({ goturUserId: sessionUserId });
+    }
+
+    if (idNumber) {
+        searchFilters.push({ idNumber });
+    }
+
+    let tickets = [];
+    let emptyMessage = "Henüz kayıtlı bir biletiniz bulunmuyor.";
+
+    try {
+        tickets = await fetchTicketsForUser({ searchFilters });
+
+        if (!tickets.length && !idNumber) {
+            emptyMessage = "Biletleriniz hesabınıza bağlandığında burada görüntülenecek.";
+        }
+    } catch (error) {
+        console.error("Seyahatler alınırken hata oluştu:", error);
+        emptyMessage = "Seyahatleriniz alınırken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.";
+    }
+
+    return res.render("my-trips", {
+        title: "Seyahatlerim",
+        tickets,
+        emptyMessage,
+        hasIdNumber: Boolean(idNumber),
+    });
 };
 
 exports.myAccount = (req, res) => {
