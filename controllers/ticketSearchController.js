@@ -182,6 +182,7 @@ exports.searchTickets = async (req, res) => {
           .filter((id) => Number.isFinite(Number(id)))
       )
     );
+    
     const toRouteStopIds = Array.from(
       new Set(
         tickets
