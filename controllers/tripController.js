@@ -329,17 +329,6 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     continue;
                 }
 
-                const fromOrderValue = Number(fromRouteStop.order);
-                const toOrderValue = Number(toRouteStop.order);
-
-                if (
-                    !Number.isFinite(fromOrderValue) ||
-                    !Number.isFinite(toOrderValue) ||
-                    toOrderValue <= fromOrderValue
-                ) {
-                    continue;
-                }
-
                 const fallbackOffsets = new Map();
                 let cumulativeMinutes = 0;
                 routeStopsForTrip.forEach((routeStop, index) => {
@@ -431,6 +420,8 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     trip.duration = "";
                 }
 
+                const fromOrderValue = Number(fromRouteStop.order);
+                const toOrderValue = Number(toRouteStop.order);
                 const lowerOrder = Math.min(fromOrderValue, toOrderValue);
                 const upperOrder = Math.max(fromOrderValue, toOrderValue);
                 const hasValidRequestOrders =
