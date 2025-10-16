@@ -479,6 +479,7 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     .filter(Boolean);
 
                 trip.routeTimeline = timeline;
+                console.log(trip.routeTimeline)
 
                 const price = await Price.findOne({
                     where: {
