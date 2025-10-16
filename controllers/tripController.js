@@ -149,468 +149,468 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
     await ensureTenantsReady(req);
 
     const results = await runForAllTenants(async ({ firmKey, models }) => {
-            const {
-                Trip,
-                RouteStop,
-                Stop,
-                Route,
-                Price,
-                BusModel,
-                Ticket,
-                Bus,
-                TripStopTime,
-            } = models;
+        const {
+            Trip,
+            RouteStop,
+            Stop,
+            Route,
+            Price,
+            BusModel,
+            Ticket,
+            Bus,
+            TripStopTime,
+        } = models;
 
-            // 1) İlgili duraklar
-            const stops = await Stop.findAll({
-                where: { placeId: { [Op.in]: [fromId, toId] } },
-                raw: true,
-            });
+        // 1) İlgili duraklar
+        const stops = await Stop.findAll({
+            where: { placeId: { [Op.in]: [fromId, toId] } },
+            raw: true,
+        });
 
-            if (!stops.length) return [];
+        if (!stops.length) return [];
 
-            const stopIdsByPlace = new Map();
-            const stopIdToPlace = new Map();
+        const stopIdsByPlace = new Map();
+        const stopIdToPlace = new Map();
 
-            for (const stop of stops) {
-                const placeKey = String(stop.placeId);
-                const stopKey = String(stop.id);
-                if (!stopIdsByPlace.has(placeKey)) stopIdsByPlace.set(placeKey, []);
-                stopIdsByPlace.get(placeKey).push(stop.id);
-                stopIdToPlace.set(stopKey, placeKey);
+        for (const stop of stops) {
+            const placeKey = String(stop.placeId);
+            const stopKey = String(stop.id);
+            if (!stopIdsByPlace.has(placeKey)) stopIdsByPlace.set(placeKey, []);
+            stopIdsByPlace.get(placeKey).push(stop.id);
+            stopIdToPlace.set(stopKey, placeKey);
+        }
+
+        const fromPlaceStopIds = stopIdsByPlace.get(String(fromId));
+        const toPlaceStopIds = stopIdsByPlace.get(String(toId));
+        if (!fromPlaceStopIds?.length || !toPlaceStopIds?.length) return [];
+
+        // 2) routeStop'lar
+        const allStopIds = Array.from(
+            new Set([...fromPlaceStopIds, ...toPlaceStopIds])
+        );
+        const routeStops = await RouteStop.findAll({
+            where: { stopId: { [Op.in]: allStopIds } },
+            raw: true,
+        });
+        if (!routeStops.length) return [];
+
+        // 3) Route filtreleme
+        const routesWithPlaces = new Map();
+        for (const routeStop of routeStops) {
+            const routeKey = String(routeStop.routeId);
+            const stopKey = String(routeStop.stopId);
+            const placeKey = stopIdToPlace.get(stopKey);
+            if (!placeKey) continue;
+
+            if (!routesWithPlaces.has(routeKey)) {
+                routesWithPlaces.set(routeKey, {
+                    routeId: routeStop.routeId,
+                    placeIds: new Set(),
+                });
             }
+            routesWithPlaces.get(routeKey).placeIds.add(placeKey);
+        }
 
-            const fromPlaceStopIds = stopIdsByPlace.get(String(fromId));
-            const toPlaceStopIds = stopIdsByPlace.get(String(toId));
-            if (!fromPlaceStopIds?.length || !toPlaceStopIds?.length) return [];
+        const matchingRouteIds = Array.from(routesWithPlaces.values())
+            .filter(
+                ({ placeIds }) =>
+                    placeIds.has(String(fromId)) && placeIds.has(String(toId))
+            )
+            .map(({ routeId }) => routeId);
 
-            // 2) routeStop'lar
-            const allStopIds = Array.from(
-                new Set([...fromPlaceStopIds, ...toPlaceStopIds])
-            );
-            const routeStops = await RouteStop.findAll({
-                where: { stopId: { [Op.in]: allStopIds } },
+        if (!matchingRouteIds.length) return [];
+
+        // 4) Trip'ler
+        const trips = await Trip.findAll({
+            where: {
+                routeId: { [Op.in]: matchingRouteIds },
+                date: { [Op.eq]: date },
+            },
+        });
+        if (!trips.length) return [];
+
+        const busIds = trips
+            .map((trip) => trip.busId)
+            .filter((busId) => busId !== null && busId !== undefined);
+
+        const buses = busIds.length
+            ? await Bus.findAll({
+                where: { id: { [Op.in]: [...new Set(busIds)] } },
                 raw: true,
-            });
-            if (!routeStops.length) return [];
+            })
+            : [];
 
-            // 3) Route filtreleme
-            const routesWithPlaces = new Map();
-            for (const routeStop of routeStops) {
-                const routeKey = String(routeStop.routeId);
-                const stopKey = String(routeStop.stopId);
-                const placeKey = stopIdToPlace.get(stopKey);
-                if (!placeKey) continue;
+        const busMap = new Map(
+            buses.map((bus) => [String(bus.id), bus])
+        );
 
-                if (!routesWithPlaces.has(routeKey)) {
-                    routesWithPlaces.set(routeKey, {
-                        routeId: routeStop.routeId,
-                        placeIds: new Set(),
-                    });
-                }
-                routesWithPlaces.get(routeKey).placeIds.add(placeKey);
+        const routesOfTrips = await Route.findAll({
+            where: { id: { [Op.in]: [...new Set(trips.map((t) => t.routeId))] } },
+        });
+        const routeStopsOfTrips = await RouteStop.findAll({
+            where: {
+                routeId: { [Op.in]: [...new Set(routesOfTrips.map((r) => r.id))] },
+            },
+            raw: true,
+        });
+
+        const routeStopStopIds = routeStopsOfTrips.map((rs) => rs.stopId);
+        const additionalStops = routeStopStopIds.length
+            ? await Stop.findAll({
+                where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
+                raw: true,
+            })
+            : [];
+
+        const stopRecordMap = new Map();
+        for (const stop of additionalStops) {
+            stopRecordMap.set(String(stop.id), stop);
+        }
+        for (const stop of stops) {
+            const stopKey = String(stop.id);
+            if (!stopRecordMap.has(stopKey)) {
+                stopRecordMap.set(stopKey, stop);
             }
+        }
 
-            const matchingRouteIds = Array.from(routesWithPlaces.values())
-                .filter(
-                    ({ placeIds }) =>
-                        placeIds.has(String(fromId)) && placeIds.has(String(toId))
-                )
-                .map(({ routeId }) => routeId);
-
-            if (!matchingRouteIds.length) return [];
-
-            // 4) Trip'ler
-            const trips = await Trip.findAll({
+        const tripStopTimes = trips.length
+            ? await TripStopTime.findAll({
                 where: {
-                    routeId: { [Op.in]: matchingRouteIds },
-                    date: { [Op.eq]: date },
-                },
-            });
-            if (!trips.length) return [];
-
-            const busIds = trips
-                .map((trip) => trip.busId)
-                .filter((busId) => busId !== null && busId !== undefined);
-
-            const buses = busIds.length
-                ? await Bus.findAll({
-                    where: { id: { [Op.in]: [...new Set(busIds)] } },
-                    raw: true,
-                })
-                : [];
-
-            const busMap = new Map(
-                buses.map((bus) => [String(bus.id), bus])
-            );
-
-            const routesOfTrips = await Route.findAll({
-                where: { id: { [Op.in]: [...new Set(trips.map((t) => t.routeId))] } },
-            });
-            const routeStopsOfTrips = await RouteStop.findAll({
-                where: {
-                    routeId: { [Op.in]: [...new Set(routesOfTrips.map((r) => r.id))] },
+                    tripId: { [Op.in]: trips.map((trip) => trip.id) },
                 },
                 raw: true,
-            });
+            })
+            : [];
 
-            const routeStopStopIds = routeStopsOfTrips.map((rs) => rs.stopId);
-            const additionalStops = routeStopStopIds.length
-                ? await Stop.findAll({
-                    where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
-                    raw: true,
-                })
-                : [];
-
-            const stopRecordMap = new Map();
-            for (const stop of additionalStops) {
-                stopRecordMap.set(String(stop.id), stop);
+        const tripStopTimesByTripId = new Map();
+        for (const entry of tripStopTimes) {
+            const tripKey = String(entry.tripId);
+            if (!tripStopTimesByTripId.has(tripKey)) {
+                tripStopTimesByTripId.set(tripKey, new Map());
             }
-            for (const stop of stops) {
-                const stopKey = String(stop.id);
-                if (!stopRecordMap.has(stopKey)) {
-                    stopRecordMap.set(stopKey, stop);
+            tripStopTimesByTripId
+                .get(tripKey)
+                .set(String(entry.routeStopId), entry);
+        }
+
+        // 5) Trip detaylarını hesapla
+        for (let i = 0; i < trips.length; i++) {
+            const trip = trips[i];
+            const fromStop = stops.find((s) => s.placeId == fromId);
+            const toStop = stops.find((s) => s.placeId == toId);
+
+            if (!fromStop || !toStop) {
+                continue;
+            }
+
+            const baseTripTime = trip.time || "00:00:00";
+            const routeStopsForTrip = routeStopsOfTrips
+                .filter((rs) => rs.routeId == trip.routeId)
+                .sort(
+                    (a, b) => Number(a.order || 0) - Number(b.order || 0)
+                );
+
+            const routeStopOrderMap = new Map();
+            for (const routeStop of routeStopsForTrip) {
+                const orderValue = Number(routeStop.order);
+                if (Number.isFinite(orderValue)) {
+                    routeStopOrderMap.set(String(routeStop.id), orderValue);
                 }
             }
 
-            const tripStopTimes = trips.length
-                ? await TripStopTime.findAll({
-                    where: {
-                        tripId: { [Op.in]: trips.map((trip) => trip.id) },
-                    },
-                    raw: true,
-                })
-                : [];
+            const fromRouteStop = routeStopsForTrip.find(
+                (rs) => rs.stopId == fromStop.id
+            );
+            const toRouteStop = routeStopsForTrip.find(
+                (rs) => rs.stopId == toStop.id
+            );
 
-            const tripStopTimesByTripId = new Map();
-            for (const entry of tripStopTimes) {
-                const tripKey = String(entry.tripId);
-                if (!tripStopTimesByTripId.has(tripKey)) {
-                    tripStopTimesByTripId.set(tripKey, new Map());
-                }
-                tripStopTimesByTripId
-                    .get(tripKey)
-                    .set(String(entry.routeStopId), entry);
+            if (!fromRouteStop || !toRouteStop) {
+                continue;
             }
 
-            // 5) Trip detaylarını hesapla
-            for (let i = 0; i < trips.length; i++) {
-                const trip = trips[i];
-                const fromStop = stops.find((s) => s.placeId == fromId);
-                const toStop = stops.find((s) => s.placeId == toId);
+            const fromOrderValue = Number(fromRouteStop.order);
+            const toOrderValue = Number(toRouteStop.order);
 
-                if (!fromStop || !toStop) {
-                    continue;
-                }
+            if (
+                Number.isFinite(fromOrderValue) &&
+                Number.isFinite(toOrderValue) &&
+                fromOrderValue >= toOrderValue
+            ) {
+                continue;
+            }
 
-                const baseTripTime = trip.time || "00:00:00";
-                const routeStopsForTrip = routeStopsOfTrips
-                    .filter((rs) => rs.routeId == trip.routeId)
-                    .sort(
-                        (a, b) => Number(a.order || 0) - Number(b.order || 0)
+            const fallbackOffsets = new Map();
+            let cumulativeMinutes = 0;
+            routeStopsForTrip.forEach((routeStop, index) => {
+                if (index > 0) {
+                    cumulativeMinutes += parseDurationStringToMinutes(
+                        routeStop.duration
                     );
+                }
 
-                const routeStopOrderMap = new Map();
-                for (const routeStop of routeStopsForTrip) {
-                    const orderValue = Number(routeStop.order);
-                    if (Number.isFinite(orderValue)) {
-                        routeStopOrderMap.set(String(routeStop.id), orderValue);
+                fallbackOffsets.set(
+                    String(routeStop.id),
+                    cumulativeMinutes
+                );
+            });
+
+            const tripStopTimeMap =
+                tripStopTimesByTripId.get(String(trip.id)) || null;
+
+            const effectiveOffsets = new Map();
+            let carriedDelay = 0;
+
+            for (const routeStop of routeStopsForTrip) {
+                const key = String(routeStop.id);
+                const fallbackOffset = fallbackOffsets.has(key)
+                    ? Number(fallbackOffsets.get(key))
+                    : null;
+
+                let offsetToUse = null;
+
+                if (tripStopTimeMap && tripStopTimeMap.has(key)) {
+                    const entry = tripStopTimeMap.get(key);
+                    const numericOffset = Number(entry.offsetMinutes);
+
+                    if (Number.isFinite(numericOffset)) {
+                        offsetToUse = numericOffset;
+
+                        if (Number.isFinite(fallbackOffset)) {
+                            carriedDelay = numericOffset - fallbackOffset;
+                        } else {
+                            carriedDelay = 0;
+                        }
                     }
                 }
 
-                const fromRouteStop = routeStopsForTrip.find(
-                    (rs) => rs.stopId == fromStop.id
-                );
-                const toRouteStop = routeStopsForTrip.find(
-                    (rs) => rs.stopId == toStop.id
-                );
-
-                if (!fromRouteStop || !toRouteStop) {
-                    continue;
+                if (offsetToUse === null && Number.isFinite(fallbackOffset)) {
+                    offsetToUse = fallbackOffset + carriedDelay;
                 }
 
-                const fromOrderValue = Number(fromRouteStop.order);
-                const toOrderValue = Number(toRouteStop.order);
+                if (Number.isFinite(offsetToUse)) {
+                    effectiveOffsets.set(key, offsetToUse);
+                }
+            }
 
+            const resolveOffsetMinutes = (routeStopId) => {
+                const key = String(routeStopId);
+
+                if (effectiveOffsets.has(key)) {
+                    return effectiveOffsets.get(key);
+                }
+
+                return null;
+            };
+
+            const fromOffsetMinutes = resolveOffsetMinutes(fromRouteStop.id);
+            const toOffsetMinutes = resolveOffsetMinutes(toRouteStop.id);
+
+            const computedDeparture =
+                fromOffsetMinutes !== null
+                    ? addMinutesToTimeString(baseTripTime, fromOffsetMinutes)
+                    : null;
+
+            if (computedDeparture) {
+                trip.time = computedDeparture;
+            } else {
+                const fallbackTime = minutesToClockString(
+                    parseTimeStringToMinutes(baseTripTime)
+                );
+                if (fallbackTime) {
+                    trip.time = fallbackTime;
+                }
+            }
+
+            if (fromOffsetMinutes !== null && toOffsetMinutes !== null) {
+                const diffMinutes = toOffsetMinutes - fromOffsetMinutes;
+                trip.duration = formatDurationFromMinutes(
+                    Math.max(0, diffMinutes)
+                );
+            } else {
+                trip.duration = "";
+            }
+
+            const lowerOrder = Math.min(fromOrderValue, toOrderValue);
+            const upperOrder = Math.max(fromOrderValue, toOrderValue);
+            const hasValidRequestOrders =
+                Number.isFinite(lowerOrder) && Number.isFinite(upperOrder);
+
+            const relevantRouteStops = routeStopsForTrip.filter((routeStop) => {
+                const orderValue = Number(routeStop.order);
                 if (
                     Number.isFinite(fromOrderValue) &&
-                    Number.isFinite(toOrderValue) &&
-                    fromOrderValue >= toOrderValue
+                    Number.isFinite(toOrderValue)
                 ) {
-                    continue;
-                }
-
-                const fallbackOffsets = new Map();
-                let cumulativeMinutes = 0;
-                routeStopsForTrip.forEach((routeStop, index) => {
-                    if (index > 0) {
-                        cumulativeMinutes += parseDurationStringToMinutes(
-                            routeStop.duration
-                        );
-                    }
-
-                    fallbackOffsets.set(
-                        String(routeStop.id),
-                        cumulativeMinutes
+                    return (
+                        orderValue >= lowerOrder && orderValue <= upperOrder
                     );
-                });
-
-                const tripStopTimeMap =
-                    tripStopTimesByTripId.get(String(trip.id)) || null;
-
-                const effectiveOffsets = new Map();
-                let carriedDelay = 0;
-
-                for (const routeStop of routeStopsForTrip) {
-                    const key = String(routeStop.id);
-                    const fallbackOffset = fallbackOffsets.has(key)
-                        ? Number(fallbackOffsets.get(key))
-                        : null;
-
-                    let offsetToUse = null;
-
-                    if (tripStopTimeMap && tripStopTimeMap.has(key)) {
-                        const entry = tripStopTimeMap.get(key);
-                        const numericOffset = Number(entry.offsetMinutes);
-
-                        if (Number.isFinite(numericOffset)) {
-                            offsetToUse = numericOffset;
-
-                            if (Number.isFinite(fallbackOffset)) {
-                                carriedDelay = numericOffset - fallbackOffset;
-                            } else {
-                                carriedDelay = 0;
-                            }
-                        }
-                    }
-
-                    if (offsetToUse === null && Number.isFinite(fallbackOffset)) {
-                        offsetToUse = fallbackOffset + carriedDelay;
-                    }
-
-                    if (Number.isFinite(offsetToUse)) {
-                        effectiveOffsets.set(key, offsetToUse);
-                    }
                 }
+                if (Number.isFinite(fromOrderValue)) {
+                    return orderValue >= fromOrderValue;
+                }
+                if (Number.isFinite(toOrderValue)) {
+                    return orderValue <= toOrderValue;
+                }
+                return true;
+            });
 
-                const resolveOffsetMinutes = (routeStopId) => {
-                    const key = String(routeStopId);
-
-                    if (effectiveOffsets.has(key)) {
-                        return effectiveOffsets.get(key);
-                    }
-
-                    return null;
-                };
-
-                const fromOffsetMinutes = resolveOffsetMinutes(fromRouteStop.id);
-                const toOffsetMinutes = resolveOffsetMinutes(toRouteStop.id);
-
-                const computedDeparture =
-                    fromOffsetMinutes !== null
-                        ? addMinutesToTimeString(baseTripTime, fromOffsetMinutes)
-                        : null;
-
-                if (computedDeparture) {
-                    trip.time = computedDeparture;
-                } else {
-                    const fallbackTime = minutesToClockString(
-                        parseTimeStringToMinutes(baseTripTime)
+            const timeline = relevantRouteStops
+                .map((routeStop) => {
+                    const stopRecord = stopRecordMap.get(
+                        String(routeStop.stopId)
                     );
-                    if (fallbackTime) {
-                        trip.time = fallbackTime;
+                    if (!stopRecord) {
+                        return null;
                     }
-                }
 
-                if (fromOffsetMinutes !== null && toOffsetMinutes !== null) {
-                    const diffMinutes = toOffsetMinutes - fromOffsetMinutes;
-                    trip.duration = formatDurationFromMinutes(
-                        Math.max(0, diffMinutes)
+                    const offsetMinutes = resolveOffsetMinutes(routeStop.id);
+                    if (offsetMinutes === null) {
+                        return null;
+                    }
+
+                    const timeText = addMinutesToTimeString(
+                        baseTripTime,
+                        offsetMinutes
                     );
-                } else {
-                    trip.duration = "";
-                }
 
-                const lowerOrder = Math.min(fromOrderValue, toOrderValue);
-                const upperOrder = Math.max(fromOrderValue, toOrderValue);
-                const hasValidRequestOrders =
-                    Number.isFinite(lowerOrder) && Number.isFinite(upperOrder);
-
-                const relevantRouteStops = routeStopsForTrip.filter((routeStop) => {
-                    const orderValue = Number(routeStop.order);
-                    if (
-                        Number.isFinite(fromOrderValue) &&
-                        Number.isFinite(toOrderValue)
-                    ) {
-                        return (
-                            orderValue >= lowerOrder && orderValue <= upperOrder
-                        );
+                    if (!timeText) {
+                        return null;
                     }
-                    if (Number.isFinite(fromOrderValue)) {
-                        return orderValue >= fromOrderValue;
-                    }
-                    if (Number.isFinite(toOrderValue)) {
-                        return orderValue <= toOrderValue;
-                    }
-                    return true;
-                });
 
-                const timeline = relevantRouteStops
-                    .map((routeStop) => {
-                        const stopRecord = stopRecordMap.get(
-                            String(routeStop.stopId)
-                        );
-                        if (!stopRecord) {
-                            return null;
-                        }
+                    console.log({ title: stopRecord.title, time: timeText })
 
-                        const offsetMinutes = resolveOffsetMinutes(routeStop.id);
-                        if (offsetMinutes === null) {
-                            return null;
-                        }
+                    return {
+                        title: stopRecord.title,
+                        time: timeText,
+                    };
+                })
+                .filter(Boolean);
 
-                        const timeText = addMinutesToTimeString(
-                            baseTripTime,
-                            offsetMinutes
-                        );
+            trip.routeTimeline = timeline;
+            console.log(trip.routeTimeline)
 
-                        if (!timeText) {
-                            return null;
-                        }
+            const price = await Price.findOne({
+                where: {
+                    fromStopId: fromStop.id,
+                    toStopId: toStop.id,
+                },
+            });
 
-                        console.log({ title: stopRecord.title, time: timeText })
+            const busModel = await BusModel.findOne({
+                where: { id: trip.busModelId },
+            });
 
-                        return {
-                            title: stopRecord.title,
-                            time: timeText,
-                        };
-                    })
-                    .filter(Boolean);
+            const busKey =
+                trip.busId !== null && trip.busId !== undefined
+                    ? String(trip.busId)
+                    : null;
+            const busRecord = busKey ? busMap.get(busKey) : undefined;
+            const busFeatures = [];
 
-                trip.routeTimeline = timeline;
-                console.log(trip.routeTimeline)
-
-                const price = await Price.findOne({
-                    where: {
-                        fromStopId: fromStop.id,
-                        toStopId: toStop.id,
-                    },
-                });
-
-                const busModel = await BusModel.findOne({
-                    where: { id: trip.busModelId },
-                });
-
-                const busKey =
-                    trip.busId !== null && trip.busId !== undefined
-                        ? String(trip.busId)
-                        : null;
-                const busRecord = busKey ? busMap.get(busKey) : undefined;
-                const busFeatures = [];
-
-                if (busRecord) {
-                    for (const feature of BUS_FEATURE_MAPPINGS) {
-                        if (busRecord[feature.key]) {
-                            busFeatures.push({
-                                key: feature.key,
-                                icon: feature.icon,
-                                label: feature.label,
-                            });
-                        }
+            if (busRecord) {
+                for (const feature of BUS_FEATURE_MAPPINGS) {
+                    if (busRecord[feature.key]) {
+                        busFeatures.push({
+                            key: feature.key,
+                            icon: feature.icon,
+                            label: feature.label,
+                        });
                     }
                 }
-
-                const tickets = await Ticket.findAll({
-                    where: {
-                        tripId: trip.id,
-                        status: { [Op.notIn]: ["refund", "canceled"] },
-                    },
-                    order: [["seatNo", "ASC"]],
-                });
-
-                const seatBlockingTickets = hasValidRequestOrders
-                    ? tickets.filter((ticket) => {
-                          const ticketFromOrder = routeStopOrderMap.get(
-                              String(ticket.fromRouteStopId)
-                          );
-                          const ticketToOrder = routeStopOrderMap.get(
-                              String(ticket.toRouteStopId)
-                          );
-
-                          if (
-                              !Number.isFinite(ticketFromOrder) ||
-                              !Number.isFinite(ticketToOrder)
-                          ) {
-                              return true;
-                          }
-
-                          const ticketLower = Math.min(
-                              ticketFromOrder,
-                              ticketToOrder
-                          );
-                          const ticketUpper = Math.max(
-                              ticketFromOrder,
-                              ticketToOrder
-                          );
-
-                          if (
-                              ticketUpper <= lowerOrder ||
-                              upperOrder <= ticketLower
-                          ) {
-                              return false;
-                          }
-
-                          return true;
-                      })
-                    : tickets;
-
-                let newTickets = [];
-                for (const t of seatBlockingTickets) newTickets[t.seatNo] = t;
-
-                if (typeof trip.duration === "string") {
-                    if (trip.duration.includes(":")) {
-                        const [h = 0, m = 0] = trip.duration
-                            .split(":")
-                            .map((value) => Number(value));
-                        let result = "";
-                        if (h > 0) result += `${h} saat `;
-                        if (m > 0) result += `${m} dakika`;
-
-                        trip.duration = result.trim();
-                    } else {
-                        trip.duration = trip.duration.trim();
-                    }
-                } else {
-                    trip.duration = "";
-                }
-                trip.fromStr = fromStop.title;
-                trip.toStr = toStop.title;
-                trip.fromStopId = fromStop.id;
-                trip.toStopId = toStop.id;
-                trip.price = price ? price.webPrice : 0;
-
-                if (busModel) {
-                    trip.fullness =
-                        seatBlockingTickets.length +
-                        "/" +
-                        busModel.maxPassenger;
-                    trip.busPlanBinary = busModel.planBinary;
-                    trip.busPlan = JSON.parse(busModel.plan);
-                } else {
-                    trip.fullness = seatBlockingTickets.length.toString();
-                    trip.busPlanBinary = "";
-                    trip.busPlan = [];
-                }
-
-                trip.tickets = newTickets;
-                trip.busFeatures = busFeatures;
-                trip.routeDescription = routesOfTrips.find(r => r.id == trip.routeId)?.description
-
-                // hangi firmadan geldiğini belirt
-                trip.firm = firmKey;
             }
-            return trips;
-        });
+
+            const tickets = await Ticket.findAll({
+                where: {
+                    tripId: trip.id,
+                    status: { [Op.notIn]: ["refund", "canceled"] },
+                },
+                order: [["seatNo", "ASC"]],
+            });
+
+            const seatBlockingTickets = hasValidRequestOrders
+                ? tickets.filter((ticket) => {
+                    const ticketFromOrder = routeStopOrderMap.get(
+                        String(ticket.fromRouteStopId)
+                    );
+                    const ticketToOrder = routeStopOrderMap.get(
+                        String(ticket.toRouteStopId)
+                    );
+
+                    if (
+                        !Number.isFinite(ticketFromOrder) ||
+                        !Number.isFinite(ticketToOrder)
+                    ) {
+                        return true;
+                    }
+
+                    const ticketLower = Math.min(
+                        ticketFromOrder,
+                        ticketToOrder
+                    );
+                    const ticketUpper = Math.max(
+                        ticketFromOrder,
+                        ticketToOrder
+                    );
+
+                    if (
+                        ticketUpper <= lowerOrder ||
+                        upperOrder <= ticketLower
+                    ) {
+                        return false;
+                    }
+
+                    return true;
+                })
+                : tickets;
+
+            let newTickets = [];
+            for (const t of seatBlockingTickets) newTickets[t.seatNo] = t;
+
+            if (typeof trip.duration === "string") {
+                if (trip.duration.includes(":")) {
+                    const [h = 0, m = 0] = trip.duration
+                        .split(":")
+                        .map((value) => Number(value));
+                    let result = "";
+                    if (h > 0) result += `${h} saat `;
+                    if (m > 0) result += `${m} dakika`;
+
+                    trip.duration = result.trim();
+                } else {
+                    trip.duration = trip.duration.trim();
+                }
+            } else {
+                trip.duration = "";
+            }
+            trip.fromStr = fromStop.title;
+            trip.toStr = toStop.title;
+            trip.fromStopId = fromStop.id;
+            trip.toStopId = toStop.id;
+            trip.price = price ? price.webPrice : 0;
+
+            if (busModel) {
+                trip.fullness =
+                    seatBlockingTickets.length +
+                    "/" +
+                    busModel.maxPassenger;
+                trip.busPlanBinary = busModel.planBinary;
+                trip.busPlan = JSON.parse(busModel.plan);
+            } else {
+                trip.fullness = seatBlockingTickets.length.toString();
+                trip.busPlanBinary = "";
+                trip.busPlan = [];
+            }
+
+            trip.tickets = newTickets;
+            trip.busFeatures = busFeatures;
+            trip.routeDescription = routesOfTrips.find(r => r.id == trip.routeId)?.description
+
+            // hangi firmadan geldiğini belirt
+            trip.firm = firmKey;
+        }
+        return trips;
+    });
 
     const mergedTrips = results.flatMap((r) => r.result || []);
 
@@ -691,6 +691,9 @@ exports.searchAllTrips = async (req, res) => {
         const toPlaceTitle = placeMap.get(String(toId))?.title || "";
 
         const title = `Götür | ${fromPlaceTitle}-${toPlaceTitle}`;
+
+        console.log(trips.map(t => t.id))
+
         res.render("trips", { trips, fromId, toId, date, title });
     } catch (err) {
         console.error("searchAllTrips hata:", err);
@@ -805,7 +808,7 @@ exports.createTicketPayment = async (req, res) => {
         });
 
         const { models, sequelize } = await getTenantConnection(firmKey);
-        const { Ticket,TicketGroup } = models;
+        const { Ticket, TicketGroup } = models;
         const transaction = await sequelize.transaction();
 
         let ticketPayment = null;
@@ -1151,7 +1154,7 @@ exports.completePayment = async (req, res) => {
             await ticketPayment.save({ transaction });
 
             await transaction.commit();
-            await sendEmail("ahmetnygt@hotmail.com","Bilet Mesajı","BİLET ALDIN GÖTÜR H.O DER")
+            await sendEmail("ahmetnygt@hotmail.com", "Bilet Mesajı", "BİLET ALDIN GÖTÜR H.O DER")
         } catch (innerError) {
             await transaction.rollback();
             throw innerError;
