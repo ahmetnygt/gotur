@@ -294,14 +294,11 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
             }
 
             // 5) Trip detaylarını hesapla
+            const fromStopIdSet = new Set(fromPlaceStopIds.map((id) => String(id)));
+            const toStopIdSet = new Set(toPlaceStopIds.map((id) => String(id)));
+
             for (let i = 0; i < trips.length; i++) {
                 const trip = trips[i];
-                const fromStop = stops.find((s) => s.placeId == fromId);
-                const toStop = stops.find((s) => s.placeId == toId);
-
-                if (!fromStop || !toStop) {
-                    continue;
-                }
 
                 const baseTripTime = trip.time || "00:00:00";
                 const routeStopsForTrip = routeStopsOfTrips
@@ -318,14 +315,55 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     }
                 }
 
-                const fromRouteStop = routeStopsForTrip.find(
-                    (rs) => rs.stopId == fromStop.id
-                );
-                const toRouteStop = routeStopsForTrip.find(
-                    (rs) => rs.stopId == toStop.id
-                );
+                const candidateFromRouteStops = routeStopsForTrip
+                    .filter((rs) => fromStopIdSet.has(String(rs.stopId)))
+                    .sort(
+                        (a, b) => Number(a.order || 0) - Number(b.order || 0)
+                    );
+                const candidateToRouteStops = routeStopsForTrip
+                    .filter((rs) => toStopIdSet.has(String(rs.stopId)))
+                    .sort(
+                        (a, b) => Number(a.order || 0) - Number(b.order || 0)
+                    );
+
+                let fromRouteStop = null;
+                let toRouteStop = null;
+                let bestOrderGap = Infinity;
+
+                for (const fromCandidate of candidateFromRouteStops) {
+                    const fromOrderValue = Number(fromCandidate.order);
+                    if (!Number.isFinite(fromOrderValue)) {
+                        continue;
+                    }
+
+                    for (const toCandidate of candidateToRouteStops) {
+                        const toOrderValue = Number(toCandidate.order);
+                        if (!Number.isFinite(toOrderValue)) {
+                            continue;
+                        }
+
+                        if (fromOrderValue < toOrderValue) {
+                            const gap = toOrderValue - fromOrderValue;
+                            if (gap < bestOrderGap) {
+                                bestOrderGap = gap;
+                                fromRouteStop = fromCandidate;
+                                toRouteStop = toCandidate;
+                            }
+                        }
+                    }
+                }
 
                 if (!fromRouteStop || !toRouteStop) {
+                    continue;
+                }
+
+                const fromOrderValue = Number(fromRouteStop.order);
+                const toOrderValue = Number(toRouteStop.order);
+
+                const fromStop = stopRecordMap.get(String(fromRouteStop.stopId));
+                const toStop = stopRecordMap.get(String(toRouteStop.stopId));
+
+                if (!fromStop || !toStop) {
                     continue;
                 }
 
@@ -420,8 +458,6 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     trip.duration = "";
                 }
 
-                const fromOrderValue = Number(fromRouteStop.order);
-                const toOrderValue = Number(toRouteStop.order);
                 const lowerOrder = Math.min(fromOrderValue, toOrderValue);
                 const upperOrder = Math.max(fromOrderValue, toOrderValue);
                 const hasValidRequestOrders =
@@ -468,8 +504,6 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                         if (!timeText) {
                             return null;
                         }
-
-                        console.log({ title: stopRecord.title, time: timeText })
 
                         return {
                             title: stopRecord.title,
