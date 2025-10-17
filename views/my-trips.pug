@@ -1,7 +1,7 @@
 extends layout
 
 block css
-  link(rel='stylesheet', href='/css/find-ticket.css')
+  link(rel='stylesheet' href='/css/find-ticket.css')
   style.
     .my-trips-hero {
       background-color: #2660ff;
@@ -36,4 +36,4 @@ block content
         include find-ticket-results
 
 block scripts
-  //- Bu sayfa ek bir script gerektirmiyor.
+  script(src='/js/ticketCancel.js')

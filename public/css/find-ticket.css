@@ -75,17 +75,8 @@
 }
 
 .find-ticket-result-item .ticket-header .firm-logo {
-  width: 72px;
+  width: 12rem;
   height: 72px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  flex-shrink: 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .find-ticket-result-item .ticket-header .firm-logo img {
@@ -124,8 +115,6 @@
 
 .find-ticket-result-item .ticket-header-controls {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   gap: 0.5rem;
   min-width: fit-content;
 }

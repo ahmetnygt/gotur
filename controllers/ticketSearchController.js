@@ -236,7 +236,7 @@ exports.searchTickets = async (req, res) => {
           .filter((id) => Number.isFinite(Number(id)))
       )
     );
-    
+
     const toRouteStopIds = Array.from(
       new Set(
         tickets
@@ -352,6 +352,7 @@ exports.searchTickets = async (req, res) => {
         createdAtFormatted: formatCreatedAt(ticket.createdAt),
         createdAtText: formatCreatedAt(ticket.createdAt),
         statusLabel,
+        status: ticket.status,
         statusClass,
         firmKey,
       };
