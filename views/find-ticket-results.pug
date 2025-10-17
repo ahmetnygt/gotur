@@ -4,7 +4,17 @@ if !tickets.length
 else
   .find-ticket-results-list
     each ticket in tickets
-      article.find-ticket-result-item
+      article.find-ticket-result-item(
+        data-ticket-item
+        data-ticket-pnr=ticket.pnr || ''
+        data-ticket-firm-key=ticket.firmKey || ''
+        data-ticket-passenger=ticket.passenger.fullName || ''
+        data-ticket-from=ticket.trip.fromTitle || ''
+        data-ticket-to=ticket.trip.toTitle || ''
+        data-ticket-trip-date=ticket.trip.tripDate || ''
+        data-ticket-trip-time=ticket.trip.tripTime || ''
+        data-ticket-seat=ticket.seatNo || ''
+      )
         .ticket-header
           .ticket-header-main
             .firm-logo
@@ -25,7 +35,7 @@ else
               button.btn.btn-ticket-actions(type='button', id=`ticket-actions-${ticket.id}` data-bs-toggle='dropdown' aria-expanded='false' aria-label='Bilet işlemleri menüsü')
                 i.fa-solid.fa-ellipsis-vertical
               .dropdown-menu.dropdown-menu-end(aria-labelledby=`ticket-actions-${ticket.id}`)
-                button.dropdown-item(type='button') İptal Et
+                button.dropdown-item(type='button' data-ticket-cancel-trigger) İptal Et
         .ticket-body
           .ticket-body-item
             .label Kalkış
@@ -44,7 +54,53 @@ else
             .value= ticket.seatNo || "-"
         .ticket-footer
           if ticket.statusLabel
-            span.status-badge(class=ticket.statusClass)= ticket.statusLabel
+            span.status-badge(class=ticket.statusClass data-ticket-status-label)= ticket.statusLabel
           span.meta-item
             i.fa-regular.fa-calendar
             span= ticket.createdAtText || "Oluşturulma tarihi bilinmiyor"
+        .ticket-cancel-actions
+          button.btn.btn-outline-danger.w-100(type='button' data-ticket-cancel-trigger)
+            i.fa-solid.fa-ban.me-2
+            | İptal Et
+  #ticketCancelPopup.auth-popup.ticket-cancel-popup(aria-hidden='true')
+    .auth-popup__overlay(data-ticket-cancel-close)
+    .auth-popup__dialog(role='dialog' aria-modal='true' aria-labelledby='ticketCancelTitle')
+      .auth-popup__header.gtr-modal-header
+        h5#ticketCancelTitle.auth-popup__title Bilet İptali
+        button.btn-close(type='button' aria-label='Kapat' data-ticket-cancel-close)
+      .auth-popup__body
+        .ticket-cancel-popup__summary
+          dl.ticket-cancel-popup__details
+            div
+              dt PNR
+              dd(data-ticket-detail='pnr')
+            div
+              dt Yolcu
+              dd(data-ticket-detail='passenger')
+            div
+              dt Rota
+              dd
+                span(data-ticket-detail='from')
+                |  → 
+                span(data-ticket-detail='to')
+            div
+              dt Seyahat Tarihi
+              dd
+                span(data-ticket-detail='date')
+                |  • 
+                span(data-ticket-detail='time')
+            div
+              dt Koltuk
+              dd(data-ticket-detail='seat')
+        .ticket-cancel-popup__verification
+          button.btn.btn-primary(type='button' data-ticket-send-code) Doğrulama Kodunu Gönder
+          button.btn.btn-link.p-0.ms-3(type='button' data-ticket-resend-code disabled) Kodu Yeniden Gönder
+          span.ticket-cancel-popup__countdown(data-ticket-countdown)
+        .ticket-cancel-popup__feedback
+          .alert.ticket-cancel-popup__message(role='alert' aria-live='polite' data-ticket-message)
+        .ticket-cancel-popup__input
+          label.form-label(for='ticketCancelCodeInput') Doğrulama Kodu
+          input#ticketCancelCodeInput.form-control(type='text' inputmode='numeric' autocomplete='one-time-code' placeholder='6 haneli kod' data-ticket-code-input)
+      .auth-popup__footer
+        button.btn.btn-outline-secondary(type='button' data-ticket-cancel-close) Vazgeç
+        button.btn.btn-danger(type='button' data-ticket-confirm-cancel) İptali Onayla

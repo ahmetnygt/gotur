@@ -4,6 +4,7 @@ const tripController = require("../controllers/tripController")
 const ticketSearchController = require("../controllers/ticketSearchController");
 const userController = require("../controllers/userController");
 const { fetchRandomRouteSuggestions } = require("../utilities/randomRouteSuggestions");
+const ticketCancellationController = require("../controllers/ticketCancellationController");
 const { Op } = require('sequelize');
 
 /* GET home page. */
@@ -129,6 +130,15 @@ router.get('/api/firms', async (req, res) => {
 });
 
 router.get('/api/find-ticket', ticketSearchController.searchTickets);
+
+router.post(
+  '/api/ticket/cancel/request',
+  ticketCancellationController.requestVerificationCode
+);
+router.post(
+  '/api/ticket/cancel/verify',
+  ticketCancellationController.verifyCancellation
+);
 
 router.get('/api/places', async (req, res) => {
   try {
