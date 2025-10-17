@@ -66,6 +66,11 @@
   align-items: flex-start;
 }
 
+.find-ticket-result-item .ticket-header .firm-img{
+  width: 15rem;
+  object-fit: contain;
+}
+
 .find-ticket-result-item .ticket-header .ticket-passenger {
   display: flex;
   flex-direction: column;
