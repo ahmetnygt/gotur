@@ -11,8 +11,8 @@ else
         data-ticket-passenger=ticket.passenger.fullName || ''
         data-ticket-from=ticket.trip.fromTitle || ''
         data-ticket-to=ticket.trip.toTitle || ''
-        data-ticket-trip-date=ticket.trip.boardingDate || ''
-        data-ticket-trip-time=ticket.trip.boardingTime || ''
+        data-ticket-trip-date=ticket.trip.tripDate || ''
+        data-ticket-trip-time=ticket.trip.tripTime || ''
         data-ticket-seat=ticket.seatNo || ''
       )
         .ticket-header
@@ -46,10 +46,10 @@ else
             .value= ticket.trip.toTitle || "-"
           .ticket-body-item
             .label Seyahat Tarihi
-            .value= ticket.trip.boardingDate || "-"
+            .value= ticket.trip.tripDate || "-"
           .ticket-body-item
             .label Seyahat Saati
-            .value= ticket.trip.boardingTime || "-"
+            .value= ticket.trip.tripTime || "-"
           .ticket-body-item
             .label Koltuk
             .value= ticket.seatNo || "-"
