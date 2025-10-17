@@ -559,10 +559,7 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                         return true;
                     }
 
-                    return (
-                        orderValue >= numericFromOrder &&
-                        orderValue <= numericToOrder
-                    );
+                    return orderValue <= numericToOrder;
                 })
                 .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 
