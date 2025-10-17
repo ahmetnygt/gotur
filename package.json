@@ -24,6 +24,7 @@
     "pug": "2.0.0-beta11",
     "select2": "^4.1.0-rc.0",
     "sequelize": "^6.37.7",
+    "twilio": "^5.10.3",
     "world-countries": "^5.1.0"
   }
 }

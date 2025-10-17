@@ -55,58 +55,50 @@
   padding: 1.5rem;
   background: #fff;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.find-ticket-result-item .ticket-header {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
 }
 
-
-.find-ticket-result-item .ticket-main {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.find-ticket-result-item .ticket-brand {
+.find-ticket-result-item .ticket-header-main {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  gap: 1rem;
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
-.find-ticket-result-item .ticket-brand .firm-logo {
-  width: 88px;
-  height: 88px;
+.find-ticket-result-item .ticket-header .firm-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  background: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0.5rem;
   flex-shrink: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-.find-ticket-result-item .ticket-brand .firm-logo img {
-  width: 100%;
-  height: 100%;
+.find-ticket-result-item .ticket-header .firm-logo img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-}
-
-.find-ticket-result-item .ticket-content {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  align-content: start;
-}
-
-.find-ticket-result-item .ticket-content > * {
-  min-width: 0;
 }
 
 .find-ticket-result-item .ticket-passenger {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem 1.25rem;
+  flex: 1;
 }
 
 .find-ticket-result-item .ticket-passenger-item {
@@ -115,7 +107,7 @@
   gap: 0.2rem;
 }
 
-.find-ticket-result-item .ticket-passenger .label {
+.find-ticket-result-item .ticket-header .label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -124,26 +116,26 @@
   margin-bottom: 0.1rem;
 }
 
-.find-ticket-result-item .ticket-passenger .value {
+.find-ticket-result-item .ticket-header .value {
   font-size: 1rem;
   font-weight: 600;
   color: #212529;
 }
 
-.find-ticket-result-item .ticket-sidebar {
+.find-ticket-result-item .ticket-header-controls {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.75rem;
+  gap: 0.5rem;
   min-width: fit-content;
 }
 
-.find-ticket-result-item .ticket-sidebar .ticket-actions {
+.find-ticket-result-item .ticket-header .ticket-actions {
   margin-left: 0;
-  align-self: flex-end;
+  align-self: center;
 }
 
-.find-ticket-result-item .ticket-sidebar .btn-ticket-actions {
+.find-ticket-result-item .ticket-header .btn-ticket-actions {
   border: none;
   background: transparent;
   color: #6c757d;
@@ -155,22 +147,22 @@
   font-size: 1.1rem;
 }
 
-.find-ticket-result-item .ticket-sidebar .btn-ticket-actions:hover,
-.find-ticket-result-item .ticket-sidebar .btn-ticket-actions:focus {
+.find-ticket-result-item .ticket-header .btn-ticket-actions:hover,
+.find-ticket-result-item .ticket-header .btn-ticket-actions:focus {
   background: rgba(13, 110, 253, 0.12);
   color: #0d6efd;
 }
 
-.find-ticket-result-item .ticket-sidebar .btn-ticket-actions:focus {
+.find-ticket-result-item .ticket-header .btn-ticket-actions:focus {
   outline: none;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
 }
 
-.find-ticket-result-item .ticket-sidebar .dropdown-menu {
+.find-ticket-result-item .ticket-header .dropdown-menu {
   min-width: 12rem;
 }
 
-.find-ticket-result-item .ticket-sidebar .pnr-badge {
+.find-ticket-result-item .ticket-header .pnr-badge {
   font-weight: 700;
   color: #0d6efd;
   background: rgba(13, 110, 253, 0.12);
@@ -248,23 +240,24 @@
 }
 
 @media (max-width: 576px) {
-  .find-ticket-result-item .ticket-main {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-
-  .find-ticket-result-item .ticket-brand,
-  .find-ticket-result-item .ticket-sidebar {
+  .find-ticket-result-item .ticket-header {
     align-items: flex-start;
   }
 
-  .find-ticket-result-item .ticket-brand .firm-logo {
-    width: 72px;
-    height: 72px;
+  .find-ticket-result-item .ticket-header-main {
+    width: 100%;
   }
 
-  .find-ticket-result-item .ticket-sidebar {
-    align-items: flex-start;
+  .find-ticket-result-item .ticket-header-controls {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .find-ticket-result-item .ticket-header .firm-logo {
+    width: 60px;
+    height: 60px;
   }
 }
 

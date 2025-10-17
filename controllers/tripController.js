@@ -6,6 +6,7 @@ const {
     COUNTRY_CODE_SET,
 } = require("../utilities/countryOptions");
 const sendEmail = require("../utilities/sendMail");
+const sendSMS = require("../utilities/sendSms");
 
 const BUS_FEATURE_MAPPINGS = [
     { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
@@ -1095,11 +1096,7 @@ exports.completePayment = async (req, res) => {
         }
 
         viewData = await buildPaymentViewData(models, ticketPayment);
-
-        passengerInputs = buildPassengerInputsFromBody(
-            viewData.seatDetails,
-            req.body
-        );
+        passengerInputs = buildPassengerInputsFromBody(viewData.seatDetails, req.body);
 
         if (!viewData.seatDetails.length) {
             const err = new Error("Bu ödeme için koltuk bilgisi bulunamadı.");
@@ -1151,9 +1148,7 @@ exports.completePayment = async (req, res) => {
         const numericSeatNumbers = viewData.seatDetails.map((seat) => {
             const numeric = Number(seat.seatNumber);
             if (!Number.isFinite(numeric)) {
-                const err = new Error(
-                    `Geçersiz koltuk numarası: ${seat.seatNumber}`
-                );
+                const err = new Error(`Geçersiz koltuk numarası: ${seat.seatNumber}`);
                 err.isUserError = true;
                 throw err;
             }
@@ -1167,7 +1162,6 @@ exports.completePayment = async (req, res) => {
         try {
             for (let i = 0; i < numericSeatNumbers.length; i++) {
                 const seatNumber = numericSeatNumbers[i];
-
                 const existing = await Ticket.findOne({
                     where: {
                         tripId: ticketPayment.tripId,
@@ -1180,18 +1174,14 @@ exports.completePayment = async (req, res) => {
 
                 if (existing) {
                     const isOwnPending =
-                        existing.status === "pending" &&
-                        existing.pnr === pendingPnr;
-
-                    if (isOwnPending) {
-                        continue;
+                        existing.status === "pending" && existing.pnr === pendingPnr;
+                    if (!isOwnPending) {
+                        const err = new Error(
+                            `${viewData.seatDetails[i].seatNumber} numaralı koltuk artık uygun değil.`
+                        );
+                        err.isUserError = true;
+                        throw err;
                     }
-
-                    const err = new Error(
-                        `${viewData.seatDetails[i].seatNumber} numaralı koltuk artık uygun değil.`
-                    );
-                    err.isUserError = true;
-                    throw err;
                 }
             }
 
@@ -1209,18 +1199,24 @@ exports.completePayment = async (req, res) => {
                 { tripId: ticketPayment.tripId },
                 { transaction }
             );
-            const ticketGroupId = group.id;
 
-            const stops = await models.Stop.findAll({ where: { id: { [Op.in]: [ticketPayment.fromStopId, ticketPayment.toStopId] } } })
+            const stops = await models.Stop.findAll({
+                where: {
+                    id: { [Op.in]: [ticketPayment.fromStopId, ticketPayment.toStopId] },
+                },
+            });
 
-            const pnr = (ticketPayment.fromStopId && ticketPayment.toStopId) ? await generatePNR(models, ticketPayment.fromStopId, ticketPayment.toStopId, stops) : null;
+            const pnr =
+                ticketPayment.fromStopId && ticketPayment.toStopId
+                    ? await generatePNR(models, ticketPayment.fromStopId, ticketPayment.toStopId, stops)
+                    : null;
 
             for (let i = 0; i < numericSeatNumbers.length; i++) {
                 await Ticket.create(
                     {
                         tripId: ticketPayment.tripId,
-                        userId: 3, //götür.com kullanıcısı  
-                        ticketGroupId: ticketGroupId,
+                        userId: 3, // götür.com kullanıcısı
+                        ticketGroupId: group.id,
                         seatNo: numericSeatNumbers[i],
                         price: viewData.pricePerSeat || 0,
                         status: "web",
@@ -1229,16 +1225,14 @@ exports.completePayment = async (req, res) => {
                         surname: passengerInputs[i].surname,
                         phoneNumber: passengerInputs[i].phoneNumber,
                         gender: viewData.seatDetails[i].gender,
-                        nationality: COUNTRY_CODE_SET.has(
-                            passengerInputs[i].nationality
-                        )
+                        nationality: COUNTRY_CODE_SET.has(passengerInputs[i].nationality)
                             ? passengerInputs[i].nationality
                             : "TR",
                         customerType: "adult",
                         customerCategory: "normal",
                         fromRouteStopId: ticketPayment.fromStopId,
-                        pnr: pnr,
                         toRouteStopId: ticketPayment.toStopId,
+                        pnr,
                         payment: "card",
                     },
                     { transaction }
@@ -1249,13 +1243,21 @@ exports.completePayment = async (req, res) => {
             await ticketPayment.save({ transaction });
 
             await transaction.commit();
-            await sendEmail("ahmetnygt@hotmail.com", "Bilet Mesajı", "BİLET ALDIN GÖTÜR H.O DER")
+
+            // ✅ Commit SONRASI işlemler (artık rollback riski yok)
+            await sendEmail("ahmetnygt@hotmail.com", "Bilet Mesajı", "BİLET ALDIN GÖTÜR H.O DER");
+
+            // SMS gönderimi – sadece ilk yolcuya
+            const firstPhone = passengerInputs[0]?.phoneNumber;
+            if (firstPhone) {
+                await sendSMS(firstPhone, `Biletiniz oluşturuldu. PNR: ${pnr}`);
+            }
+
+            return res.redirect(`/payment/${ticketPaymentId}/success`);
         } catch (innerError) {
-            await transaction.rollback();
+            if (!transaction.finished) await transaction.rollback();
             throw innerError;
         }
-
-        res.redirect(`/payment/${ticketPaymentId}/success`);
     } catch (error) {
         console.error("completePayment hata:", error);
 
@@ -1275,19 +1277,11 @@ exports.completePayment = async (req, res) => {
         }
 
         if (!passengerInputs.length) {
-            passengerInputs = buildPassengerInputsFromBody(
-                viewData.seatDetails,
-                req.body
-            );
+            passengerInputs = buildPassengerInputsFromBody(viewData.seatDetails, req.body);
         }
 
-        if (!contactPhone) {
-            contactPhone = extractContactPhone(req.body);
-        }
-
-        if (!contactEmail) {
-            contactEmail = extractContactEmail(req.body);
-        }
+        if (!contactPhone) contactPhone = extractContactPhone(req.body);
+        if (!contactEmail) contactEmail = extractContactEmail(req.body);
 
         const statusCode = error && error.isUserError ? 400 : 500;
 
@@ -1301,10 +1295,7 @@ exports.completePayment = async (req, res) => {
             pricePerSeat: viewData.pricePerSeat,
             totalPrice: viewData.totalPrice,
             passengerInputs,
-            error:
-                error && error.message
-                    ? error.message
-                    : "Ödeme tamamlanırken bir hata oluştu.",
+            error: error?.message || "Ödeme tamamlanırken bir hata oluştu.",
             countryOptions: COUNTRY_OPTIONS,
             contactPhone,
             contactEmail,
