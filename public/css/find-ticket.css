@@ -239,6 +239,104 @@
   color: #0d6efd;
 }
 
+.ticket-cancel-actions {
+  margin-top: 1.25rem;
+}
+
+.ticket-cancel-actions .btn {
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+}
+
+.ticket-cancel-popup__summary {
+  margin-bottom: 1.25rem;
+}
+
+.ticket-cancel-popup__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.ticket-cancel-popup__details div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ticket-cancel-popup__details dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #6c757d;
+  margin: 0;
+}
+
+.ticket-cancel-popup__details dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1b1b1b;
+}
+
+.ticket-cancel-popup__verification {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ticket-cancel-popup__verification .btn-link {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.ticket-cancel-popup__verification .btn-link:disabled {
+  color: rgba(13, 110, 253, 0.5);
+}
+
+.ticket-cancel-popup__countdown {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.ticket-cancel-popup__feedback {
+  margin-bottom: 1rem;
+}
+
+.ticket-cancel-popup__message {
+  display: none;
+  margin: 0;
+}
+
+.ticket-cancel-popup__message.is-visible {
+  display: block;
+}
+
+.ticket-cancel-popup__input label {
+  font-weight: 600;
+}
+
+.ticket-cancel-popup__input input {
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.ticket-cancel-popup .auth-popup__dialog {
+  max-width: 520px;
+  width: 92%;
+}
+
+.ticket-cancel-popup .auth-popup__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 @media (max-width: 576px) {
   .find-ticket-result-item .ticket-header {
     align-items: flex-start;
