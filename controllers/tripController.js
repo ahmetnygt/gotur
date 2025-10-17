@@ -206,12 +206,15 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
             routesWithPlaces.get(routeKey).placeIds.add(placeKey);
         }
 
-        const matchingRouteIds = Array.from(routesWithPlaces.values())
-            .filter(
-                ({ placeIds }) =>
-                    placeIds.has(String(fromId)) && placeIds.has(String(toId))
-            )
-            .map(({ routeId }) => routeId);
+        const matchingRouteIds = [];
+        for (const { routeId } of routesWithPlaces.values()) {
+            const rs = routeStops.filter(r => r.routeId === routeId);
+            const fromRS = rs.find(r => fromPlaceStopIds.includes(r.stopId));
+            const toRS = rs.find(r => toPlaceStopIds.includes(r.stopId));
+            if (fromRS && toRS && Number(fromRS.order) < Number(toRS.order)) {
+                matchingRouteIds.push(routeId);
+            }
+        }
 
         if (!matchingRouteIds.length) return [];
 
@@ -229,9 +232,9 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
 
         const buses = busIds.length
             ? await Bus.findAll({
-                  where: { id: { [Op.in]: [...new Set(busIds)] } },
-                  raw: true,
-              })
+                where: { id: { [Op.in]: [...new Set(busIds)] } },
+                raw: true,
+            })
             : [];
 
         const busMap = new Map(buses.map((bus) => [String(bus.id), bus]));
@@ -239,24 +242,24 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
         const routeIdsForTrips = [...new Set(trips.map((t) => t.routeId))];
         const routesOfTrips = routeIdsForTrips.length
             ? await Route.findAll({
-                  where: { id: { [Op.in]: routeIdsForTrips } },
-              })
+                where: { id: { [Op.in]: routeIdsForTrips } },
+            })
             : [];
         const routeStopsOfTrips = routeIdsForTrips.length
             ? await RouteStop.findAll({
-                  where: {
-                      routeId: { [Op.in]: routeIdsForTrips },
-                  },
-                  raw: true,
-              })
+                where: {
+                    routeId: { [Op.in]: routeIdsForTrips },
+                },
+                raw: true,
+            })
             : [];
 
         const routeStopStopIds = routeStopsOfTrips.map((rs) => rs.stopId);
         const additionalStops = routeStopStopIds.length
             ? await Stop.findAll({
-                  where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
-                  raw: true,
-              })
+                where: { id: { [Op.in]: [...new Set(routeStopStopIds)] } },
+                raw: true,
+            })
             : [];
 
         const stopRecordMap = new Map();
@@ -272,11 +275,11 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
 
         const tripStopTimes = trips.length
             ? await TripStopTime.findAll({
-                  where: {
-                      tripId: { [Op.in]: trips.map((trip) => trip.id) },
-                  },
-                  raw: true,
-              })
+                where: {
+                    tripId: { [Op.in]: trips.map((trip) => trip.id) },
+                },
+                raw: true,
+            })
             : [];
 
         const tripStopTimesByTripId = new Map();
@@ -466,38 +469,38 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
 
             const seatBlockingTickets = hasValidRequestOrders
                 ? tickets.filter((ticket) => {
-                      const ticketFromOrder = routeStopOrderMap.get(
-                          String(ticket.fromRouteStopId)
-                      );
-                      const ticketToOrder = routeStopOrderMap.get(
-                          String(ticket.toRouteStopId)
-                      );
+                    const ticketFromOrder = routeStopOrderMap.get(
+                        String(ticket.fromRouteStopId)
+                    );
+                    const ticketToOrder = routeStopOrderMap.get(
+                        String(ticket.toRouteStopId)
+                    );
 
-                      if (
-                          !Number.isFinite(ticketFromOrder) ||
-                          !Number.isFinite(ticketToOrder)
-                      ) {
-                          return true;
-                      }
+                    if (
+                        !Number.isFinite(ticketFromOrder) ||
+                        !Number.isFinite(ticketToOrder)
+                    ) {
+                        return true;
+                    }
 
-                      const ticketLower = Math.min(
-                          ticketFromOrder,
-                          ticketToOrder
-                      );
-                      const ticketUpper = Math.max(
-                          ticketFromOrder,
-                          ticketToOrder
-                      );
+                    const ticketLower = Math.min(
+                        ticketFromOrder,
+                        ticketToOrder
+                    );
+                    const ticketUpper = Math.max(
+                        ticketFromOrder,
+                        ticketToOrder
+                    );
 
-                      if (
-                          ticketUpper <= lowerOrder ||
-                          upperOrder <= ticketLower
-                      ) {
-                          return false;
-                      }
+                    if (
+                        ticketUpper <= lowerOrder ||
+                        upperOrder <= ticketLower
+                    ) {
+                        return false;
+                    }
 
-                      return true;
-                  })
+                    return true;
+                })
                 : tickets;
 
             const newTickets = [];
