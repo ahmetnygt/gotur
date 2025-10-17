@@ -162,12 +162,12 @@ block content
                   p.text-center
                     b Sefer Açıklaması
                   p.text-center #{t.routeDescription}
-                  if t.routeTimeline.length
+                  if Array.isArray(t.routeTimeline) && t.routeTimeline.length
                     ul.trip_route-list.list-unstyled.mt-3
                       each stopInfo in t.routeTimeline
                         if stopInfo && stopInfo.time && stopInfo.title
                           li.col-6
-                            b #{stopInfo.time} 
+                            b #{stopInfo.time}
                             |- #{stopInfo.title}
                         else if stopInfo && stopInfo.title
                           li.col-6 #{stopInfo.title}
