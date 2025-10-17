@@ -426,8 +426,21 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                 return null;
             };
 
-            const fromOffsetMinutes = resolveOffsetMinutes(fromRouteStop.id);
-            const toOffsetMinutes = resolveOffsetMinutes(toRouteStop.id);
+            const normaliseOffsetMinutes = (value) => {
+                if (value === null || value === undefined) {
+                    return null;
+                }
+
+                const numericValue = Number(value);
+                return Number.isFinite(numericValue) ? numericValue : null;
+            };
+
+            const fromOffsetMinutes = normaliseOffsetMinutes(
+                resolveOffsetMinutes(fromRouteStop.id)
+            );
+            const toOffsetMinutes = normaliseOffsetMinutes(
+                resolveOffsetMinutes(toRouteStop.id)
+            );
 
             const computedDeparture =
                 fromOffsetMinutes !== null
@@ -527,6 +540,108 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
             trip.toStr = toStopRecord.title;
             trip.fromStopId = fromStopRecord.id;
             trip.toStopId = toStopRecord.id;
+
+            const numericFromOrder = Number(fromRouteStop.order);
+            const numericToOrder = Number(toRouteStop.order);
+
+            const hasValidTimelineOrders =
+                Number.isFinite(numericFromOrder) &&
+                Number.isFinite(numericToOrder);
+
+            const timelineRouteStops = routeStopsForTrip
+                .filter((routeStop) => {
+                    const orderValue = Number(routeStop.order);
+                    if (!Number.isFinite(orderValue)) {
+                        return false;
+                    }
+
+                    if (!hasValidTimelineOrders) {
+                        return true;
+                    }
+
+                    return (
+                        orderValue >= numericFromOrder &&
+                        orderValue <= numericToOrder
+                    );
+                })
+                .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+
+            const timelineEntries = [];
+
+            for (const routeStop of timelineRouteStops) {
+                const stopRecord = stopRecordMap.get(String(routeStop.stopId));
+                if (!stopRecord) {
+                    continue;
+                }
+
+                const offsetCandidate = normaliseOffsetMinutes(
+                    resolveOffsetMinutes(routeStop.id)
+                );
+                const fallbackOffsetValue = normaliseOffsetMinutes(
+                    fallbackOffsets.has(String(routeStop.id))
+                        ? fallbackOffsets.get(String(routeStop.id))
+                        : null
+                );
+
+                let stopTime = null;
+
+                if (offsetCandidate !== null) {
+                    stopTime = addMinutesToTimeString(baseTripTime, offsetCandidate);
+                } else if (fallbackOffsetValue !== null) {
+                    stopTime = addMinutesToTimeString(
+                        baseTripTime,
+                        fallbackOffsetValue
+                    );
+                }
+
+                if (!stopTime && routeStop.id === fromRouteStop.id) {
+                    stopTime =
+                        trip.time ||
+                        minutesToClockString(parseTimeStringToMinutes(baseTripTime));
+                }
+
+                timelineEntries.push({
+                    order: Number(routeStop.order) || 0,
+                    title: stopRecord.title,
+                    time: stopTime,
+                });
+            }
+
+            timelineEntries.sort((a, b) => a.order - b.order);
+
+            trip.routeTimeline = timelineEntries.map((entry) => ({
+                title: entry.title,
+                time: entry.time,
+            }));
+
+            const lastTimelineEntry =
+                trip.routeTimeline.length > 0
+                    ? trip.routeTimeline[trip.routeTimeline.length - 1]
+                    : null;
+
+            if (lastTimelineEntry?.time) {
+                trip.arrivalTime = lastTimelineEntry.time;
+            } else {
+                const fallbackToOffset = normaliseOffsetMinutes(
+                    fallbackOffsets.has(String(toRouteStop.id))
+                        ? fallbackOffsets.get(String(toRouteStop.id))
+                        : null
+                );
+
+                if (toOffsetMinutes !== null) {
+                    trip.arrivalTime = addMinutesToTimeString(
+                        baseTripTime,
+                        toOffsetMinutes
+                    );
+                } else if (fallbackToOffset !== null) {
+                    trip.arrivalTime = addMinutesToTimeString(
+                        baseTripTime,
+                        fallbackToOffset
+                    );
+                } else {
+                    trip.arrivalTime = null;
+                }
+            }
 
             const price = await Price.findOne({
                 where: {
