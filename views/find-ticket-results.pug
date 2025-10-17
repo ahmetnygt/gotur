@@ -6,25 +6,28 @@ else
     each ticket in tickets
       article.find-ticket-result-item
         .ticket-header
-          img.firm-img(src=`/images/${ticket.firmKey}.png` alt="" srcset="")
-          .ticket-body
-            .ticket-body-item
-              .label Yolcu
-              .value= ticket.passenger.fullName || "-"
-            .ticket-body-item
-              .label Telefon
-              .value= ticket.phoneNumber || "-"
-            .ticket-body-item
-              .label E-posta
-              .value= ticket.contactEmail || "-"
-          .pnr-badge= ticket.pnr || "PNR YOK"
-          .ticket-actions.dropdown
-            button.btn.btn-ticket-actions(type='button', id=`ticket-actions-${ticket.id}` data-bs-toggle='dropdown' aria-expanded='false' aria-label='Bilet işlemleri menüsü')
-              i.fa-solid.fa-ellipsis-vertical
-            .dropdown-menu.dropdown-menu-end(aria-labelledby=`ticket-actions-${ticket.id}`)
-              button.dropdown-item(type='button') Açığa Al
-              button.dropdown-item(type='button') İade Et
-              button.dropdown-item(type='button') Başka Sefere Taşı
+          .ticket-header-main
+            .firm-logo
+              img(src=`/images/${ticket.firmKey}.png` alt="" srcset="")
+            .ticket-passenger
+              .ticket-passenger-item
+                .label Yolcu
+                .value= ticket.passenger.fullName || "-"
+              .ticket-passenger-item
+                .label Telefon
+                .value= ticket.phoneNumber || "-"
+              .ticket-passenger-item
+                .label E-posta
+                .value= ticket.contactEmail || "-"
+          .ticket-header-controls
+            .pnr-badge= ticket.pnr || "PNR YOK"
+            .ticket-actions.dropdown
+              button.btn.btn-ticket-actions(type='button', id=`ticket-actions-${ticket.id}` data-bs-toggle='dropdown' aria-expanded='false' aria-label='Bilet işlemleri menüsü')
+                i.fa-solid.fa-ellipsis-vertical
+              .dropdown-menu.dropdown-menu-end(aria-labelledby=`ticket-actions-${ticket.id}`)
+                button.dropdown-item(type='button') Açığa Al
+                button.dropdown-item(type='button') İade Et
+                button.dropdown-item(type='button') Başka Sefere Taşı
         .ticket-body
           .ticket-body-item
             .label Kalkış
