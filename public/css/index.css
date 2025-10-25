@@ -347,6 +347,15 @@ body {
 
     .home-attributes {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        justify-items: stretch;
+    }
+
+    .attribute {
+        padding: 0.75rem;
+    }
+
+    .attributes_icon {
+        height: clamp(56px, 16vw, 90px);
     }
 }
 
