@@ -39,7 +39,6 @@ body {
     gap: 2rem;
     border-radius: 1rem;
     z-index: 40;
-    box-shadow: 0 18px 35px -25px rgba(22, 38, 79, 0.35);
 }
 
 .trip-finder-static {
@@ -50,7 +49,6 @@ body {
     display: flex;
     gap: 2rem;
     border-radius: 1rem;
-    box-shadow: 0 18px 35px -25px rgba(22, 38, 79, 0.35);
 }
 
 .trip-finder input,
@@ -67,7 +65,6 @@ body {
     gap: 1rem;
     display: flex;
     color: #2660ff9c;
-    flex-wrap: wrap;
 }
 
 .trip-finder-static .place-select,
@@ -188,96 +185,6 @@ body {
 
     100% {
         transform: translateX(100%);
-    }
-}
-
-@media (max-width: 1200px) {
-    .trip-finder,
-    .trip-finder-static {
-        height: auto;
-        flex-wrap: wrap;
-        row-gap: 1.25rem;
-        column-gap: 1rem;
-    }
-
-    .trip-finder_selects,
-    .trip-finder_date-wrapper,
-    .trip-finder_day-buttons,
-    .trip-finder_search-button {
-        width: 100%;
-    }
-
-    .trip-finder_to,
-    .trip-finder_from,
-    .trip-finder_date,
-    .trip-finder-static .place-select,
-    .trip-finder .place-select,
-    .place-select_display {
-        width: 100%;
-    }
-
-    .trip-finder_day-buttons {
-        flex-direction: row;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
-
-    .trip-finder_day-button {
-        flex: 1 1 150px;
-        text-align: center;
-    }
-
-    .trip-finder_search-button {
-        width: 100%;
-        padding: 0.75rem 1rem;
-    }
-}
-
-@media (max-width: 992px) {
-    .gtr-header {
-        min-height: 60vh;
-    }
-
-    .trip-finder {
-        position: static;
-        transform: none;
-        top: auto;
-        left: auto;
-        margin: 2rem auto 0;
-        width: min(95vw, 560px);
-    }
-
-    .trip-finder-static {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .gtr-header {
-        height: auto;
-        padding-bottom: 3rem;
-    }
-
-    .coming-soon-firm {
-        width: 30%;
-    }
-}
-
-@media (max-width: 576px) {
-    .trip-finder,
-    .trip-finder-static {
-        padding: 1.25rem;
-        gap: 1rem;
-    }
-
-    .trip-finder_day-button {
-        flex: 1 1 120px;
-        font-size: 0.95rem;
-    }
-
-    .trip-finder_search-button {
-        font-size: 1rem;
     }
 }
 
