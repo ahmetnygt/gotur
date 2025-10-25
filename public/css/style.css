@@ -131,7 +131,23 @@ body {
 .gtr-header img,
 .gtr-header-invert img,
 .gtr-header-no-image img{
-  width: 10vw;
+  width: clamp(140px, 10vw, 220px);
+}
+
+.gtr-header > .d-flex.justify-content-between,
+.gtr-header-invert > .d-flex.justify-content-between,
+.gtr-header-no-image > .d-flex.justify-content-between {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.gtr-header .gtr-link,
+.gtr-header-invert .gtr-link,
+.gtr-header-no-image .gtr-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
 a.gtr-link {
@@ -280,5 +296,71 @@ body.auth-popup-open {
 
   .auth-popup__footer {
     padding: 0.75rem 1.25rem 1.25rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .gtr-header,
+  .gtr-header-invert,
+  .gtr-header-no-image {
+    height: auto;
+    padding: 1rem 1.5rem;
+  }
+
+  .gtr-header > .d-flex.justify-content-between,
+  .gtr-header-invert > .d-flex.justify-content-between,
+  .gtr-header-no-image > .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gtr-header .d-flex.gap-3,
+  .gtr-header-invert .d-flex.gap-3,
+  .gtr-header-no-image .d-flex.gap-3 {
+    flex-wrap: wrap;
+  }
+
+  .gtr-header .gtr-link,
+  .gtr-header-invert .gtr-link,
+  .gtr-header-no-image .gtr-link {
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  .gtr-header p,
+  .gtr-header-invert p,
+  .gtr-header-no-image p {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .gtr-header,
+  .gtr-header-invert,
+  .gtr-header-no-image {
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .gtr-header > .d-flex.justify-content-between,
+  .gtr-header-invert > .d-flex.justify-content-between,
+  .gtr-header-no-image > .d-flex.justify-content-between {
+    align-items: center;
+    text-align: center;
+  }
+
+  .gtr-header .d-flex.gap-3,
+  .gtr-header-invert .d-flex.gap-3,
+  .gtr-header-no-image .d-flex.gap-3 {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .gtr-header .gtr-link,
+  .gtr-header-invert .gtr-link,
+  .gtr-header-no-image .gtr-link {
+    justify-content: center;
+    width: 100%;
   }
 }
