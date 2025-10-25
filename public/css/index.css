@@ -143,9 +143,24 @@ body {
     margin-top: .5rem;
 }
 
+.coming-soon {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.coming-soon__logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
 .coming-soon-firm {
     object-fit: contain;
-    width: 15%;
+    flex: 0 1 clamp(120px, 18vw, 180px);
+    width: auto;
+    max-width: 180px;
 }
 
 .coming-soon-firm:hover {
@@ -251,6 +266,10 @@ body {
     .trip-finder-static {
         width: 100%;
     }
+
+    .home-attributes {
+        gap: 1.25rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -259,8 +278,39 @@ body {
         padding-bottom: 3rem;
     }
 
+    .trip-finder,
+    .trip-finder-static {
+        width: min(100%, 460px);
+    }
+
+    .trip-finder_selects {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .trip-finder_change {
+        justify-content: flex-start;
+        padding-top: 0;
+        width: 100%;
+    }
+
+    .trip-finder_day-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .coming-soon {
+        text-align: center;
+    }
+
+    .coming-soon__logos {
+        gap: 1.25rem;
+    }
+
     .coming-soon-firm {
-        width: 30%;
+        flex-basis: clamp(120px, 45%, 160px);
+        max-width: 160px;
     }
 }
 
@@ -271,13 +321,28 @@ body {
         gap: 1rem;
     }
 
+    .trip-finder_change {
+        width: 100%;
+    }
+
+    .trip-finder_day-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
     .trip-finder_day-button {
-        flex: 1 1 120px;
+        flex: 1 1 auto;
         font-size: 0.95rem;
+        width: 100%;
     }
 
     .trip-finder_search-button {
         font-size: 1rem;
+    }
+
+    .coming-soon__logos {
+        gap: 1rem;
     }
 }
 
@@ -316,7 +381,7 @@ body {
 }
 
 .attributes_icon {
-    height: 15vh;
+    height: clamp(72px, 12vw, 130px);
 }
 
 /* .attribute-routes {
@@ -341,6 +406,12 @@ body {
     border-radius: 999px;
     font-weight: 600;
     box-shadow: 0 6px 12px -6px rgba(38, 96, 255, 0.7);
+}
+
+.home-attributes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
 }
 
 .attribute-routes__lead {
@@ -440,6 +511,22 @@ body {
 
     .attribute-route {
         padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .trip-finder,
+    .trip-finder-static {
+        padding: 1.5rem 1.1rem;
+    }
+
+    .coming-soon-firm {
+        flex-basis: clamp(120px, 60%, 200px);
+        max-width: 200px;
+    }
+
+    .home-attributes {
+        gap: 1rem;
     }
 }
 
