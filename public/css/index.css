@@ -344,6 +344,10 @@ body {
     .coming-soon__logos {
         gap: 1rem;
     }
+
+    .home-attributes {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @keyframes marquee-rtl {
