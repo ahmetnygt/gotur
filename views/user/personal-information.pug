@@ -1,0 +1,108 @@
+extends ../layout
+include ../components/place-select
+
+block css
+  link(rel='stylesheet' href='/css/personal-information.css')
+
+block content
+  - const info = personalInfo || {}
+  .account-page.py-5
+    .container
+      .account-page_header.mb-4
+        h1.mb-1 Kişisel Bilgilerim
+        p.text-muted.mb-0 Hesabınıza ait iletişim ve kimlik bilgilerini güncelleyebilir, şifrenizi güvenle değiştirebilirsiniz.
+      .account-section.mb-4
+        .account-section_header
+          h2.account-section_title Hesap Detayları
+          p.account-section_description İletişim bilgilerinizi güncel tutarak rezervasyon bildirimlerini sorunsuz bir şekilde alın.
+        form#personal-information-form.account-form(method='post' action='/user/personal-information' novalidate)
+          .alert.alert-success.d-none#personal-info-success(role='alert') Bilgileriniz başarıyla güncellendi.
+          .alert.alert-danger.d-none#personal-info-error(role='alert') Bilgileriniz güncellenirken bir sorun oluştu. Lütfen tekrar deneyin.
+          .row.g-3
+            .col-md-6
+              label.form-label(for='name') Ad
+              input#name.form-control(type='text' name='name' required value=info.name)
+              .invalid-feedback#name-feedback
+            .col-md-6
+              label.form-label(for='surname') Soyad
+              input#surname.form-control(type='text' name='surname' required value=info.surname)
+              .invalid-feedback#surname-feedback
+            .col-md-6
+              label.form-label(for='email') E-posta Adresi
+              input#email.form-control(type='email' name='email' value=info.email placeholder='ornek@mail.com')
+              .form-text E-posta adresiniz rezervasyonlarınız için kullanılacaktır.
+              .invalid-feedback#email-feedback
+            .col-md-6
+              label.form-label(for='phoneNumber') Telefon Numarası
+              input#phoneNumber.form-control(type='tel' name='phoneNumber' value=info.phoneNumber placeholder='+905xxxxxxxxx')
+              .form-text Uluslararası formatta giriniz.
+              .invalid-feedback#phoneNumber-feedback
+            .col-md-6
+              label.form-label(for='idNumber') T.C. Kimlik Numarası
+              input#idNumber.form-control(type='text' name='idNumber' inputmode='numeric' pattern='\\d*' maxlength='11' value=info.idNumber)
+              .invalid-feedback#idNumber-feedback
+            .col-md-6
+              label.form-label(for='gender') Cinsiyet
+              select#gender.form-select(name='gender')
+                option(value='') Seçiniz
+                each option in genderOptions
+                  option(value=option.value selected=info.gender === option.value) #{option.label}
+              .invalid-feedback#gender-feedback
+            .col-md-6
+              - const selectedNationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === info.nationality) : null
+              - const nationalityLabel = selectedNationalityOption ? selectedNationalityOption.displayLabel : null
+              label.form-label(for='nationality') Uyruk
+              +placeSelect({
+                placeholder: 'Uyruk seçin',
+                searchPlaceholder: 'Ülke ara...',
+                label: nationalityLabel || undefined,
+                attrs: {
+                  id: 'nationality-select',
+                  'data-options-id': 'country-options'
+                },
+                input: {
+                  id: 'nationality',
+                  name: 'nationality',
+                  value: info.nationality || '',
+                  'aria-describedby': 'nationality-feedback'
+                }
+              })
+              .invalid-feedback#nationality-feedback
+            .col-md-6
+              label.form-label(for='customerType') Yolcu Tipi
+              select#customerType.form-select(name='customerType' disabled value="adult")
+                //- each option in customerTypeOptions
+                option(value="adult") Yetişkin
+              .form-text İndirim uygulanması için lütfen iletişime geçiniz.
+              .invalid-feedback#customerType-feedback
+          .d-flex.justify-content-between.align-items-center.mt-4.flex-wrap.gap-3
+            p.text-muted.mb-0 Son güncelleme tarihini kayıt altına alıyoruz.
+            button.btn.btn-primary(type='submit') Bilgilerimi Güncelle
+      .account-section
+        .account-section_header
+          h2.account-section_title Şifre Değiştir
+          p.account-section_description Hesabınızın güvenliği için güçlü ve benzersiz bir şifre kullanın.
+        form#password-form.account-form(method='post' action='/user/personal-information/change-password' novalidate)
+          .alert.alert-success.d-none#password-success(role='alert') Şifreniz başarıyla güncellendi.
+          .alert.alert-danger.d-none#password-error(role='alert') Şifre güncellenirken bir sorun oluştu. Lütfen tekrar deneyin.
+          .row.g-3
+            .col-12
+              label.form-label(for='currentPassword') Mevcut Şifreniz
+              input#currentPassword.form-control(type='password' name='currentPassword' autocomplete='current-password' required)
+              .invalid-feedback#currentPassword-feedback
+            .col-12.col-md-6
+              label.form-label(for='newPassword') Yeni Şifre
+              input#newPassword.form-control(type='password' name='newPassword' autocomplete='new-password' required minlength='6')
+              .invalid-feedback#newPassword-feedback
+            .col-12.col-md-6
+              label.form-label(for='newPasswordConfirm') Yeni Şifre (Tekrar)
+              input#newPasswordConfirm.form-control(type='password' name='newPasswordConfirm' autocomplete='new-password' required minlength='6')
+              .invalid-feedback#newPasswordConfirm-feedback
+          .d-flex.justify-content-between.align-items-center.mt-4.flex-wrap.gap-3
+            p.text-muted.mb-0 Şifrenizi kimseyle paylaşmayın.
+            button.btn.btn-outline-primary(type='submit') Şifremi Güncelle
+
+block scripts
+  script(type='application/json' id='country-options')!= JSON.stringify(countryOptions || [])
+  script(src='/js/personal-information.js')
+

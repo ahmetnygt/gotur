@@ -1,0 +1,90 @@
+.account-page {
+  background-color: transparent;
+}
+
+.account-page .account-section {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: 2px solid #2660ff9c;
+  box-shadow: 0 12px 30px #2660ff9c;
+  padding: 2.5rem;
+}
+
+.account-section_header {
+  margin-bottom: 1.5rem;
+}
+
+.account-page_header h1 {
+  font-weight: 700;
+  color: #14213c;
+}
+
+.account-section_title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 0.25rem;
+}
+
+.account-section_description {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+.account-form .form-label {
+  font-weight: 600;
+  color: #343a40;
+}
+
+.account-form .form-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.account-form .invalid-feedback {
+  display: block;
+}
+
+.account-form .form-control.is-invalid,
+.account-form .form-select.is-invalid {
+  border-color: #dc3545;
+}
+
+.account-form .form-control:focus,
+.account-form .form-select:focus {
+  border-color: #2660ff;
+  box-shadow: 0 0 0 0.2rem rgba(38, 96, 255, 0.15);
+}
+
+.account-form .alert {
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.account-form .alert+.alert {
+  margin-top: 0.75rem;
+}
+
+.account-form button[type='submit'] {
+  min-width: 180px;
+  font-weight: 600;
+}
+
+@media (max-width: 767.98px) {
+  .account-page .account-section {
+    padding: 1.75rem;
+  }
+
+  .account-form button[type='submit'] {
+    width: 100%;
+  }
+
+  .account-form .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .account-form .d-flex.justify-content-between button[type='submit'] {
+    width: 100%;
+  }
+}

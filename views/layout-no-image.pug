@@ -1,0 +1,67 @@
+include components/auth-modals
+
+<!DOCTYPE html>
+html
+  head
+    block head
+    title= title
+    link(rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png")
+    link(rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png")
+    link(rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon")
+    link(rel='stylesheet' href='/flatpickr/dist/flatpickr.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css')
+    link(rel='stylesheet' href='/css/style.css')
+    link(rel='stylesheet' href='/css/place-select.css')
+    block css
+  body
+    .gtr-header-no-image
+      .d-flex.justify-content-between
+        a.navbar-brand(href="/")
+          img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
+        .d-flex.gap-3.align-items-center
+          a.gtr-link#findMyTicket(href='/find-ticket')
+            i.fa-solid.fa-magnifying-glass.me-1
+            |Biletimi Bul
+          if currentUser
+            a.gtr-link#myTrips(href='/user/my-trips' role='button')
+              i.fa-solid.fa-road.me-1
+              |Seyahatlerim
+            .dropdown
+              a.gtr-link.dropdown-toggle#myAccount(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
+                i.fa-solid.fa-user.me-1
+                |Hesabım
+              ul.dropdown-menu.dropdown-menu-end(aria-labelledby='myAccount')
+                li
+                  a.dropdown-item#myAccountPersonalInfo(href="/user/personal-information") Kişisel Bilgilerim
+                li
+                  a.dropdown-item#myAccountCards(href="/user/cards") Kartlarım
+                li
+                  a.dropdown-item#myAccountPassengers(href="/user/passengers") Yolcularım
+            a.gtr-link#logoutButton(href='#' role='button')
+              i.fa-solid.fa-right-from-bracket.me-1
+              |Çıkış Yap
+          else
+            a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='loginPopup')
+              i.fa-solid.fa-user-check.me-1
+              |Giriş Yap
+            a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
+              i.fa-solid.fa-user-plus.me-1
+              |Kayıt Ol
+      p Türkiye'nin En Yeni Online Yazıhanesi
+      block headerContent
+
+
+    block content
+
+    +authModals()
+
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
+    script(src="https://code.jquery.com/jquery-3.7.1.min.js")
+    script(src="/flatpickr/dist/flatpickr.min.js")
+    script(src="/flatpickr/dist/l10n/tr.js")
+    script(src="/js/place-select.js")
+    block scripts

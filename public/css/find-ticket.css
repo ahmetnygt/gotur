@@ -1,0 +1,375 @@
+.find-ticket-page {
+  color: #1b1b1b;
+}
+
+.find-ticket-page h1,
+.find-ticket-page p.lead {
+  color: #ffffff;
+}
+
+.find-ticket-card {
+  border-color: #2660ff;
+}
+
+.card-header {
+  color: white;
+  background-color: #2660ff;
+}
+
+.find-ticket-card .card-body {
+  padding: 1.5rem;
+}
+
+#find-ticket-form .form-label {
+  font-weight: 600;
+}
+
+.contact-input-wrapper {
+  display: none;
+}
+
+.contact-input-wrapper.is-active {
+  display: block;
+}
+
+.find-ticket-submit-spinner {
+  display: none;
+  margin-left: 0.5rem;
+}
+
+.find-ticket-card .alert-info {
+  background: rgba(13, 110, 253, 0.08);
+  border: none;
+  color: #0a58ca;
+}
+
+.find-ticket-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.find-ticket-result-item {
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.find-ticket-result-item .ticket-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.find-ticket-result-item .ticket-header-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.find-ticket-result-item .ticket-header .firm-logo {
+  width: 12rem;
+  height: 72px;
+}
+
+.find-ticket-result-item .ticket-header .firm-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.find-ticket-result-item .ticket-passenger {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem 1.25rem;
+  flex: 1;
+}
+
+.find-ticket-result-item .ticket-passenger-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.find-ticket-result-item .ticket-header .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.1rem;
+}
+
+.find-ticket-result-item .ticket-header .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.find-ticket-result-item .ticket-header-controls {
+  display: flex;
+  gap: 0.5rem;
+  min-width: fit-content;
+}
+
+.find-ticket-result-item .ticket-header .ticket-actions {
+  margin-left: 0;
+  align-self: center;
+}
+
+.find-ticket-result-item .ticket-header .btn-ticket-actions {
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.find-ticket-result-item .ticket-header .btn-ticket-actions:hover,
+.find-ticket-result-item .ticket-header .btn-ticket-actions:focus {
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+}
+
+.find-ticket-result-item .ticket-header .btn-ticket-actions:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.find-ticket-result-item .ticket-header .dropdown-menu {
+  min-width: 12rem;
+}
+
+.find-ticket-result-item .ticket-header .pnr-badge {
+  font-weight: 700;
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.12);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+}
+
+.find-ticket-result-item .ticket-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.find-ticket-result-item .ticket-body .ticket-body-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.find-ticket-result-item .ticket-body .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.find-ticket-result-item .ticket-body .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.find-ticket-result-item .ticket-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #b38705;
+}
+
+.find-ticket-result-item .ticket-footer .status-badge.status-canceled,
+.find-ticket-result-item .ticket-footer .status-badge.status-refund {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.find-ticket-result-item .ticket-footer .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.find-ticket-result-item .ticket-footer .meta-item i {
+  color: #0d6efd;
+}
+
+.ticket-cancel-actions {
+  margin-top: 1.25rem;
+}
+
+.ticket-cancel-actions .btn {
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+}
+
+.ticket-cancel-popup__summary {
+  margin-bottom: 1.25rem;
+}
+
+.ticket-cancel-popup__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.ticket-cancel-popup__details div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ticket-cancel-popup__details dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #6c757d;
+  margin: 0;
+}
+
+.ticket-cancel-popup__details dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1b1b1b;
+}
+
+.ticket-cancel-popup__verification {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ticket-cancel-popup__verification .btn-link {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.ticket-cancel-popup__verification .btn-link:disabled {
+  color: rgba(13, 110, 253, 0.5);
+}
+
+.ticket-cancel-popup__countdown {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.ticket-cancel-popup__feedback {
+  margin-bottom: 1rem;
+}
+
+.ticket-cancel-popup__message {
+  display: none;
+  margin: 0;
+}
+
+.ticket-cancel-popup__message.is-visible {
+  display: block;
+}
+
+.ticket-cancel-popup__input label {
+  font-weight: 600;
+}
+
+.ticket-cancel-popup__input input {
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.ticket-cancel-popup .auth-popup__dialog {
+  max-width: 520px;
+  width: 92%;
+}
+
+.ticket-cancel-popup .auth-popup__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 576px) {
+  .find-ticket-result-item .ticket-header {
+    align-items: flex-start;
+  }
+
+  .find-ticket-result-item .ticket-header-main {
+    width: 100%;
+  }
+
+  .find-ticket-result-item .ticket-header-controls {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .find-ticket-result-item .ticket-header .firm-logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.placeholder-container {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+#find-ticket-status .alert {
+  border-radius: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .find-ticket-card .card-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .find-ticket-card .card-body {
+    padding: 1.25rem;
+  }
+
+  .find-ticket-result-item {
+    padding: 1.25rem;
+  }
+}

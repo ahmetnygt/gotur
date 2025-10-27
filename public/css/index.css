@@ -1,0 +1,561 @@
+.gtr-header {
+    height: 50vh;
+    width: 100%;
+    background-image:
+        linear-gradient(180deg, #2660ff, #2660ff00),
+        url('../images/bus.jpeg');
+    background-size: cover;
+    /* taşıp kırpsın */
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 1rem 3rem;
+    color: white;
+    position: relative;
+}
+
+.gtr-header-no-image {
+    width: 100%;
+    height: 10vh;
+    background-color: #2660ff;
+    padding: 1rem 3rem;
+    color: white;
+    position: relative;
+}
+
+body {
+    padding-bottom: 2rem;
+}
+
+.trip-finder {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem;
+    width: max-content;
+    height: 15vh;
+    display: flex;
+    gap: 2rem;
+    border-radius: 1rem;
+    z-index: 40;
+    box-shadow: 0 18px 35px -25px rgba(22, 38, 79, 0.35);
+}
+
+.trip-finder-static {
+    background-color: white;
+    padding: 1rem;
+    /* width: 70vw; */
+    height: 15vh;
+    display: flex;
+    gap: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 18px 35px -25px rgba(22, 38, 79, 0.35);
+}
+
+.trip-finder input,
+.trip-finder-static input,
+.place-select {
+    height: 70%;
+}
+
+.place-select_display {
+    height: 100%;
+}
+
+.trip-finder_selects {
+    gap: 1rem;
+    display: flex;
+    color: #2660ff9c;
+    flex-wrap: wrap;
+}
+
+.trip-finder-static .place-select,
+.trip-finder .place-select {
+    width: 13vw;
+}
+
+.trip-finder_date-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trip-finder_day-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 0.5rem;
+}
+
+.trip-finder_day-button {
+    border: 1px solid #2660ff9c;
+    border-radius: 5px;
+    background-color: white;
+    color: #2660ff;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.3rem 0.75rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.trip-finder_day-button:hover,
+.trip-finder_day-button.active {
+    background-color: #2660ff;
+    color: white;
+}
+
+.trip-finder_to,
+.trip-finder_from,
+.trip-finder_date {
+    border-radius: 5px;
+    border: 2px solid #2660ff9c;
+    width: 13vw;
+}
+
+.trip-finder_change {
+    display: flex;
+    align-items: center;
+}
+
+.trip-finder_change svg:hover {
+    color: #2660ff9c;
+    border-color: #2660ff9c;
+}
+
+.trip-finder_change svg {
+    border: 2px solid #2660ff;
+    cursor: pointer;
+    color: #2660ff;
+    padding: .5rem;
+    height: 1rem;
+    border-radius: 50%;
+    width: 1rem;
+    margin-top: .5rem;
+}
+
+.trip-finder_search-button {
+    border: 2px solid #2660ff;
+    border-radius: 5px;
+    color: #2660ff;
+    width: 10rem;
+    background-color: white;
+    margin-top: .5rem;
+}
+
+.coming-soon {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.coming-soon__logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.coming-soon-firm {
+    object-fit: contain;
+    flex: 0 1 clamp(120px, 18vw, 180px);
+    width: auto;
+    max-width: 300px;
+}
+
+.coming-soon-firm:hover {
+    transform: translateY(-5px);
+}
+
+.coming-soon-marquee {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: hidden;
+}
+
+.coming-soon-marquee .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.coming-soon-marquee .marquee p {
+    display: inline-block;
+    font-size: 1.5rem;
+    color: #2660ff;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.coming-soon-marquee .marquee--ltr p {
+    animation-name: marquee-ltr;
+}
+
+.coming-soon-marquee .marquee--rtl p {
+    animation-name: marquee-rtl;
+}
+
+@keyframes marquee-ltr {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (max-width: 1200px) {
+
+    .trip-finder,
+    .trip-finder-static {
+        height: auto;
+        flex-wrap: wrap;
+        row-gap: 1.25rem;
+        column-gap: 1rem;
+    }
+
+    .trip-finder_selects,
+    .trip-finder_date-wrapper,
+    .trip-finder_day-buttons,
+    .trip-finder_search-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .trip-finder_to,
+    .trip-finder_from,
+    .trip-finder_date,
+    .trip-finder-static .place-select,
+    .trip-finder .place-select,
+    .place-select_display {
+        width: 100%;
+    }
+
+    .trip-finder_day-buttons {
+        flex-direction: row;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .trip-finder_day-button {
+        flex: 1 1 150px;
+        text-align: center;
+    }
+
+    .trip-finder_search-button {
+        width: 100%;
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .gtr-header {
+        max-height: 25vh;
+    }
+
+    .trip-finder {
+        position: static;
+        transform: none;
+        top: auto;
+        left: auto;
+        margin: 4rem auto 0;
+        width: min(95vw, 610px);
+    }
+
+    .trip-finder-static {
+        width: 100%;
+    }
+
+    .home-attributes {
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .gtr-header {
+        height: auto;
+        padding-bottom: 3rem;
+    }
+
+    .trip-finder,
+    .trip-finder-static {
+        width: min(100%, 500px);
+    }
+
+    .trip-finder_selects {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .trip-finder_change {
+        justify-content: flex-start;
+        padding-top: 0;
+        width: 100%;
+    }
+
+    .trip-finder_day-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .coming-soon {
+        text-align: center;
+    }
+
+    .coming-soon__logos {
+        gap: 1.25rem;
+    }
+
+    .coming-soon-firm {
+        flex-basis: clamp(120px, 45%, 160px);
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .trip-finder,
+    .trip-finder-static {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .trip-finder_change {
+        width: 100%;
+    }
+
+    .trip-finder_day-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .trip-finder_day-button {
+        flex: 1 1 auto;
+        font-size: 0.95rem;
+        width: 100%;
+    }
+
+    .trip-finder_search-button {
+        font-size: 1rem;
+    }
+
+    .coming-soon__logos {
+        gap: 1rem;
+    }
+
+    .home-attributes {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        justify-items: stretch;
+    }
+
+    .attribute {
+        padding: 0.75rem;
+    }
+
+    .attributes_icon {
+        height: clamp(56px, 16vw, 90px);
+    }
+}
+
+@keyframes marquee-rtl {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.attribute {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: .5rem;
+    border: 2px solid #2660ff9c;
+    border-radius: 5px;
+    user-select: none;
+    background: #fff;
+    box-shadow: 0 10px 18px -14px rgba(29, 59, 156, 0.6);
+}
+
+.attribute:hover {
+    transform: scale(1.025);
+    box-shadow: 0 16px 26px -16px rgba(29, 59, 156, 0.75);
+}
+
+.attribute h4 {
+    font-weight: bold;
+    color: #303030;
+}
+
+.attributes_icon {
+    height: clamp(72px, 12vw, 130px);
+}
+
+/* .attribute-routes {
+    border: 2px solid #2660ff9c;
+    border-radius: 12px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f7f9ff 0%, #eef3ff 100%);
+    box-shadow: 0 12px 24px -18px rgba(38, 96, 255, 0.6);
+} */
+
+.attribute-routes__header {
+    gap: 1rem;
+}
+
+.attribute-routes__badge {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #2660ff;
+    color: #fff;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 6px 12px -6px rgba(38, 96, 255, 0.7);
+}
+
+.home-attributes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.attribute-routes__lead {
+    color: #4a5568;
+    max-width: 40rem;
+}
+
+.attribute-routes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.attribute-route {
+    background: #fff;
+    border: 1px solid #dbe4ff;
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 10px 18px -14px rgba(29, 59, 156, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: inherit;
+    text-decoration: none;
+}
+
+.attribute-route:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 26px -16px rgba(29, 59, 156, 0.75);
+}
+
+.attribute-route__destinations {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #1f3a87;
+    flex-wrap: wrap;
+}
+
+.attribute-route__city {
+    word-break: break-word;
+}
+
+.attribute-route__destinations i {
+    color: #2660ff;
+    font-size: 1rem;
+}
+
+.attribute-route__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.attribute-route__tag {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(38, 96, 255, 0.12);
+    color: #2851ff;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.attribute-route__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.1rem;
+    font-weight: 700;
+    color: #1a2d6d;
+}
+
+.attribute-route__price-value {
+    font-size: 1.35rem;
+}
+
+.attribute-route__price-currency {
+    font-size: 0.95rem;
+}
+
+.attribute-route__price-note {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #5f677d;
+    margin-left: 0.35rem;
+}
+
+@media (max-width: 576px) {
+    .attribute-routes {
+        padding: 1.5rem;
+    }
+
+    .attribute-route {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .trip-finder,
+    .trip-finder-static {
+        padding: 1.5rem 1.1rem;
+    }
+
+    .coming-soon-firm {
+        flex-basis: clamp(120px, 60%, 200px);
+        max-width: 250px;
+    }
+
+    .home-attributes {
+        gap: 1rem;
+    }
+}
+
+.bus-ticket-header {
+    font-size: 2rem;
+    color: #2660ff;
+}
+
+.trip-finder-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background-color: #2660ff;
+}

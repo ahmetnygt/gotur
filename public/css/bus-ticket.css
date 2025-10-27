@@ -1,0 +1,425 @@
+.bus-ticket-header {
+    font-weight: 600;
+    text-align: center;
+    background-color: #2660ff;
+    color: white;
+}
+
+.bus-ticket-results {
+    /* background: linear-gradient(180deg, #f6f8ff 0%, #ffffff 100%); */
+    padding: 3rem 0;
+}
+
+.bus-ticket-results__header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.bus-ticket-results__title h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: #11264d;
+}
+
+.bus-ticket-results__subtitle {
+    margin: 0.25rem 0 0;
+    color: #4a587a;
+    font-size: 0.95rem;
+}
+
+.bus-ticket-results__see-all {
+    align-self: flex-start;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.bus-ticket-results__status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bus-ticket-results__loading,
+.bus-ticket-results__error,
+.bus-ticket-results__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.bus-ticket-results__loading {
+    background: rgba(17, 38, 77, 0.05);
+    color: #11264d;
+}
+
+.bus-ticket-results__error {
+    background: rgba(211, 48, 71, 0.12);
+    color: #7c1224;
+    border: 1px solid rgba(211, 48, 71, 0.3);
+}
+
+.bus-ticket-results__empty {
+    background: rgba(255, 200, 0, 0.12);
+    color: #6f5200;
+    border: 1px solid rgba(255, 200, 0, 0.35);
+}
+
+.bus-ticket-results__grid {
+    margin-top: 1.75rem;
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .bus-ticket-results__header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bus-ticket-results__see-all {
+        align-self: center;
+    }
+
+    .bus-ticket-results__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .bus-ticket-results__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.bus-ticket-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid rgba(17, 38, 77, 0.08);
+    box-shadow: 0 18px 32px -22px rgba(17, 38, 77, 0.35);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bus-ticket-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 36px -20px rgba(17, 38, 77, 0.45);
+}
+
+.bus-ticket-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.bus-ticket-card__firm {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.bus-ticket-card__firm-logo {
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bus-ticket-card__firm-logo img {
+    height: 100%;
+}
+
+.bus-ticket-card__firm-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #11264d;
+    margin: 0;
+}
+
+.bus-ticket-card__price {
+    text-align: right;
+}
+
+.bus-ticket-card__price strong {
+    font-size: 1.25rem;
+    color: #2660ff;
+    display: block;
+}
+
+.bus-ticket-card__price span {
+    font-size: 0.85rem;
+    color: #6c7796;
+}
+
+.bus-ticket-card__time {
+    display: flex;
+    gap: 0.35rem;
+    width: 100%;
+}
+
+.bus-ticket-card__time-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    width: 45%;
+    text-align: center;
+}
+
+.bus-ticket-card__time strong {
+    font-size: 1.35rem;
+    color: #11264d;
+}
+
+.bus-ticket-card__time span {
+    font-size: 0.85rem;
+    color: #6c7796;
+}
+
+.bus-ticket-card__route {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #4a587a;
+}
+
+.bus-ticket-card__route strong {
+    font-size: 1rem;
+    color: #11264d;
+}
+
+.bus-ticket-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #4a587a;
+}
+
+.bus-ticket-card__feature {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(17, 38, 77, 0.06);
+}
+
+.bus-ticket-blog__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.bus-ticket-blog__title h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #11264d;
+    margin: 0;
+}
+
+.bus-ticket-blog__subtitle {
+    margin: 0.25rem 0 0;
+    color: #4a587a;
+    font-size: 0.95rem;
+}
+
+.bus-ticket-blog__all {
+    font-weight: 600;
+    color: #2660ff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.bus-ticket-blog__all svg {
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+.bus-ticket-blog-card {
+    height: 100%;
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid rgba(17, 38, 77, 0.08);
+    box-shadow: 0 18px 32px -22px rgba(17, 38, 77, 0.2);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bus-ticket-blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 40px -24px rgba(17, 38, 77, 0.28);
+}
+
+.bus-ticket-blog-card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+.bus-ticket-blog-card__media {
+    position: relative;
+    width: 100%;
+    padding-top: 60%;
+    background: #ecf1ff;
+    overflow: hidden;
+}
+
+.bus-ticket-blog-card__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bus-ticket-blog-card__media--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2660ff, #4c82ff);
+    color: white;
+}
+
+.bus-ticket-blog-card__placeholder-initials {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.bus-ticket-blog-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.25rem;
+    padding-top: 0;
+}
+
+.bus-ticket-blog-card__date {
+    font-size: 0.8rem;
+    color: #6c7796;
+}
+
+.bus-ticket-blog-card__heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #11264d;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.bus-ticket-blog-card__tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.bus-ticket-blog-card__tags li {
+    background: rgba(38, 96, 255, 0.1);
+    color: #2660ff;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+@media (max-width: 575.98px) {
+    .bus-ticket-blog__title h2 {
+        font-size: 1.45rem;
+    }
+}
+
+.bus-ticket-card__feature img {
+    width: 16px;
+    height: 16px;
+}
+
+.bus-ticket-card__timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.bus-ticket-card__timeline li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #6c7796;
+}
+
+.bus-ticket-card__timeline strong {
+    font-size: 0.85rem;
+    color: #11264d;
+}
+
+.bus-ticket-card__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.bus-ticket-card__fullness {
+    font-size: 0.85rem;
+    color: #6c7796;
+}
+
+.bus-ticket-card__action-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #ff5a5f 0%, #d33047 100%);
+    border: none;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.bus-ticket-card__action-btn:hover {
+    color: #fff;
+    background: linear-gradient(135deg, #ff6b6f 0%, #de3d53 100%);
+}
+
+@media (max-width: 575.98px) {
+    .bus-ticket-card__body {
+        grid-template-columns: 1fr;
+    }
+
+    .bus-ticket-card__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bus-ticket-card__price {
+        text-align: left;
+    }
+}

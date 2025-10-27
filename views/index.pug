@@ -1,0 +1,198 @@
+include components/place-select
+include components/auth-modals
+
+<!DOCTYPE html>
+html
+  head
+    title= title
+    link(rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png")
+    link(rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png")
+    link(rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon")
+    link(rel='stylesheet' href='/flatpickr/dist/flatpickr.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css')
+    link(rel='stylesheet' href='/css/style.css')
+    link(rel='stylesheet' href='/css/index.css')
+    link(rel='stylesheet' href='/css/place-select.css')
+    link(rel='stylesheet' href='/css/bus-ticket.css')
+  body
+    .gtr-header
+      .d-flex.justify-content-between
+        a.navbar-brand(href="/")
+          img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
+        .d-flex.gap-3.align-items-center
+          a.gtr-link#findMyTicket(href='/find-ticket')
+            i.fa-solid.fa-magnifying-glass.me-1
+            |Biletimi Bul
+          if currentUser
+            a.gtr-link#myTrips(href='/user/my-trips' role='button')
+              i.fa-solid.fa-road.me-1
+              |Seyahatlerim
+            a.gtr-link#accounrPersonalInfo(href='/user?section=personal' role='button')
+              i.fa-solid.fa-user.me-1
+              |Hesabım
+            //- .dropdown
+            //-   a.gtr-link.dropdown-toggle#myAccount(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
+            //-     i.fa-solid.fa-user.me-1
+            //-     |Hesabım
+            //-   ul.dropdown-menu.dropdown-menu-end(aria-labelledby='myAccount')
+            //-     li
+            //-       a.dropdown-item#accountPersonalInfo(href='/user?section=personal') Kişisel Bilgilerim
+            //-     li
+            //-       a.dropdown-item#accountCards(href='/user?section=cards') Kartlarım
+            //-     li
+            //-       a.dropdown-item#accountPassengers(href='/user?section=passengers') Yolcularım
+            a.gtr-link#logoutButton(href='#' role='button')
+              i.fa-solid.fa-right-from-bracket.me-1
+              |Çıkış Yap
+          else
+            a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='loginPopup')
+              i.fa-solid.fa-user-check.me-1
+              |Giriş Yap
+            a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
+              i.fa-solid.fa-user-plus.me-1
+              |Kayıt Ol
+      - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
+      - const toValue = typeof toId !== 'undefined' ? toId : '';
+      p Türkiye'nin En Yeni Online Yazıhanesi
+      .trip-finder.border
+        .trip-finder_selects
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-bus-side.me-1
+              span Nereden?
+            +placeSelect({
+              placeholder: 'Kalkış Seçin',
+              searchPlaceholder: 'İl-ilçe adı yazın...',
+              input: {
+                class: 'trip-finder_from',
+                name: 'from',
+                value: fromValue
+              }
+            })
+          span.trip-finder_change
+            i.fa-solid.fa-arrow-right-arrow-left
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-bus-side.me-1
+              span Nereye?
+            +placeSelect({
+              placeholder: 'Varış Seçin',
+              searchPlaceholder: 'İl-ilçe adı yazın...',
+              input: {
+                class: 'trip-finder_to',
+                name: 'to',
+                value: toValue
+              }
+            })
+          .d-flex.flex-column
+            span
+              i.fa-solid.fa-calendar.me-1
+              span Ne Zaman?
+            input.trip-finder_date(type='text')
+          .trip-finder_day-buttons
+            button.trip-finder_day-button(data-day='today' type='button') Bugün
+            button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
+          button.trip-finder_search-button ARA
+    if !currentUser
+      +authModals()
+    .container
+      .mt-4.coming-soon
+        hr
+        //- .coming-soon-marquee.ms-3
+        //-   .marquee.marquee--rtl
+        //-     p.w-100.m-0 ...Yapım Aşamasında...
+        .coming-soon__logos.d-flex.flex-wrap.justify-content-center
+          a(target="_blank" href="https://anafartalarvipturizm.com/") 
+            img.coming-soon-firm(src="/images/anafartalarturizm.png" alt="Anafartalar Turizm")
+          a(target="_blank" href="https://bigakale.com.tr/") 
+            img.coming-soon-firm(src="/images/bigakale.png" alt="Biga Kale")
+          a(target="_blank" href="https://https://trakyavip.com.tr/") 
+            img.coming-soon-firm(src="/images/trakya_vip.png" alt="Trakya Vip")
+          a(target="_blank" href="https://cortur.com.tr/") 
+            img.coming-soon-firm(src="/images/cortur.png" alt="Çortur")
+        //- .coming-soon-marquee.ms-3
+        //-   .marquee.marquee--ltr
+        //-     p.w-100.text-end.m-0 ...Yapım Aşamasında...
+        hr
+      .home-attributes.mt-4
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Çözümcü Online Destek")
+          h4 Çözümcü Online Destek
+          p Seyahatinizle ilgili her konuda yanınızdayız. Online destek ekibimiz bilet alımında, iptal ya da değişiklik işlemlerinde size hızlı ve çözüm odaklı şekilde yardımcı olur. Rahat edin, biz buradayız.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Güvenli Ödeme")
+          h4 Güvenli Ödeme
+          p Ödemeleriniz en gelişmiş güvenlik sistemleriyle korunur. Hızlı, kolay ve güvenli ödeme seçeneklerimiz sayesinde siz sadece yolculuğunuzu düşünün, gerisini biz hallederiz.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Avantajlı Bilet")
+          h4 Avantajlı Bilet
+          p Seyahat ederken cebinizi düşünüyoruz. Bütçenize uygun ve avantajlı biletleri kolayca bulabilir, en hesaplı seçeneklerle keyifli yolculuk yapabilirsiniz.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/hand_icon.svg" alt="İşlem Kolaylığı")
+          h4 İşlem Kolaylığı
+          p Karmaşık adımlara gerek yok! Kullanıcı dostu sistemimizle biletinizi sorgulamak, karşılaştırmak ve satın almak sadece birkaç dakikanızı alır. Nerede olursanız olun, işlemleriniz çok kolay.
+        .attribute.d-flex.flex-column
+          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="Kullanıcı Dostu Kampanyalar")
+          h4 Kullanıcı Dostu Kampanyalar
+          p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
+      if promoRoutes && promoRoutes.length
+        .attribute-routes.mt-5
+          .bus-ticket-results__header
+            .bus-ticket-results__title
+              h2 Küçük Bir İlham
+              p.bus-ticket-results__subtitle Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
+          ul.list-unstyled.mb-0.attribute-routes__grid
+            each route in promoRoutes
+              - const routeUrl = `/bus-ticket/${route.fromSlug}-${route.toSlug}`;
+              li
+                a.attribute-route(href=routeUrl)
+                  .attribute-route__destinations
+                    span.attribute-route__city #{route.fromTitle}
+                    i.fa-solid.fa-arrow-right-long.mx-2
+                    span.attribute-route__city #{route.toTitle}
+                  .attribute-route__meta
+                    span.attribute-route__tag Seferleri Gör
+                    span.attribute-route__price
+                      span.attribute-route__price-value #{route.formattedPrice}
+                      span.attribute-route__price-currency ₺
+                      span.attribute-route__price-note 'den başlayan
+      if blogPosts && blogPosts.length
+        section.bus-ticket-blog.mt-5
+          .container
+            .bus-ticket-blog__header
+              .bus-ticket-blog__title
+                h2 En Yeni Blog Yazıları
+                p.bus-ticket-blog__subtitle Seyahat tutkunları için hazırladığımız son içerikleri keşfedin.
+              a.bus-ticket-blog__all(href='/blog')
+                |Tüm Yazılar
+                i.fa-solid.fa-arrow-right
+            .row.g-4
+              each post in blogPosts
+                .col-12.col-md-6.col-xl-3
+                  article.bus-ticket-blog-card
+                    a.bus-ticket-blog-card__link(href=`/blog/${post.slug}`)
+                      if post.coverImage
+                        figure.bus-ticket-blog-card__media
+                          img(src=`/blog/images/${post.coverImage}` alt=post.title loading='lazy')
+                      else
+                        figure.bus-ticket-blog-card__media.bus-ticket-blog-card__media--placeholder
+                          - const postInitial = (post.title || '').charAt(0) || '?'
+                          span.bus-ticket-blog-card__placeholder-initials #{postInitial}
+                      .bus-ticket-blog-card__body
+                        if post.displayDate
+                          span.bus-ticket-blog-card__date #{post.displayDate}
+                        h3.bus-ticket-blog-card__heading #{post.title}
+                        if post.tags && post.tags.length
+                          ul.bus-ticket-blog-card__tags
+                            each tag in post.tags.slice(0, 3)
+                              li #{tag}
+  script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
+  script(src="https://code.jquery.com/jquery-3.7.1.min.js")
+  script(src="/flatpickr/dist/flatpickr.min.js")
+  script(src="/flatpickr/dist/l10n/tr.js")
+  script(src="/js/place-select.js")
+  script(src='/js/index.js')

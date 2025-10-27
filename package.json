@@ -1,0 +1,32 @@
+{
+  "name": "gotur",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@chenfengyuan/datepicker": "^1.0.10",
+    "bcrypt": "^6.0.0",
+    "connect-session-sequelize": "^8.0.2",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^17.2.3",
+    "express": "~4.16.1",
+    "express-session": "^1.18.2",
+    "flatpickr": "^4.6.13",
+    "http-errors": "~1.6.3",
+    "jquery": "^3.7.1",
+    "marked": "^16.4.0",
+    "morgan": "~1.9.1",
+    "mysql2": "^3.15.0",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^7.0.6",
+    "nodemon": "^3.1.10",
+    "pug": "2.0.0-beta11",
+    "select2": "^4.1.0-rc.0",
+    "sequelize": "^6.37.7",
+    "twilio": "^5.10.3",
+    "world-countries": "^5.1.0"
+  }
+}

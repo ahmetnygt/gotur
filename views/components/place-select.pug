@@ -1,0 +1,43 @@
+mixin placeSelect(options)
+  -
+    options = options || {};
+    const placeholder = options.placeholder || 'Seçin';
+    const searchPlaceholder = options.searchPlaceholder || 'İl-ilçe adı yazın...';
+    const hasCustomLabel = typeof options.label !== 'undefined' && options.label !== null;
+    const labelText = hasCustomLabel ? options.label : placeholder;
+    const rootAttrs = Object.assign({}, options.attrs || {});
+    const extraClass = options.className || '';
+    const rootClassParts = ['place-select'];
+    if (rootAttrs.class) {
+      rootClassParts.push(rootAttrs.class);
+    }
+    if (extraClass) {
+      rootClassParts.push(extraClass);
+    }
+    rootAttrs.class = rootClassParts.join(' ');
+    if (!rootAttrs['data-placeholder']) {
+      rootAttrs['data-placeholder'] = placeholder;
+    }
+    if (!rootAttrs['data-search-placeholder']) {
+      rootAttrs['data-search-placeholder'] = searchPlaceholder;
+    }
+    const inputAttrs = Object.assign({}, options.input || {});
+    if (!inputAttrs.type) {
+      inputAttrs.type = 'hidden';
+    }
+    if (!('value' in inputAttrs)) {
+      inputAttrs.value = '';
+    }
+    const inputClassParts = ['place-select_input'];
+    if (inputAttrs.class) {
+      inputClassParts.push(inputAttrs.class);
+    }
+    inputAttrs.class = inputClassParts.join(' ');
+  div&attributes(rootAttrs)
+    input&attributes(inputAttrs)
+    .place-select_display(tabindex='0' role='button' aria-expanded='false' aria-haspopup='listbox')
+      span.place-select_label #{labelText}
+      i.fa-solid.fa-chevron-down.place-select_arrow
+    .place-select_dropdown
+      input.place-select_search(type='text' placeholder=searchPlaceholder)
+      .place-select_options(role='listbox')

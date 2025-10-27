@@ -1,0 +1,135 @@
+extends layout-no-image
+include components/place-select
+
+block head
+    title #{title}
+    meta(name="description" content=description)
+    meta(property="og:title" content=title)
+    meta(property="og:description" content=description)
+    meta(property="og:type" content="website")
+    meta(property="og:url" content=request.url)
+    meta(property="og:site_name" content="Götür")
+    link(rel="canonical" href=request.url)
+
+block css
+    link(rel='stylesheet' href='/css/style.css')
+    link(rel='stylesheet' href='/css/index.css')
+    link(rel='stylesheet' href='/css/place-select.css')
+    link(rel='stylesheet' href='/css/bus-ticket.css')
+
+block content
+    h1.bus-ticket-header #{fromTitle} - #{toTitle} Otobüs Bileti
+    .trip-finder-container
+        .trip-finder-static.border
+            .trip-finder_selects
+                .d-flex.flex-column
+                    span
+                        i.fa-solid.fa-bus-side.me-1
+                        span Nereden?
+                    +placeSelect({
+                        placeholder: 'Kalkış Seçin',
+                        searchPlaceholder: 'İl-ilçe adı yazın...',
+                        input: {
+                            class: 'trip-finder_from',
+                            name: 'from',
+                            value: fromValue
+                        }
+                    })
+                span.trip-finder_change
+                    i.fa-solid.fa-arrow-right-arrow-left
+                .d-flex.flex-column
+                    span
+                        i.fa-solid.fa-bus-side.me-1
+                        span Nereye?
+                    +placeSelect({
+                        placeholder: 'Varış Seçin',
+                        searchPlaceholder: 'İl-ilçe adı yazın...',
+                        input: {
+                            class: 'trip-finder_to',
+                            name: 'to',
+                            value: toValue
+                        }
+                    })
+                .d-flex.flex-column
+                    span
+                        i.fa-solid.fa-calendar.me-1
+                        span Ne Zaman?
+                    input.trip-finder_date(type='text')
+                .trip-finder_day-buttons
+                    button.trip-finder_day-button(data-day='today' type='button') Bugün
+                    button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
+                button.trip-finder_search-button ARA
+    section.bus-ticket-results
+        .container
+            .bus-ticket-results__header
+                .bus-ticket-results__title
+                    h2 #{fromTitle} - #{toTitle} Popüler Seferler
+                    p.bus-ticket-results__subtitle Bu rotada öne çıkan seferleri sizin için derledik.
+            if popularTrips.length
+                .bus-ticket-results__grid(role='list')
+                    each trip in popularTrips
+                        article.bus-ticket-card(role='listitem')
+                            .bus-ticket-card__firm-logo 
+                                img(src=`/images/${trip.firm.key}.png`)
+                                //- p.bus-ticket-card__firm-name #{trip.firm.name}
+                                .bus-ticket-card__price
+                                    strong #{trip.price.primary}
+                            .bus-ticket-card__route.text-center
+                                strong #{trip.routeTitle}
+                                if trip.durationText
+                                    span Tahmini süre: #{trip.durationText} #{trip.firm.firmKey}
+                            .bus-ticket-card__body
+                                .bus-ticket-card__time
+                                    .bus-ticket-card__time-row
+                                        strong #{trip.departure.time}
+                                        span
+                                            if trip.departure.location
+                                                |#{trip.departure.location}
+                                    .bus-ticket-card__time-row
+                                        strong #{trip.arrival.time}
+                                        span
+                                            if trip.arrival.location
+                                                |#{trip.arrival.location}
+                            if Array.isArray(trip.features) && trip.features.length
+                                .bus-ticket-card__meta
+                                    each feature in trip.features
+                                        .bus-ticket-card__feature
+                                            if feature.icon
+                                                img(src=feature.icon alt=feature.label || 'Özellik')
+                                            //- span #{feature.label}
+            else
+                .bus-ticket-results__empty.alert.alert-warning Bu rota için öne çıkan sefer bulamadık.
+
+    if blogPosts && blogPosts.length
+        section.bus-ticket-blog
+            .container
+                .bus-ticket-blog__header
+                    .bus-ticket-blog__title
+                        h2 #{fromTitle} - #{toTitle} Seyahat Rehberleri
+                        p.bus-ticket-blog__subtitle Bu rota hakkında ilham verecek blog yazılarını keşfedin.
+                    a.bus-ticket-blog__all(href='/blog') 
+                        |Tüm Yazılar
+                        i.fa-solid.fa-arrow-right
+                .row.g-4
+                    each post in blogPosts
+                        .col-12.col-md-6.col-xl-3
+                            article.bus-ticket-blog-card
+                                a.bus-ticket-blog-card__link(href=`/blog/${post.slug}`)
+                                    if post.coverImage
+                                        figure.bus-ticket-blog-card__media
+                                            img(src=`/blog/images/${post.coverImage}` alt=post.title loading='lazy')
+                                    else
+                                        figure.bus-ticket-blog-card__media.bus-ticket-blog-card__media--placeholder
+                                            - const postInitial = (post.title || '').charAt(0) || '?'
+                                            span.bus-ticket-blog-card__placeholder-initials #{postInitial}
+                                    .bus-ticket-blog-card__body
+                                        if post.displayDate
+                                            span.bus-ticket-blog-card__date #{post.displayDate}
+                                        h3.bus-ticket-blog-card__heading #{post.title}
+                                        if post.tags && post.tags.length
+                                            ul.bus-ticket-blog-card__tags
+                                                each tag in post.tags.slice(0, 3)
+                                                    li #{tag}
+
+block scripts
+    script(src='/js/index.js')
