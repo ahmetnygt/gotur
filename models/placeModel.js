@@ -19,5 +19,13 @@ module.exports = (sequelize) => {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
+    uetds_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    uetds_province_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
   });
 };
