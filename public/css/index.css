@@ -146,7 +146,7 @@ body {
 @media (max-width: 768px) {
     .gtr-header {
         min-height: 55vh;
-        background-image: none;
+        background-image: none !important;
         background-color: #2660ff;
         padding: 1.5rem 1.25rem 2.5rem;
         display: flex;
@@ -195,9 +195,17 @@ body {
         gap: 1.25rem;
     }
 
+    .trip-finder-static {
+        min-height: 40vh;
+    }
+
     .trip-finder_selects {
         width: 100%;
         flex-direction: column;
+    }
+
+    .trip-finder_selects > .d-flex {
+        width: 100%;
     }
 
     .trip-finder .place-select,
@@ -408,6 +416,7 @@ body {
     .trip-finder-static {
         padding: 1.25rem;
         gap: 1rem;
+        min-height: 40vh;
     }
 
     .trip-finder_change {
