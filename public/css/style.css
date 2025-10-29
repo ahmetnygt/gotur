@@ -362,4 +362,34 @@ body.auth-popup-open {
     justify-content: center;
     width: 100%;
   }
+
+  .gtr-header .navbar-brand,
+  .gtr-header-invert .navbar-brand,
+  .gtr-header-no-image .navbar-brand {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .gtr-header .navbar-brand img,
+  .gtr-header-invert .navbar-brand img,
+  .gtr-header-no-image .navbar-brand img {
+    display: block;
+    margin: 0 auto;
+    max-width: clamp(140px, 45vw, 220px);
+  }
+
+  .gtr-header .d-flex.gap-3.align-items-center,
+  .gtr-header-invert .d-flex.gap-3.align-items-center,
+  .gtr-header-no-image .d-flex.gap-3.align-items-center {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .gtr-header .gtr-link,
+  .gtr-header-invert .gtr-link,
+  .gtr-header-no-image .gtr-link {
+    font-size: 1.35rem;
+  }
 }
