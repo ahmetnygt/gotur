@@ -408,6 +408,9 @@ body {
         padding: 0.45rem 0.55rem;
         align-self: flex-end;
         color: inherit;
+        position: absolute;
+        right: 1rem;
+        top: 0.75rem;
     }
 
     .gtr-header>.d-flex.justify-content-between,
@@ -499,12 +502,18 @@ body {
 
     /* Coming soon 40vh */
     .coming-soon {
-        height: 40vh !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: 1rem;
+        display: block;
+        margin: 0 !important;
+        height: auto;
+        padding: 0;
+    }
+
+    .coming-soon__logos.d-flex.flex-wrap.justify-content-center a {
+        width: 40vw;
+    }
+
+    img.coming-soon-firm {
+        width: 100%;
     }
 
     .coming-soon__logos {
