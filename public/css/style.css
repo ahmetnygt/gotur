@@ -141,6 +141,18 @@ body {
   gap: 1rem;
 }
 
+.gtr-header__inner {
+  width: 100%;
+  position: relative;
+  gap: 1rem;
+}
+
+.gtr-header__links {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .gtr-header__toggle {
   display: none;
   align-items: center;
@@ -224,6 +236,92 @@ a.gtr-link:active {
 .gtr-header-invert .gtr-link:active {
   color: #0e0e0e;
   transform: scale(0.95);
+}
+
+.gtr-header__links .gtr-link {
+  font-size: 1.1rem;
+}
+
+.gtr-header .slogan,
+.gtr-header-invert .slogan,
+.gtr-header-no-image .slogan {
+  margin-top: 0.75rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .gtr-header,
+  .gtr-header-invert,
+  .gtr-header-no-image {
+    padding: 1rem 1.5rem !important;
+    text-align: center;
+  }
+
+  .gtr-header__inner {
+    gap: 0.5rem;
+  }
+
+  .gtr-header__toggle {
+    display: inline-flex;
+    font-size: 1.5rem;
+    padding: 0.45rem 0.55rem;
+    align-self: flex-end;
+    color: inherit;
+    position: absolute;
+    right: 1rem;
+    top: 0.75rem;
+  }
+
+  .gtr-header > .d-flex.justify-content-between,
+  .gtr-header-invert > .d-flex.justify-content-between,
+  .gtr-header-no-image > .d-flex.justify-content-between {
+    gap: 0.5rem;
+  }
+
+  .gtr-header__links {
+    display: none !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100%;
+    margin-top: 0.75rem;
+    gap: 0.75rem !important;
+  }
+
+  .gtr-header__links.is-open {
+    display: flex !important;
+  }
+
+  .gtr-header__links .gtr-link {
+    font-size: 1rem !important;
+    padding: 0.6rem 0.75rem;
+    justify-content: center;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .gtr-header .gtr-header__links .gtr-link {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .gtr-header .gtr-header__links .gtr-link:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .gtr-header-invert .gtr-header__links .gtr-link,
+  .gtr-header-no-image .gtr-header__links .gtr-link {
+    background-color: rgba(38, 96, 255, 0.1);
+  }
+
+  .gtr-header-invert .gtr-header__links .gtr-link:hover,
+  .gtr-header-no-image .gtr-header__links .gtr-link:hover {
+    background-color: rgba(38, 96, 255, 0.18);
+  }
+
+  .gtr-header .slogan,
+  .gtr-header-invert .slogan,
+  .gtr-header-no-image .slogan {
+    display: none;
+  }
 }
 
 .gtr-input {
