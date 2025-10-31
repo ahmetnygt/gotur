@@ -141,6 +141,44 @@ body {
   gap: 1rem;
 }
 
+.gtr-header__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0.35rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.gtr-header__toggle:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.gtr-header-invert .gtr-header__toggle:hover,
+.gtr-header-no-image .gtr-header__toggle:hover {
+  background-color: rgba(38, 96, 255, 0.1);
+}
+
+.gtr-header__toggle:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.gtr-header-invert .gtr-header__toggle:focus-visible,
+.gtr-header-no-image .gtr-header__toggle:focus-visible {
+  outline: 3px solid rgba(38, 96, 255, 0.4);
+}
+
+.gtr-header__toggle i {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
 .gtr-header .gtr-link,
 .gtr-header-invert .gtr-link,
 .gtr-header-no-image .gtr-link {
