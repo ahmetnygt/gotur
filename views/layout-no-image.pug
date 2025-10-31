@@ -17,10 +17,12 @@ html
     block css
   body
     .gtr-header-no-image
-      .d-flex.justify-content-between
+      .d-flex.justify-content-between.align-items-center.flex-wrap.gtr-header__inner
         a.navbar-brand(href="/")
           img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
-        .d-flex.gap-3.align-items-center
+        button.gtr-header__toggle(type='button' aria-label='Menüyü Aç' aria-controls='gtrHeaderLinks' aria-expanded='false')
+          i.fa-solid.fa-bars
+        .d-flex.gap-3.align-items-center.gtr-header__links#gtrHeaderLinks
           a.gtr-link#findMyTicket(href='/find-ticket')
             i.fa-solid.fa-magnifying-glass.me-1
             |Biletimi Bul
@@ -28,17 +30,15 @@ html
             a.gtr-link#myTrips(href='/user/my-trips' role='button')
               i.fa-solid.fa-road.me-1
               |Seyahatlerim
-            .dropdown
-              a.gtr-link.dropdown-toggle#myAccount(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
-                i.fa-solid.fa-user.me-1
-                |Hesabım
-              ul.dropdown-menu.dropdown-menu-end(aria-labelledby='myAccount')
-                li
-                  a.dropdown-item#myAccountPersonalInfo(href="/user/personal-information") Kişisel Bilgilerim
-                li
-                  a.dropdown-item#myAccountCards(href="/user/cards") Kartlarım
-                li
-                  a.dropdown-item#myAccountPassengers(href="/user/passengers") Yolcularım
+            a.gtr-link#myAccountPersonalInfo(href='/user/personal-information' role='button')
+              i.fa-solid.fa-user.me-1
+              |Hesabım
+            a.gtr-link#myAccountCards(href='/user/cards' role='button')
+              i.fa-solid.fa-id-card.me-1
+              |Kartlarım
+            a.gtr-link#myAccountPassengers(href='/user/passengers' role='button')
+              i.fa-solid.fa-user-group.me-1
+              |Yolcularım
             a.gtr-link#logoutButton(href='#' role='button')
               i.fa-solid.fa-right-from-bracket.me-1
               |Çıkış Yap
@@ -49,7 +49,7 @@ html
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
               i.fa-solid.fa-user-plus.me-1
               |Kayıt Ol
-      p Türkiye'nin En Yeni Online Yazıhanesi
+      p.slogan Türkiye'nin En Yeni Online Yazıhanesi
       block headerContent
 
 
@@ -64,4 +64,5 @@ html
     script(src="/flatpickr/dist/flatpickr.min.js")
     script(src="/flatpickr/dist/l10n/tr.js")
     script(src="/js/place-select.js")
+    script(src="/js/header.js")
     block scripts
