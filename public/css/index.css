@@ -376,3 +376,111 @@ body {
     padding: 1rem;
     background-color: #2660ff;
 }
+
+@media (max-width: 768px) {
+
+    /* Header yüksekliği 40vh */
+    .gtr-header {
+        height: auto;
+        padding: 1rem 1.5rem !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* Logo biraz küçülsün */
+    .gtr-header .navbar-brand img {
+        width: clamp(120px, 35%, 180px);
+    }
+
+    /* Linkler yan yana */
+    .gtr-header .d-flex.gap-3.align-items-center {
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-wrap: wrap;
+        gap: 0.5rem !important;
+    }
+
+    .gtr-header>.d-flex.justify-content-between,
+    .gtr-header-invert>.d-flex.justify-content-between,
+    .gtr-header-no-image>.d-flex.justify-content-between {
+        gap: .5rem;
+    }
+
+    .gtr-header .gtr-link {
+        font-size: 1rem !important;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .gtr-header .slogan {
+        display: none;
+    }
+
+    /* Trip finder sadeleştirildi */
+    .trip-finder {
+        position: static !important;
+        width: 95% !important;
+        max-width: 420px !important;
+        margin-top: 0.75rem !important;
+        padding: 0.75rem !important;
+        border-radius: 0.75rem;
+        background: #fff;
+        box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.25);
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        transform: none;
+        height: auto;
+    }
+
+    .trip-finder_selects {
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+    .trip-finder_change {
+        display: none;
+    }
+
+    .trip-finder-static .place-select,
+    .trip-finder .place-select {
+        width: auto;
+    }
+
+    .trip-finder input,
+    .trip-finder select,
+    .trip-finder button {
+        font-size: 0.9rem !important;
+        padding: 0.6rem !important;
+        width: auto;
+    }
+
+    .trip-finder_day-buttons {
+        flex-direction: row;
+    }
+
+    .trip-finder_day-button {
+        width: 50% !important;
+    }
+
+    .trip-finder button {
+        border-width: 2px;
+    }
+
+    /* Coming soon 40vh */
+    .coming-soon {
+        height: 40vh !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .coming-soon__logos {
+        gap: 1rem;
+    }
+}
