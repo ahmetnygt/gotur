@@ -409,8 +409,8 @@ body {
         align-self: flex-end;
         color: inherit;
         position: absolute;
-        right: 1rem;
-        top: 0.75rem;
+        right: 0;
+        top: 0;
     }
 
     .gtr-header>.d-flex.justify-content-between,

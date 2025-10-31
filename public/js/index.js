@@ -82,17 +82,17 @@
     const searchButton = $(".trip-finder_search-button");
     searchButton.off("click");
     searchButton.on("click", () => {
-        alert("Şimdilik yapım aşamasındayız. Çok kısa sürede sizlere hizmet vermeye başlıyoruz!")
-        // const fromId = $(".trip-finder_from").val();
-        // const toId = $(".trip-finder_to").val();
-        // const date = tripFinderDate.val();
+        // alert("Şimdilik yapım aşamasındayız. Çok kısa sürede sizlere hizmet vermeye başlıyoruz!")
+        const fromId = $(".trip-finder_from").val();
+        const toId = $(".trip-finder_to").val();
+        const date = tripFinderDate.val();
 
-        // if (!fromId || !toId || !date) {
-        //     return;
-        // }
+        if (!fromId || !toId || !date) {
+            return;
+        }
 
-        // const url = `/trips/${fromId}-${toId}/${date}`;
-        // window.location.href = url;
+        const url = `/trips/${fromId}-${toId}/${date}`;
+        window.location.href = url;
     });
 
     const changeButton = $(".trip-finder_change");
