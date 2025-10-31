@@ -124,21 +124,21 @@ block content
           )
             .trip_chevron
               i.fa-solid.fa-chevron-down
-            .d-flex.justify-content-between.align-items-center.px-3.mb-2
-              .d-flex.justify-content-center.col-2
+            .trip_header.row.align-items-center.g-3.px-2.px-md-3.mb-2
+              .trip_header-brand.col-12.col-sm-6.col-lg-2.d-flex.justify-content-center
                 img(src=`/images/${t.firm}.png` alt=t.firm)
-              .d-flex.justify-content-center.col-2
+              .trip_header-schedule.col-12.col-sm-6.col-lg-2.d-flex.justify-content-center
                 .d-flex.flex-column.align-items-center
                   span.trip_time
                     i.fa-solid.fa-clock.me-1
                     span #{tripHour}:#{tripMinute}
                   span #{t.duration}
-              .d-flex.justify-content-center.col-4
+              .trip_header-route.col-12.col-lg-4.d-flex.justify-content-center
                 p.trip_route
                   |#{t.fromStr}
                   i.fa-solid.fa-route.mx-1
                   |#{t.toStr}
-              .d-flex.justify-content-center.col-2
+              .trip_header-fullness.col-12.col-sm-6.col-lg-2.d-flex.justify-content-center
                 .d-flex.gap-3.align-items-center
                   .trip_fullness
                     svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
@@ -148,7 +148,7 @@ block content
                       rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
                       rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
                     span #{t.fullness}
-              .d-flex.justify-content-center.col-2
+              .trip_header-price.col-12.col-sm-6.col-lg-2.d-flex.justify-content-center
                 button.btn.btn-primary.btn-sm.trip_pick-button #{t.price}₺
             .trip_content
               if Array.isArray(t.busFeatures) && t.busFeatures.length
@@ -157,8 +157,8 @@ block content
                     .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
                       img(src=feature.icon alt=feature.label)
                       span=feature.label
-              .d-flex.mt-3
-                .col-4
+              .trip_content-grid.row.mt-3.g-3
+                .col-12.col-lg-4
                   p.text-center
                     b Sefer Açıklaması
                   p.text-center #{t.routeDescription}
@@ -171,7 +171,7 @@ block content
                             |- #{stopInfo.title}
                         else if stopInfo && stopInfo.title
                           li.col-6 #{stopInfo.title}
-                .col-4
+                .col-12.col-lg-4
                   .trip_seat-plan.d-flex.justify-content-center.gap-1
                     - const planBinary = t.busPlanBinary
                     - const plan = t.busPlan
@@ -200,7 +200,7 @@ block content
                             - index++;
                           - }
                     - }
-                .col-4
+                .col-12.col-lg-4
                   .trip_info.p-1
                     .d-flex
                       .d-flex.align-items-center.gap-1

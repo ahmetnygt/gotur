@@ -146,6 +146,56 @@
     cursor: default;
 }
 
+.trip_header {
+    width: 100%;
+}
+
+.trip_header > [class*='col-'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.trip_header-brand img {
+    max-width: 140px;
+    width: 100%;
+    height: auto;
+}
+
+.trip_header-route {
+    text-align: center;
+}
+
+.trip_header-fullness .d-flex {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.trip_header-price .trip_pick-button {
+    width: 100%;
+}
+
+.trip_content-grid > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.trip_content-grid > [class*='col-'] > * {
+    width: 100%;
+}
+
+.trip_content-grid .trip_seat-plan {
+    width: auto;
+}
+
+.trip_content-grid .trip_info {
+    width: 100%;
+}
+
 .trip_seat {
     position: relative;
     cursor: pointer;
@@ -380,6 +430,10 @@
         padding: 1.25rem;
     }
 
+    .trip_header-price .trip_pick-button {
+        width: 100%;
+    }
+
     .trip img {
         width: min(100%, 220px);
         height: auto;
@@ -403,6 +457,21 @@
     .trip-search_button {
         width: 100%;
         justify-content: center;
+    }
+}
+
+@media (min-width: 992px) {
+    .trip_header-route {
+        justify-content: center;
+    }
+
+    .trip_header-route .trip_route {
+        text-align: center;
+    }
+
+    .trip_header-price .trip_pick-button {
+        width: auto;
+        min-width: 140px;
     }
 }
 
@@ -435,6 +504,10 @@
         gap: 0.75rem;
     }
 
+    .trip_header > [class*='col-'] {
+        gap: 0.5rem;
+    }
+
     .trip-search_change {
         justify-content: flex-start;
     }
@@ -460,6 +533,10 @@
         flex-direction: column;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    .trip_content-grid .trip_route-list li.col-6 {
+        width: 100%;
     }
 
     .trip_feature {
