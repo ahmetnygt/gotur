@@ -169,7 +169,7 @@ block content
                           if stopInfo && stopInfo.time && stopInfo.title
                             li
                               b #{stopInfo.time}
-                              |- #{stopInfo.title}
+                              |#{" - "} #{stopInfo.title}
                           else if stopInfo && stopInfo.title
                             li #{stopInfo.title}
                 .trip-seat-plan

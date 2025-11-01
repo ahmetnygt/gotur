@@ -683,39 +683,41 @@ $(".trip_confirm-button")
             firmKey,
         };
 
-        try {
-            const response = await fetch("/payment", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+        window.location.href = `https://arenaturizm.com/`;
 
-            let data = null;
-            try {
-                data = await response.json();
-            } catch (parseError) {
-                data = null;
-            }
+        // try {
+        //     const response = await fetch("/payment", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify(payload),
+        //     });
 
-            if (!response.ok || !data) {
-                throw new Error(
-                    data && data.message
-                        ? data.message
-                        : "Ödeme isteği oluşturulamadı."
-                );
-            }
+        //     let data = null;
+        //     try {
+        //         data = await response.json();
+        //     } catch (parseError) {
+        //         data = null;
+        //     }
 
-            if (!data.ticketPaymentId) {
-                throw new Error("Beklenmeyen sunucu cevabı alındı.");
-            }
+        //     if (!response.ok || !data) {
+        //         throw new Error(
+        //             data && data.message
+        //                 ? data.message
+        //                 : "Ödeme isteği oluşturulamadı."
+        //         );
+        //     }
 
-            ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
-            updateTripSeatSummary(tripId);
+        //     if (!data.ticketPaymentId) {
+        //         throw new Error("Beklenmeyen sunucu cevabı alındı.");
+        //     }
 
-            window.location.href = `/payment/${data.ticketPaymentId}`;
-        } catch (error) {
-            alert(error.message || "Ödeme isteği oluşturulamadı.");
-        }
+        //     ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
+        //     updateTripSeatSummary(tripId);
+
+        //     window.location.href = `/payment/${data.ticketPaymentId}`;
+    // } catch (error) {
+    //     alert(error.message || "Ödeme isteği oluşturulamadı.");
+    // }
     });
