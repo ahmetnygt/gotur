@@ -158,7 +158,7 @@ block content
                       img(src=feature.icon alt=feature.label)
                       span=feature.label
               .d-flex.mt-3
-                .col-4
+                .trip-description.col-4
                   p.text-center
                     b Sefer Açıklaması
                   p.text-center #{t.routeDescription}
@@ -171,7 +171,7 @@ block content
                             |- #{stopInfo.title}
                         else if stopInfo && stopInfo.title
                           li.col-6 #{stopInfo.title}
-                .col-4
+                .trip-seat-plan.col-4
                   .trip_seat-plan.d-flex.justify-content-center.gap-1
                     - const planBinary = t.busPlanBinary
                     - const plan = t.busPlan
@@ -200,7 +200,7 @@ block content
                             - index++;
                           - }
                     - }
-                .col-4
+                .trip-seat-info.col-4
                   .trip_info.p-1
                     .d-flex
                       .d-flex.align-items-center.gap-1

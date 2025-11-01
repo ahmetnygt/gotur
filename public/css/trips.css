@@ -141,15 +141,15 @@
     transform: rotate(180deg);
 }
 
-.trip-header > .trip-logo,
-.trip-header > .trip-times,
-.trip-header > .trip-fullness-container,
-.trip-header > .trip-actions {
+.trip-header>.trip-logo,
+.trip-header>.trip-times,
+.trip-header>.trip-fullness-container,
+.trip-header>.trip-actions {
     flex: 0 0 16.6667%;
     max-width: 16.6667%;
 }
 
-.trip-header > .trip-route-title {
+.trip-header>.trip-route-title {
     flex: 0 0 33.3333%;
     max-width: 33.3333%;
 }
@@ -287,14 +287,6 @@
     min-height: 2.75rem;
 }
 
-.trip-actions {
-    background-color: #f8f9fa;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 1.25rem 0;
-    margin-bottom: 1.5rem;
-}
-
 .trip-actions_inner {
     display: flex;
     align-items: center;
@@ -367,7 +359,7 @@
     font-weight: 500;
 }
 
-.trip_route-list{
+.trip_route-list {
     display: flex;
     flex-wrap: wrap;
 }
@@ -399,12 +391,14 @@
     }
 
     .trip_route {
-        flex-direction: column;
+        white-space: nowrap;
+        margin: .5rem 0;
         gap: 0.35rem;
     }
 
     .trip_pick-button {
         width: 100%;
+        height: 2.5rem;
         font-size: 1.25rem;
     }
 
@@ -417,9 +411,27 @@
         width: 100%;
         justify-content: center;
     }
+
+    .trip-header>.trip-logo,
+    .trip-header>.trip-times,
+    .trip-header>.trip-fullness-container,
+    .trip-header>.trip-actions {
+        max-width: 50%;
+        flex: 0 0 50%;
+    }
+
+    .trip-header>.trip-route-title {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    .trip-header {
+        flex-wrap: wrap;
+    }
 }
 
 @media (max-width: 768px) {
+
     .trip_time span,
     .trip_fullness span {
         font-size: 1.25rem;
@@ -470,7 +482,6 @@
 
     .trip_time,
     .trip_fullness {
-        flex-direction: column;
         align-items: center;
         gap: 0.5rem;
     }
