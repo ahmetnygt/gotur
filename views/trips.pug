@@ -125,20 +125,20 @@ block content
             .trip_chevron
               i.fa-solid.fa-chevron-down
             .trip-header.d-flex.justify-content-between.align-items-center.px-3.mb-2
-              .trip-logo.d-flex.justify-content-center.col-2
+              .trip-logo.d-flex.justify-content-center
                 img(src=`/images/${t.firm}.png` alt=t.firm)
-              .trip-times.d-flex.justify-content-center.col-2
+              .trip-times.d-flex.justify-content-center
                 .d-flex.flex-column.align-items-center
                   span.trip_time
                     i.fa-solid.fa-clock.me-1
                     span #{tripHour}:#{tripMinute}
                   span #{t.duration}
-              .trip-route-title.d-flex.justify-content-center.col-4
+              .trip-route-title.d-flex.justify-content-center
                 p.trip_route
                   |#{t.fromStr}
                   i.fa-solid.fa-route.mx-1
                   |#{t.toStr}
-              .trip-fullness-container.d-flex.justify-content-center.col-2
+              .trip-fullness-container.d-flex.justify-content-center
                 .d-flex.gap-3.align-items-center
                   .trip_fullness
                     svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
@@ -148,7 +148,7 @@ block content
                       rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
                       rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
                     span #{t.fullness}
-              .d-flex.justify-content-center.col-2
+              .d-flex.justify-content-center.trip-actions
                 button.btn.btn-primary.btn-sm.trip_pick-button #{t.price}₺
             .trip_content
               if Array.isArray(t.busFeatures) && t.busFeatures.length
