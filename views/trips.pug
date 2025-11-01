@@ -125,20 +125,20 @@ block content
             .trip_chevron
               i.fa-solid.fa-chevron-down
             .trip-header.d-flex.justify-content-between.align-items-center.px-3.mb-2
-              .d-flex.justify-content-center.col-2
+              .trip-logo.d-flex.justify-content-center.col-2
                 img(src=`/images/${t.firm}.png` alt=t.firm)
-              .d-flex.justify-content-center.col-2
+              .trip-times.d-flex.justify-content-center.col-2
                 .d-flex.flex-column.align-items-center
                   span.trip_time
                     i.fa-solid.fa-clock.me-1
                     span #{tripHour}:#{tripMinute}
                   span #{t.duration}
-              .d-flex.justify-content-center.col-4
+              .trip-route-title.d-flex.justify-content-center.col-4
                 p.trip_route
                   |#{t.fromStr}
                   i.fa-solid.fa-route.mx-1
                   |#{t.toStr}
-              .d-flex.justify-content-center.col-2
+              .trip-fullness-container.d-flex.justify-content-center.col-2
                 .d-flex.gap-3.align-items-center
                   .trip_fullness
                     svg(viewBox="0 0 100 100" width="3rem" height="3rem" style="max-width:100px;")
