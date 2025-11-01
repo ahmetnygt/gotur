@@ -447,6 +447,94 @@ $(".trip_content").on("click", function (e) {
     e.stopPropagation();
 });
 
+const tripDescriptionContainers = Array.from(
+    document.querySelectorAll(".trip-description")
+);
+
+if (tripDescriptionContainers.length) {
+    const mobileQuery = window.matchMedia("(max-width: 768px)");
+
+    const syncDescriptionState = () => {
+        const isMobile = mobileQuery.matches;
+
+        tripDescriptionContainers.forEach((container) => {
+            const header = container.querySelector(".trip-description_header");
+
+            if (!header) {
+                return;
+            }
+
+            if (container.dataset.userToggled !== "true") {
+                container.dataset.userToggled = "false";
+            }
+
+            if (isMobile) {
+                const shouldBeOpen = container.dataset.userToggled === "true";
+                container.classList.toggle("is-open", shouldBeOpen);
+            } else {
+                container.classList.add("is-open");
+            }
+
+            header.setAttribute(
+                "aria-expanded",
+                container.classList.contains("is-open") ? "true" : "false"
+            );
+        });
+    };
+
+    const toggleDescription = (container) => {
+        if (!mobileQuery.matches) {
+            return;
+        }
+
+        const header = container.querySelector(".trip-description_header");
+
+        if (!header) {
+            return;
+        }
+
+        const nextState = !container.classList.contains("is-open");
+        container.classList.toggle("is-open", nextState);
+        container.dataset.userToggled = nextState ? "true" : "false";
+        header.setAttribute("aria-expanded", nextState ? "true" : "false");
+    };
+
+    tripDescriptionContainers.forEach((container) => {
+        const header = container.querySelector(".trip-description_header");
+
+        if (!header) {
+            return;
+        }
+
+        if (container.dataset.userToggled !== "true") {
+            container.dataset.userToggled = "false";
+        }
+
+        header.addEventListener("click", () => {
+            toggleDescription(container);
+        });
+
+        header.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggleDescription(container);
+            }
+        });
+    });
+
+    syncDescriptionState();
+
+    const handleMediaChange = () => {
+        syncDescriptionState();
+    };
+
+    if (typeof mobileQuery.addEventListener === "function") {
+        mobileQuery.addEventListener("change", handleMediaChange);
+    } else if (typeof mobileQuery.addListener === "function") {
+        mobileQuery.addListener(handleMediaChange);
+    }
+}
+
 var selectedSeat = null;
 var selectedTrip = null;
 

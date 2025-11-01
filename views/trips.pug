@@ -159,18 +159,19 @@ block content
                       span=feature.label
               .trip-content_inner.d-flex.mt-3
                 .trip-description
-                  p.text-center
+                  p.trip-description_header.text-center(role="button" tabindex="0" aria-expanded="false")
                     b Sefer Açıklaması
-                  p.text-center #{t.routeDescription}
-                  if Array.isArray(t.routeTimeline) && t.routeTimeline.length
-                    ul.trip_route-list.list-unstyled.mt-3
-                      each stopInfo in t.routeTimeline
-                        if stopInfo && stopInfo.time && stopInfo.title
-                          li
-                            b #{stopInfo.time}
-                            |- #{stopInfo.title}
-                        else if stopInfo && stopInfo.title
-                          li #{stopInfo.title}
+                  .trip-description_body
+                    p.text-center #{t.routeDescription}
+                    if Array.isArray(t.routeTimeline) && t.routeTimeline.length
+                      ul.trip_route-list.list-unstyled.mt-3
+                        each stopInfo in t.routeTimeline
+                          if stopInfo && stopInfo.time && stopInfo.title
+                            li
+                              b #{stopInfo.time}
+                              |- #{stopInfo.title}
+                          else if stopInfo && stopInfo.title
+                            li #{stopInfo.title}
                 .trip-seat-plan
                   .trip_seat-plan.d-flex.justify-content-center.gap-1
                     - const planBinary = t.busPlanBinary
