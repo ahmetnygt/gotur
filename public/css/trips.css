@@ -159,6 +159,24 @@
     cursor: default;
 }
 
+.trip_content .trip-description,
+.trip_content .trip-seat-plan,
+.trip_content .trip-seat-info {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+}
+
+.trip_route-list > li {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+}
+
 .trip_seat {
     position: relative;
     cursor: pointer;
