@@ -74,40 +74,40 @@ block content
       input.trip-search_date(type='text' value=date)
     .trip-search_button
       button.trip-search_search-button.btn.btn-primary.w-100 ARA
-  .trip-actions
-    .container
-      .trip-actions_inner
-        .trip-actions_sorting
-          label.trip-actions_label(for="trip-sort-select") Sırala:
-          select#trip-sort-select.form-select.form-select-sm
-            option(value="departureTime") Kalkış saatine göre
-            option(value="price") Fiyata göre
-            option(value="duration") Varış süresine göre
-        .trip-actions_filters
-          .trip-filter
-            label.form-label(for="trip-filter-firm") Firma
-            select#trip-filter-firm.form-select.form-select-sm
-              option(value="") Tüm firmalar
-              each firm in uniqueFirms
-                option(value=firm.key) #{firm.label}
-          .trip-filter
-            label.form-label(for="trip-filter-from") Kalkış noktası
-            select#trip-filter-from.form-select.form-select-sm
-              option(value="") Tüm kalkış noktaları
-              each stop in uniqueFromStops
-                option(value=stop.id) #{stop.label}
-          .trip-filter
-            label.form-label(for="trip-filter-to") Varış noktası
-            select#trip-filter-to.form-select.form-select-sm
-              option(value="") Tüm varış noktaları
-              each stop in uniqueToStops
-                option(value=stop.id) #{stop.label}
-          .trip-filter.trip-filter_time-range
-            label.form-label(for="trip-filter-time-start") Kalkış saat aralığı
-            .trip-filter_time-inputs
-              input#trip-filter-time-start.form-control.form-control-sm(type="time")
-              span.trip-filter_time-separator –
-              input#trip-filter-time-end.form-control.form-control-sm(type="time")
+  //- .trip-actions
+  //-   .container
+  //-     .trip-actions_inner
+  //-       .trip-actions_sorting
+  //-         label.trip-actions_label(for="trip-sort-select") Sırala:
+  //-         select#trip-sort-select.form-select.form-select-sm
+  //-           option(value="departureTime") Kalkış saatine göre
+  //-           option(value="price") Fiyata göre
+  //-           option(value="duration") Varış süresine göre
+  //-       .trip-actions_filters
+  //-         .trip-filter
+  //-           label.form-label(for="trip-filter-firm") Firma
+  //-           select#trip-filter-firm.form-select.form-select-sm
+  //-             option(value="") Tüm firmalar
+  //-             each firm in uniqueFirms
+  //-               option(value=firm.key) #{firm.label}
+  //-         .trip-filter
+  //-           label.form-label(for="trip-filter-from") Kalkış noktası
+  //-           select#trip-filter-from.form-select.form-select-sm
+  //-             option(value="") Tüm kalkış noktaları
+  //-             each stop in uniqueFromStops
+  //-               option(value=stop.id) #{stop.label}
+  //-         .trip-filter
+  //-           label.form-label(for="trip-filter-to") Varış noktası
+  //-           select#trip-filter-to.form-select.form-select-sm
+  //-             option(value="") Tüm varış noktaları
+  //-             each stop in uniqueToStops
+  //-               option(value=stop.id) #{stop.label}
+  //-         .trip-filter.trip-filter_time-range
+  //-           label.form-label(for="trip-filter-time-start") Kalkış saat aralığı
+  //-           .trip-filter_time-inputs
+  //-             input#trip-filter-time-start.form-control.form-control-sm(type="time")
+  //-             span.trip-filter_time-separator –
+  //-             input#trip-filter-time-end.form-control.form-control-sm(type="time")
   #trip-results.container
     .row#trip-results-grid
       each t in tripList
