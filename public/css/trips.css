@@ -141,6 +141,19 @@
     transform: rotate(180deg);
 }
 
+.trip-header > .trip-logo,
+.trip-header > .trip-times,
+.trip-header > .trip-fullness-container,
+.trip-header > .trip-actions {
+    flex: 0 0 16.6667%;
+    max-width: 16.6667%;
+}
+
+.trip-header > .trip-route-title {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+}
+
 .trip_content {
     display: none;
     cursor: default;
