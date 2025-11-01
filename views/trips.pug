@@ -157,7 +157,7 @@ block content
                     .trip_feature(tabindex="0" title=feature.label data-feature=feature.key)
                       img(src=feature.icon alt=feature.label)
                       span=feature.label
-              .d-flex.mt-3
+              .trip-content_inner.d-flex.mt-3
                 .trip-description
                   p.text-center
                     b Sefer Açıklaması
@@ -202,17 +202,17 @@ block content
                     - }
                 .trip-seat-info
                   .trip_info.p-1
-                    .d-flex
-                      .d-flex.align-items-center.gap-1
+                    .trip_info_inner.d-flex
+                      .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#2986cc","#216396")
                         span Dolu Erkek Koltuk
-                      .d-flex.align-items-center.gap-1
+                      .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#c90076","#920256")
                         span Dolu Kadın Koltuk
-                      .d-flex.align-items-center.gap-1
+                      .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#fff","#b4b4b4")
                         span Boş Koltuk
-                      .d-flex.align-items-center.gap-1
+                      .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#02ff89","#00c76a")
                         span Seçilen Koltuk
                     p.trip_info-selection.text-center.fw-semibold(
