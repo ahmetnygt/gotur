@@ -18,7 +18,7 @@ let seedPromise = null;
 
 async function seedPlacesIfNecessary(Place) {
     try {
-        await goturDB.sync({ alter: true });
+        await goturDB.sync();
         const placeCount = await Place.count();
 
         if (placeCount === 0 && Array.isArray(placesSeedData) && placesSeedData.length > 0) {
