@@ -6,9 +6,7 @@
   const submitText = submitButton?.querySelector(".find-ticket-submit-text");
   const submitSpinner = submitButton?.querySelector(".find-ticket-submit-spinner");
   const firmSelectRoot = document.getElementById("firm-select");
-  const firmInput = form
-    ? form.querySelector("input[name='firmKey']")
-    : null;
+  const firmInput = form ? form.querySelector("input[name='firmKey']") : null;
   const contactRadios = form
     ? Array.from(form.querySelectorAll("input[name='contactType']"))
     : [];
@@ -26,7 +24,7 @@
     }
 
     try {
-      return value.toLocaleLowerCase("tr-TR");
+      return value.toLocaleLowerCase("en-US");
     } catch (error) {
       return value.toLowerCase();
     }
@@ -86,7 +84,7 @@
 
     const placeSelectApi = window.GTR && window.GTR.placeSelect;
     if (!placeSelectApi) {
-      console.error("GTR.placeSelect bulunamadı.");
+      console.error("GTR.placeSelect not found.");
       return null;
     }
 
@@ -104,7 +102,7 @@
         placeSelectApi.init ? placeSelectApi.init(firmSelectRoot) : []
       )
         .catch((error) => {
-          console.error("Firma seçici başlatılamadı:", error);
+          console.error("Failed to initialise operator selector:", error);
           throw error;
         })
         .finally(() => {
@@ -270,9 +268,9 @@
 
       firmsLoaded = true;
     } catch (error) {
-      console.error("Firmalar yüklenirken hata oluştu:", error);
+      console.error("Error while loading operators:", error);
       renderStatus(
-        "Firmalar yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.",
+        "Something went wrong while loading operators. Please refresh the page.",
         "danger"
       );
     }
@@ -315,23 +313,20 @@
     const payload = buildPayload(new FormData(form));
 
     if (!payload.firmKey) {
-      renderStatus("Lütfen bir firma seçin.", "warning");
+      renderStatus("Please select an operator.", "warning");
       return;
     }
 
     if (!payload.pnr && !payload.phone && !payload.email) {
       renderStatus(
-        "Lütfen PNR veya iletişim bilgilerinizden en az birini girin.",
+        "Please enter at least one of the following: PNR or your contact details.",
         "warning"
       );
       return;
     }
 
     if (payload.contactType === "phone" && payload.phone && payload.phone.length !== 10) {
-      renderStatus(
-        "Telefon numarası 10 haneli olmalıdır.",
-        "warning"
-      );
+      renderStatus("Phone number must be 10 digits.", "warning");
       return;
     }
 
@@ -347,14 +342,14 @@
       });
 
       if (!response.ok) {
-        let message = "Bilet aranırken bir hata oluştu.";
+        let message = "An error occurred while searching for tickets.";
         try {
           const errorPayload = await response.json();
           if (errorPayload && errorPayload.message) {
             message = errorPayload.message;
           }
         } catch (error) {
-          // JSON parse edilemedi, varsayılan mesaj kullanılacak
+          // JSON couldn't be parsed; using default message
         }
         throw new Error(message);
       }
@@ -363,14 +358,14 @@
       renderTickets(data && typeof data.html === "string" ? data.html : "");
 
       if (data && typeof data.ticketCount === "number" && data.ticketCount > 0) {
-        renderStatus(`${data.ticketCount} bilet bulundu.`, "success");
+        renderStatus(`${data.ticketCount} ticket(s) found.`, "success");
       } else {
-        renderStatus("Eşleşen bilet bulunamadı.", "info");
+        renderStatus("No matching tickets found.", "info");
       }
     } catch (error) {
-      console.error("Bilet arama hatası:", error);
-      renderStatus(error.message || "Bilet aranırken bir hata oluştu.", "danger");
-      clearResults("Bir hata oluştu. Lütfen tekrar deneyin.");
+      console.error("Ticket search error:", error);
+      renderStatus(error.message || "An error occurred while searching for tickets.", "danger");
+      clearResults("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }

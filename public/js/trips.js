@@ -3,7 +3,7 @@
     if (placeSelectModule && typeof placeSelectModule.init === "function") {
         Promise.resolve(placeSelectModule.init()).catch((error) => {
             console.error(
-                "Seyahat araması için yer seçici başlatılırken hata oluştu:",
+                "An error occurred while initializing the location selector for trip search:",
                 error
             );
         });
@@ -90,7 +90,7 @@
     if (tripSearchDateInput) {
         const defaultDate = tripSearchDateInput.value || new Date();
         flatpickr(tripSearchDateInput, {
-            locale: "tr",
+            locale: "en",
             defaultDate,
             altInput: true,
             altFormat: "d F Y",
@@ -151,6 +151,7 @@ const parseDurationToMinutes = (value) => {
 
     let totalMinutes = 0;
 
+    // NOTE: These keywords are part of the incoming data format. Do not translate unless backend changes.
     const hourMatch = text.match(/(\d+)\s*saat/);
     if (hourMatch) {
         const parsed = parseInt(hourMatch[1], 10);
@@ -357,7 +358,7 @@ var ticketPairs = [];
 
 const currencyFormatter = (() => {
     try {
-        return new Intl.NumberFormat("tr-TR", {
+        return new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "TRY",
             minimumFractionDigits: 2,
@@ -419,7 +420,7 @@ const updateTripSeatSummary = (tripId) => {
                 return firstNumber - secondNumber;
             }
 
-            return String(firstSeat).localeCompare(String(secondSeat), "tr");
+            return String(firstSeat).localeCompare(String(secondSeat), "en");
         });
 
     const seatText = seats.join(", ");
@@ -431,11 +432,11 @@ const updateTripSeatSummary = (tripId) => {
         const totalPrice = pricePerSeat * selectedTickets.length;
         const formatted = formatCurrency(totalPrice);
         if (formatted) {
-            totalText = ` - Toplam: ${formatted}`;
+            totalText = ` - Total: ${formatted}`;
         }
     }
 
-    $summary.text(`Koltuklar: ${seatText}${totalText}`);
+    $summary.text(`Seats: ${seatText}${totalText}`);
 };
 
 $(".trip").on("click", function () {
@@ -648,7 +649,7 @@ $(".trip_confirm-button")
             typeof tripIdData === "undefined" ? null : String(tripIdData);
 
         if (!tripId) {
-            alert("Sefer bilgisi bulunamadı.");
+            alert("Trip information could not be found.");
             return;
         }
 
@@ -657,7 +658,7 @@ $(".trip_confirm-button")
         );
 
         if (!selectedTickets.length) {
-            alert("Lütfen en az bir koltuk seçin.");
+            alert("Please select at least one seat.");
             return;
         }
 
@@ -665,12 +666,12 @@ $(".trip_confirm-button")
             typeof fromStopId === "undefined" ||
             typeof toStopId === "undefined"
         ) {
-            alert("Sefer durak bilgileri eksik.");
+            alert("Trip stop information is missing.");
             return;
         }
 
         if (!firmKey) {
-            alert("Firma bilgisi bulunamadı.");
+            alert("Company information could not be found.");
             return;
         }
 
@@ -705,12 +706,12 @@ $(".trip_confirm-button")
                 throw new Error(
                     data && data.message
                         ? data.message
-                        : "Ödeme isteği oluşturulamadı."
+                        : "Failed to create the payment request."
                 );
             }
 
             if (!data.ticketPaymentId) {
-                throw new Error("Beklenmeyen sunucu cevabı alındı.");
+                throw new Error("An unexpected server response was received.");
             }
 
             ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
@@ -718,6 +719,6 @@ $(".trip_confirm-button")
 
             window.location.href = `/payment/${data.ticketPaymentId}`;
         } catch (error) {
-            alert(error.message || "Ödeme isteği oluşturulamadı.");
+            alert(error.message || "Failed to create the payment request.");
         }
     });

@@ -21,42 +21,42 @@ html
     .gtr-header
       .d-flex.justify-content-between.align-items-center.flex-wrap.gtr-header__inner
         a.navbar-brand(href="/")
-          img(src="/images/gotur_vip_logo_white.png" alt="GÖTÜR")
-        button.gtr-header__toggle(type='button' aria-label='Menüyü Aç' aria-controls='gtrHeaderLinks' aria-expanded='false')
+          img(src="/images/gotur_vip_logo_white.png" alt="GOTUR")
+        button.gtr-header__toggle(type='button' aria-label='Open menu' aria-controls='gtrHeaderLinks' aria-expanded='false')
           i.fa-solid.fa-bars
         .d-flex.gap-3.align-items-center.gtr-header__links#gtrHeaderLinks
           a.gtr-link#findMyTicket(href='/find-ticket')
             i.fa-solid.fa-magnifying-glass.me-1
-            |Biletimi Bul
+            |Find My Ticket
           if currentUser
             a.gtr-link#myTrips(href='/user/my-trips' role='button')
               i.fa-solid.fa-road.me-1
-              |Seyahatlerim
+              |My Trips
             a.gtr-link#accounrPersonalInfo(href='/user?section=personal' role='button')
               i.fa-solid.fa-user.me-1
-              |Hesabım
+              |My Account
             a.gtr-link#logoutButton(href='#' role='button')
               i.fa-solid.fa-right-from-bracket.me-1
-              |Çıkış Yap
+              |Log Out
           else
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='loginPopup')
               i.fa-solid.fa-user-check.me-1
-              |Giriş Yap
+              |Log In
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
               i.fa-solid.fa-user-plus.me-1
-              |Kayıt Ol
+              |Sign Up
       - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
       - const toValue = typeof toId !== 'undefined' ? toId : '';
-      p.slogan Türkiye'nin En Yeni Online Yazıhanesi
+      p.slogan Fast & Simple Bus Ticketing
       .trip-finder.border
         .trip-finder_selects
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
-              span Nereden?
+              span From where?
             +placeSelect({
-              placeholder: 'Kalkış Seçin',
-              searchPlaceholder: 'İl-ilçe adı yazın...',
+              placeholder: 'Select Departure',
+              searchPlaceholder: 'Type a city or district...',
               input: {
                 class: 'trip-finder_from',
                 name: 'from',
@@ -68,10 +68,10 @@ html
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
-              span Nereye?
+              span To where?
             +placeSelect({
-              placeholder: 'Varış Seçin',
-              searchPlaceholder: 'İl-ilçe adı yazın...',
+              placeholder: 'Select Arrival',
+              searchPlaceholder: 'Type a city or district...',
               input: {
                 class: 'trip-finder_to',
                 name: 'to',
@@ -81,12 +81,12 @@ html
           .d-flex.flex-column
             span
               i.fa-solid.fa-calendar.me-1
-              span Ne Zaman?
+              span When?
             input.trip-finder_date(type='text')
           .trip-finder_day-buttons
-            button.trip-finder_day-button(data-day='today' type='button') Bugün
-            button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
-          button.trip-finder_search-button ARA
+            button.trip-finder_day-button(data-day='today' type='button') Today
+            button.trip-finder_day-button(data-day='tomorrow' type='button') Tomorrow
+          button.trip-finder_search-button SEARCH
     if !currentUser
       +authModals()
     .container
@@ -103,40 +103,40 @@ html
           a(target="_blank" href="https://trakyavip.com.tr/") 
             img.coming-soon-firm(src="/images/trakya_vip.png" alt="Trakya Vip")
           a(target="_blank" href="https://cortur.com.tr/") 
-            img.coming-soon-firm(src="/images/cortur.png" alt="Çortur")
+            img.coming-soon-firm(src="/images/cortur.png" alt="Cortur")
           //- a(target="_blank" href="https://arenaturizm.com/") 
           //-   img.coming-soon-firm(src="/images/arena.png" alt="Arena Turizm")
-        //- .coming-soon-marquee.ms-3
-        //-   .marquee.marquee--ltr
-        //-     p.w-100.text-end.m-0 ...Yapım Aşamasında...
-        hr
+          //- .coming-soon-marquee.ms-3
+          //-   .marquee.marquee--ltr
+          //-     p.w-100.text-end.m-0 ...Yapım Aşamasında...
+          hr
       .home-attributes.mt-4
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Çözümcü Online Destek")
-          h4 Çözümcü Online Destek
-          p Seyahatinizle ilgili her konuda yanınızdayız. Online destek ekibimiz bilet alımında, iptal ya da değişiklik işlemlerinde size hızlı ve çözüm odaklı şekilde yardımcı olur. Rahat edin, biz buradayız.
+          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Solution-Oriented Online Support")
+          h4 Solution-Oriented Online Support
+          p We’re here for you every step of your journey. Our online support team helps quickly and effectively with ticket purchases, cancellations, and changes. Relax — we’ve got you.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Güvenli Ödeme")
-          h4 Güvenli Ödeme
-          p Ödemeleriniz en gelişmiş güvenlik sistemleriyle korunur. Hızlı, kolay ve güvenli ödeme seçeneklerimiz sayesinde siz sadece yolculuğunuzu düşünün, gerisini biz hallederiz.
+          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Secure Payment")
+          h4 Secure Payment
+          p Your payments are protected with advanced security systems. With fast, easy, and secure payment options, you can focus on your trip — we’ll handle the rest.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Avantajlı Bilet")
-          h4 Avantajlı Bilet
-          p Seyahat ederken cebinizi düşünüyoruz. Bütçenize uygun ve avantajlı biletleri kolayca bulabilir, en hesaplı seçeneklerle keyifli yolculuk yapabilirsiniz.
+          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Great Value Tickets")
+          h4 Great Value Tickets
+          p We care about your budget. Find affordable, great-value tickets easily and enjoy a pleasant trip with the best options.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/hand_icon.svg" alt="İşlem Kolaylığı")
-          h4 İşlem Kolaylığı
-          p Karmaşık adımlara gerek yok! Kullanıcı dostu sistemimizle biletinizi sorgulamak, karşılaştırmak ve satın almak sadece birkaç dakikanızı alır. Nerede olursanız olun, işlemleriniz çok kolay.
+          img.attributes_icon(src="/svg/hand_icon.svg" alt="Easy Process")
+          h4 Easy Process
+          p No complicated steps needed! With our user-friendly system, searching, comparing, and buying your ticket takes just a few minutes. Wherever you are, it’s easy.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="Kullanıcı Dostu Kampanyalar")
-          h4 Kullanıcı Dostu Kampanyalar
-          p Herkes fırsatı sever, biz de biliyoruz. Size özel indirimler ve kampanyalarla seyahatlerinizi daha ekonomik hale getiriyoruz. Avantajlı biletler her zaman elinizin altında.
+          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="User-Friendly Campaigns")
+          h4 User-Friendly Campaigns
+          p Everyone loves a good deal — we know. With special discounts and campaigns, we make your trips more affordable. Great-value tickets are always at your fingertips.
       if promoRoutes && promoRoutes.length
         .attribute-routes.mt-5
           .bus-ticket-results__header
             .bus-ticket-results__title
-              h2 Küçük Bir İlham
-              p.bus-ticket-results__subtitle Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergâhlardan ilham alın.
+              h2 A Little Inspiration
+              p.bus-ticket-results__subtitle Ready to explore? Get inspired by popular routes we’ve picked for you.
           ul.list-unstyled.mb-0.attribute-routes__grid
             each route in promoRoutes
               - const routeUrl = `/bus-ticket/${route.fromSlug}-${route.toSlug}`;
@@ -147,20 +147,20 @@ html
                     i.fa-solid.fa-arrow-right-long.mx-2
                     span.attribute-route__city #{route.toTitle}
                   .attribute-route__meta
-                    span.attribute-route__tag Seferleri Gör
+                    span.attribute-route__tag View Trips
                     span.attribute-route__price
                       span.attribute-route__price-value #{route.formattedPrice}
                       span.attribute-route__price-currency ₺
-                      span.attribute-route__price-note 'den başlayan
+                      span.attribute-route__price-note starting from
       if blogPosts && blogPosts.length
         section.bus-ticket-blog.mt-5
           .container
             .bus-ticket-blog__header
               .bus-ticket-blog__title
-                h2 En Yeni Blog Yazıları
-                p.bus-ticket-blog__subtitle Seyahat tutkunları için hazırladığımız son içerikleri keşfedin.
+                h2 Latest Blog Posts
+                p.bus-ticket-blog__subtitle Discover our newest content curated for travel lovers.
               a.bus-ticket-blog__all(href='/blog')
-                |Tüm Yazılar
+                |All Articles
                 i.fa-solid.fa-arrow-right
             .row.g-4
               each post in blogPosts
@@ -187,7 +187,7 @@ html
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
   script(src="https://code.jquery.com/jquery-3.7.1.min.js")
   script(src="/flatpickr/dist/flatpickr.min.js")
-  script(src="/flatpickr/dist/l10n/tr.js")
+  script(src="/flatpickr/dist/l10n/en.js")
   script(src="/js/place-select.js")
   script(src="/js/header.js")
   script(src='/js/index.js')

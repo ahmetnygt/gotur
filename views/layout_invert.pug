@@ -19,39 +19,38 @@ html
     .gtr-header-invert
       .d-flex.justify-content-between.align-items-center.flex-wrap.gtr-header__inner
         a.navbar-brand(href="/")
-          img(src="/images/gotur_vip_logo.png" alt="GÖTÜR")
-        button.gtr-header__toggle(type='button' aria-label='Menüyü Aç' aria-controls='gtrHeaderLinks' aria-expanded='false')
+          img(src="/images/gotur_vip_logo.png" alt="GOTUR")
+        button.gtr-header__toggle(type='button' aria-label='Open menu' aria-controls='gtrHeaderLinks' aria-expanded='false')
           i.fa-solid.fa-bars
         .d-flex.gap-3.align-items-center.gtr-header__links#gtrHeaderLinks
           a.gtr-link#findMyTicket(href='/find-ticket')
             i.fa-solid.fa-magnifying-glass.me-1
-            |Biletimi Bul
+            |Find My Ticket
           if currentUser
             a.gtr-link#myTrips(href='/user/my-trips' role='button')
               i.fa-solid.fa-road.me-1
-              |Seyahatlerim
+              |My Trips
             a.gtr-link#accountPersonalInfo(href='/user?section=personal' role='button')
               i.fa-solid.fa-user.me-1
-              |Hesabım
+              |My Account
             a.gtr-link#accountCards(href='/user?section=cards' role='button')
               i.fa-solid.fa-id-card.me-1
-              |Kartlarım
+              |My Cards
             a.gtr-link#accountPassengers(href='/user?section=passengers' role='button')
               i.fa-solid.fa-user-group.me-1
-              |Yolcularım
+              |My Passengers
             a.gtr-link#logoutButton(href='#' role='button')
               i.fa-solid.fa-right-from-bracket.me-1
-              |Çıkış Yap
+              |Log Out
           else
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='loginPopup')
               i.fa-solid.fa-user-check.me-1
-              |Giriş Yap
+              |Log In
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
               i.fa-solid.fa-user-plus.me-1
-              |Kayıt Ol
-      p.slogan Türkiye'nin En Yeni Online Yazıhanesi
+              |Sign Up
+      p.slogan Fast & Simple Bus Ticketing
       block headerContent
-
 
     block content
 
@@ -62,7 +61,7 @@ html
     script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
     script(src="https://code.jquery.com/jquery-3.7.1.min.js")
     script(src="/flatpickr/dist/flatpickr.min.js")
-    script(src="/flatpickr/dist/l10n/tr.js")
+    script(src="/flatpickr/dist/l10n/en.js")
     script(src="/js/place-select.js")
     script(src="/js/header.js")
     block scripts

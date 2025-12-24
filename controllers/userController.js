@@ -14,11 +14,11 @@ const GENDER_OPTIONS = [
 ];
 
 const CUSTOMER_TYPE_OPTIONS = [
-    { value: "adult", label: "Yetişkin" },
-    { value: "child", label: "Çocuk" },
-    { value: "student", label: "Öğrenci" },
-    { value: "disabled", label: "Engelli" },
-    { value: "retired", label: "Emekli" },
+    { value: "adult", label: "Adult" },
+    { value: "child", label: "Child" },
+    { value: "student", label: "Studen" },
+    { value: "disabled", label: "Disabled" },
+    { value: "retired", label: "Retired" },
 ];
 
 const CUSTOMER_TYPE_VALUES = new Set(CUSTOMER_TYPE_OPTIONS.map((option) => option.value));
@@ -27,7 +27,7 @@ function getUserModel(req) {
     const { User } = req.commonModels || {};
 
     if (!User) {
-        const error = new Error("User modeli bulunamadı.");
+        const error = new Error("Couldn't find user model.");
         error.status = 500;
         throw error;
     }
@@ -70,7 +70,7 @@ function formatTripDate(dateValue) {
         return "";
     }
 
-    return new Intl.DateTimeFormat("tr-TR", {
+    return new Intl.DateTimeFormat("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -98,7 +98,7 @@ function formatTripTime(timeValue) {
         return "";
     }
 
-    return new Intl.DateTimeFormat("tr-TR", {
+    return new Intl.DateTimeFormat("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -112,7 +112,7 @@ function formatTicketTimestamp(dateValue) {
         return "";
     }
 
-    return new Intl.DateTimeFormat("tr-TR", {
+    return new Intl.DateTimeFormat("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -125,14 +125,14 @@ function mapTicketStatus(status) {
     const normalisedStatus = String(status || "").toLowerCase();
 
     const statusMap = {
-        pending: { label: "Beklemede", cssClass: "status-pending" },
-        reservation: { label: "Rezervasyon", cssClass: "status-pending" },
-        canceled: { label: "İptal Edildi", cssClass: "status-canceled" },
-        refund: { label: "İade Edildi", cssClass: "status-refund" },
-        completed: { label: "Tamamlandı", cssClass: "" },
+        pending: { label: "Pending", cssClass: "status-pending" },
+        reservation: { label: "Reservation", cssClass: "status-pending" },
+        canceled: { label: "Canceled", cssClass: "status-canceled" },
+        refund: { label: "Refunded", cssClass: "status-refund" },
+        completed: { label: "Completed", cssClass: "" },
         web: { label: "Web", cssClass: "" },
-        gotur: { label: "GöTÜR", cssClass: "" },
-        open: { label: "Açık", cssClass: "" },
+        gotur: { label: "GoTur", cssClass: "" },
+        open: { label: "Open", cssClass: "" },
     };
 
     const mapping = statusMap[normalisedStatus] || {
@@ -240,9 +240,9 @@ async function fetchTicketsForUser({ searchFilters }) {
                 : [],
             allRouteStopIds.length
                 ? RouteStop.findAll({
-                      where: { id: { [Op.in]: allRouteStopIds } },
-                      raw: true,
-                  })
+                    where: { id: { [Op.in]: allRouteStopIds } },
+                    raw: true,
+                })
                 : [],
         ]);
 
@@ -339,7 +339,7 @@ function isPhone(value = "") {
     return /^\+?\d{10,15}$/.test(value);
 }
 
-function buildFieldErrorResponse(res, fieldErrors, message = "Lütfen formdaki hataları düzeltin.") {
+function buildFieldErrorResponse(res, fieldErrors, message = "Please fix the errors in the form.") {
     return res.status(400).json({ success: false, fieldErrors, message });
 }
 
@@ -376,24 +376,25 @@ exports.register = async (req, res) => {
 
         const normalizedIdentifier = normalizeIdentifier(identifier);
         const normalizedPassword = typeof password === "string" ? password.trim() : "";
-        const normalizedPasswordConfirm = typeof passwordConfirm === "string" ? passwordConfirm.trim() : "";
+        const normalizedPasswordConfirm =
+            typeof passwordConfirm === "string" ? passwordConfirm.trim() : "";
 
         if (!normalizedIdentifier) {
-            fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
+            fieldErrors.identifier = "Email or phone number is required.";
         } else if (!isEmail(normalizedIdentifier) && !isPhone(normalizedIdentifier)) {
-            fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
+            fieldErrors.identifier = "Please enter a valid email address or phone number.";
         }
 
         if (!normalizedPassword) {
-            fieldErrors.password = "Şifre zorunludur.";
+            fieldErrors.password = "Password is required.";
         } else if (normalizedPassword.length < 6) {
-            fieldErrors.password = "Şifre en az 6 karakter olmalıdır.";
+            fieldErrors.password = "Password must be at least 6 characters long.";
         }
 
         if (!normalizedPasswordConfirm) {
-            fieldErrors.passwordConfirm = "Şifre tekrarı zorunludur.";
+            fieldErrors.passwordConfirm = "Password confirmation is required.";
         } else if (normalizedPassword !== normalizedPasswordConfirm) {
-            fieldErrors.passwordConfirm = "Şifreler eşleşmiyor.";
+            fieldErrors.passwordConfirm = "Passwords do not match.";
         }
 
         if (Object.keys(fieldErrors).length > 0) {
@@ -416,8 +417,8 @@ exports.register = async (req, res) => {
         const existingUser = await User.findOne({ where: whereClause });
 
         if (existingUser) {
-            fieldErrors.identifier = "Bu bilgilerle zaten bir hesabınız var.";
-            return buildFieldErrorResponse(res, fieldErrors, "Kayıt işlemi tamamlanamadı.");
+            fieldErrors.identifier = "An account already exists with these details.";
+            return buildFieldErrorResponse(res, fieldErrors, "Registration could not be completed.");
         }
 
         const hashedPassword = await bcrypt.hash(normalizedPassword, SALT_ROUNDS);
@@ -432,11 +433,11 @@ exports.register = async (req, res) => {
 
         return res.json({ success: true, user: sessionUser });
     } catch (error) {
-        console.error("Kayıt sırasında hata oluştu:", error);
+        console.error("An error occurred during registration:", error);
         const status = error.status || 500;
         const message =
             status === 500
-                ? "Kayıt sırasında beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+                ? "An unexpected error occurred during registration. Please try again later."
                 : error.message;
         return res.status(status).json({ success: false, message });
     }
@@ -452,17 +453,17 @@ exports.login = async (req, res) => {
         const normalizedPassword = typeof password === "string" ? password.trim() : "";
 
         if (!normalizedIdentifier) {
-            fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
+            fieldErrors.identifier = "Email or phone number is required.";
         } else if (!isEmail(normalizedIdentifier) && !isPhone(normalizedIdentifier)) {
-            fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
+            fieldErrors.identifier = "Please enter a valid email address or phone number.";
         }
 
         if (!normalizedPassword) {
-            fieldErrors.password = "Şifre zorunludur.";
+            fieldErrors.password = "Password is required.";
         }
 
         if (Object.keys(fieldErrors).length > 0) {
-            return buildFieldErrorResponse(res, fieldErrors, "Giriş bilgileri eksik veya hatalı.");
+            return buildFieldErrorResponse(res, fieldErrors, "Login details are missing or invalid.");
         }
 
         const whereClause = isEmail(normalizedIdentifier)
@@ -474,18 +475,21 @@ exports.login = async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                fieldErrors: { identifier: "Bu bilgilerle kayıtlı kullanıcı bulunamadı." },
-                message: "Giriş bilgileri doğrulanamadı.",
+                fieldErrors: { identifier: "No user found with these details." },
+                message: "Login details could not be verified.",
             });
         }
 
-        const isPasswordValid = await bcrypt.compare(normalizedPassword, user.password || "");
+        const isPasswordValid = await bcrypt.compare(
+            normalizedPassword,
+            user.password || ""
+        );
 
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                fieldErrors: { password: "Şifreyi kontrol edin." },
-                message: "Giriş bilgileri doğrulanamadı.",
+                fieldErrors: { password: "Please check your password." },
+                message: "Login details could not be verified.",
             });
         }
 
@@ -494,11 +498,11 @@ exports.login = async (req, res) => {
 
         return res.json({ success: true, user: sessionUser });
     } catch (error) {
-        console.error("Giriş sırasında hata oluştu:", error);
+        console.error("An error occurred during login:", error);
         const status = error.status || 500;
         const message =
             status === 500
-                ? "Giriş sırasında beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+                ? "An unexpected error occurred during login. Please try again later."
                 : error.message;
         return res.status(status).json({ success: false, message });
     }
@@ -512,20 +516,22 @@ exports.logout = (req, res) => {
 
         req.session.destroy((error) => {
             if (error) {
-                console.error("Çıkış yapılırken oturum sonlandırılamadı:", error);
-                return res
-                    .status(500)
-                    .json({ success: false, message: "Çıkış yapılırken bir hata oluştu. Lütfen tekrar deneyin." });
+                console.error("Session could not be destroyed during logout:", error);
+                return res.status(500).json({
+                    success: false,
+                    message: "An error occurred while logging out. Please try again.",
+                });
             }
 
             res.clearCookie("connect.sid");
             return res.json({ success: true });
         });
     } catch (error) {
-        console.error("Çıkış yapılırken hata oluştu:", error);
-        return res
-            .status(500)
-            .json({ success: false, message: "Çıkış yapılırken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin." });
+        console.error("An error occurred during logout:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An unexpected error occurred while logging out. Please try again.",
+        });
     }
 };
 
@@ -536,7 +542,6 @@ exports.redirectToPersonalInformation = (req, res) => {
 
     return res.redirect("/user/personal-information");
 };
-
 exports.personalInformation = async (req, res, next) => {
     try {
         const sessionUser = req.session?.user;
@@ -557,7 +562,7 @@ exports.personalInformation = async (req, res, next) => {
             : buildPersonalInfoPayload(sessionUser);
 
         return res.render("user/personal-information", {
-            title: "Götür | Kişisel Bilgilerim",
+            title: "Götür | My Personal Information",
             personalInfo,
             genderOptions: GENDER_OPTIONS,
             customerTypeOptions: CUSTOMER_TYPE_OPTIONS,
@@ -573,9 +578,10 @@ exports.updatePersonalInformation = async (req, res) => {
         const sessionUser = req.session?.user;
 
         if (!sessionUser) {
-            return res
-                .status(401)
-                .json({ success: false, message: "Bu işlem için giriş yapmalısınız." });
+            return res.status(401).json({
+                success: false,
+                message: "You must be logged in to perform this action.",
+            });
         }
 
         if (req.app?.locals?.waitForTenants) {
@@ -586,7 +592,9 @@ exports.updatePersonalInformation = async (req, res) => {
         const userInstance = await User.findByPk(sessionUser.id);
 
         if (!userInstance) {
-            return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+            return res
+                .status(404)
+                .json({ success: false, message: "User not found." });
         }
 
         const {
@@ -613,35 +621,41 @@ exports.updatePersonalInformation = async (req, res) => {
         const normalizedCustomerType = normalizeText(customerType).toLowerCase();
 
         if (!normalizedName) {
-            fieldErrors.name = "Ad zorunludur.";
+            fieldErrors.name = "First name is required.";
         }
 
         if (!normalizedSurname) {
-            fieldErrors.surname = "Soyad zorunludur.";
+            fieldErrors.surname = "Last name is required.";
         }
 
         if (normalizedEmail && !isEmail(normalizedEmail)) {
-            fieldErrors.email = "Lütfen geçerli bir e-posta girin.";
+            fieldErrors.email = "Please enter a valid email address.";
         }
 
         if (normalizedPhone && !isPhone(normalizedPhone)) {
-            fieldErrors.phoneNumber = "Lütfen geçerli bir telefon numarası girin.";
+            fieldErrors.phoneNumber = "Please enter a valid phone number.";
         }
 
         if (normalizedIdNumber && !/^\d{11}$/.test(normalizedIdNumber)) {
-            fieldErrors.idNumber = "Kimlik numarası 11 haneli olmalıdır.";
+            fieldErrors.idNumber = "ID number must be 11 digits.";
         }
 
-        if (normalizedGender && !GENDER_OPTIONS.some((option) => option.value === normalizedGender)) {
-            fieldErrors.gender = "Lütfen geçerli bir cinsiyet seçin.";
+        if (
+            normalizedGender &&
+            !GENDER_OPTIONS.some((option) => option.value === normalizedGender)
+        ) {
+            fieldErrors.gender = "Please select a valid gender.";
         }
 
         if (normalizedNationality && !COUNTRY_CODE_SET.has(normalizedNationality)) {
-            fieldErrors.nationality = "Lütfen geçerli bir uyruk seçin.";
+            fieldErrors.nationality = "Please select a valid nationality.";
         }
 
-        if (normalizedCustomerType && !CUSTOMER_TYPE_VALUES.has(normalizedCustomerType)) {
-            fieldErrors.customerType = "Lütfen geçerli bir müşteri tipi seçin.";
+        if (
+            normalizedCustomerType &&
+            !CUSTOMER_TYPE_VALUES.has(normalizedCustomerType)
+        ) {
+            fieldErrors.customerType = "Please select a valid customer type.";
         }
 
         if (Object.keys(fieldErrors).length > 0) {
@@ -664,12 +678,14 @@ exports.updatePersonalInformation = async (req, res) => {
 
         return res.json({
             success: true,
-            message: "Bilgileriniz başarıyla güncellendi.",
+            message: "Your information has been updated successfully.",
             personalInfo: buildPersonalInfoPayload(userInstance),
         });
     } catch (error) {
-        console.error("Kişisel bilgiler güncellenirken hata oluştu:", error);
-        return res.status(500).json({ success: false, message: "Bilgiler güncellenemedi." });
+        console.error("Error while updating personal information:", error);
+        return res
+            .status(500)
+            .json({ success: false, message: "Unable to update information." });
     }
 };
 
@@ -678,9 +694,10 @@ exports.changePassword = async (req, res) => {
         const sessionUser = req.session?.user;
 
         if (!sessionUser) {
-            return res
-                .status(401)
-                .json({ success: false, message: "Bu işlem için giriş yapmalısınız." });
+            return res.status(401).json({
+                success: false,
+                message: "You must be logged in to perform this action.",
+            });
         }
 
         if (req.app?.locals?.waitForTenants) {
@@ -691,11 +708,12 @@ exports.changePassword = async (req, res) => {
         const userInstance = await User.findByPk(sessionUser.id);
 
         if (!userInstance) {
-            return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+            return res
+                .status(404)
+                .json({ success: false, message: "User not found." });
         }
 
         const { currentPassword, newPassword, newPasswordConfirm } = req.body || {};
-
         const fieldErrors = {};
 
         const normalizedCurrentPassword = normalizeText(currentPassword);
@@ -703,19 +721,19 @@ exports.changePassword = async (req, res) => {
         const normalizedNewPasswordConfirm = normalizeText(newPasswordConfirm);
 
         if (!normalizedCurrentPassword) {
-            fieldErrors.currentPassword = "Mevcut şifre zorunludur.";
+            fieldErrors.currentPassword = "Current password is required.";
         }
 
         if (!normalizedNewPassword) {
-            fieldErrors.newPassword = "Yeni şifre zorunludur.";
+            fieldErrors.newPassword = "New password is required.";
         } else if (normalizedNewPassword.length < 6) {
-            fieldErrors.newPassword = "Şifre en az 6 karakter olmalıdır.";
+            fieldErrors.newPassword = "Password must be at least 6 characters long.";
         }
 
         if (!normalizedNewPasswordConfirm) {
-            fieldErrors.newPasswordConfirm = "Şifre tekrarı zorunludur.";
+            fieldErrors.newPasswordConfirm = "Password confirmation is required.";
         } else if (normalizedNewPassword !== normalizedNewPasswordConfirm) {
-            fieldErrors.newPasswordConfirm = "Şifreler eşleşmiyor.";
+            fieldErrors.newPasswordConfirm = "Passwords do not match.";
         }
 
         if (Object.keys(fieldErrors).length > 0) {
@@ -724,14 +742,14 @@ exports.changePassword = async (req, res) => {
 
         const isCurrentPasswordValid = await bcrypt.compare(
             normalizedCurrentPassword,
-            userInstance.password || "",
+            userInstance.password || ""
         );
 
         if (!isCurrentPasswordValid) {
             return res.status(400).json({
                 success: false,
-                fieldErrors: { currentPassword: "Mevcut şifrenizi kontrol edin." },
-                message: "Şifre değiştirilemedi.",
+                fieldErrors: { currentPassword: "Please check your current password." },
+                message: "Password could not be changed.",
             });
         }
 
@@ -739,10 +757,15 @@ exports.changePassword = async (req, res) => {
         userInstance.password = hashedPassword;
         await userInstance.save();
 
-        return res.json({ success: true, message: "Şifreniz başarıyla güncellendi." });
+        return res.json({
+            success: true,
+            message: "Your password has been updated successfully.",
+        });
     } catch (error) {
-        console.error("Şifre değiştirilirken hata oluştu:", error);
-        return res.status(500).json({ success: false, message: "Şifreniz güncellenemedi." });
+        console.error("Error while changing password:", error);
+        return res
+            .status(500)
+            .json({ success: false, message: "Unable to update your password." });
     }
 };
 
@@ -756,9 +779,9 @@ exports.renderMyTripsPage = async (req, res) => {
             await req.app.locals.waitForTenants();
         }
     } catch (error) {
-        console.error("Tenant bilgileri hazırlanırken hata oluştu:", error);
+        console.error("Error while preparing tenant data:", error);
         return res.status(500).render("error", {
-            message: "Sistem geçici olarak kullanılamıyor.",
+            message: "The system is temporarily unavailable.",
             error,
         });
     }
@@ -777,7 +800,7 @@ exports.renderMyTripsPage = async (req, res) => {
                 idNumber = sanitizeIdNumber(userRecord.idNumber);
             }
         } catch (error) {
-            console.error("Kullanıcı bilgisi alınırken hata oluştu:", error);
+            console.error("Error while fetching user information:", error);
         }
     }
 
@@ -792,21 +815,22 @@ exports.renderMyTripsPage = async (req, res) => {
     }
 
     let tickets = [];
-    let emptyMessage = "Henüz kayıtlı bir biletiniz bulunmuyor.";
+    let emptyMessage = "You don't have any tickets saved yet.";
 
     try {
         tickets = await fetchTicketsForUser({ searchFilters });
 
         if (!tickets.length && !idNumber) {
-            emptyMessage = "Biletleriniz hesabınıza bağlandığında burada görüntülenecek.";
+            emptyMessage = "Your tickets will appear here once they are linked to your account.";
         }
     } catch (error) {
-        console.error("Seyahatler alınırken hata oluştu:", error);
-        emptyMessage = "Seyahatleriniz alınırken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.";
+        console.error("Error while fetching trips:", error);
+        emptyMessage =
+            "There was a problem loading your trips. Please try again later.";
     }
 
     return res.render("my-trips", {
-        title: "Seyahatlerim",
+        title: "My Trips",
         tickets,
         emptyMessage,
         hasIdNumber: Boolean(idNumber),
@@ -815,5 +839,5 @@ exports.renderMyTripsPage = async (req, res) => {
 
 exports.myAccount = (req, res) => {
     const currentUser = req.session?.user ?? null;
-    res.render("user", { user: currentUser, title: "Götür | Hesabım" });
+    res.render("user", { user: currentUser, title: "Götür | My Account" });
 };

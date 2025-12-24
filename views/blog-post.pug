@@ -1,7 +1,7 @@
 extends layout_invert_blog
 
 block css
-  link(rel='stylesheet' href='/css/blog.css')
+    link(rel='stylesheet' href='/css/blog.css')
 
 block content
     section.blog-hero.blog-hero--post
@@ -11,10 +11,10 @@ block content
             .blog-meta
                 span.meta-item
                     i.fa-solid.fa-calendar-days
-                    |  #{post.createdAt.toLocaleDateString("tr-TR")}
+                    |  #{post.createdAt.toLocaleDateString("en-US")}
                 span.meta-item
                     i.fa-solid.fa-eye
-                    |  #{post.viewCount || 0} okunma
+                    |  #{post.viewCount || 0} views
 
     section.blog-post-layout
         .container
@@ -33,7 +33,7 @@ block content
                 .col-lg-4
                     aside.blog-sidebar
                         .sidebar-card
-                            h3.sidebar-title Diğer Yazılar
+                            h3.sidebar-title Other Articles
                             if recommendedPosts && recommendedPosts.length
                                 each item in recommendedPosts
                                     a.recommended-card(href=`/blog/${item.slug}`)
@@ -44,6 +44,6 @@ block content
                                             h4.recommended-title= item.title
                                             span.recommended-meta
                                                 i.fa-solid.fa-eye
-                                                |  #{item.viewCount || 0} okunma · #{item.createdAt.toLocaleDateString("tr-TR")}
+                                                |  #{item.viewCount || 0} views · #{item.createdAt.toLocaleDateString("en-US")}
                             else
-                                p.sidebar-empty Şimdilik başka önerimiz yok.
+                                p.sidebar-empty No other recommendations for now.

@@ -53,7 +53,7 @@
         button.dataset.originalText = button.textContent.trim();
       }
       button.disabled = true;
-      button.textContent = loadingText || "Gönderiliyor...";
+      button.textContent = loadingText || "Sending...";
     } else {
       button.disabled = false;
       if (button.dataset.originalText) {
@@ -124,7 +124,7 @@
     }
 
     if (countdownRemaining > 0) {
-      countdownElement.textContent = `${countdownRemaining} saniye sonra yeniden gönderebilirsiniz.`;
+      countdownElement.textContent = `You can resend in ${countdownRemaining} seconds.`;
     } else {
       countdownElement.textContent = "";
     }
@@ -287,7 +287,7 @@
     }
 
     isSendingCode = true;
-    setButtonLoading(targetButton, true, "Gönderiliyor...");
+    setButtonLoading(targetButton, true, "Sending...");
     clearMessage();
 
     let requestSucceeded = false;
@@ -311,13 +311,13 @@
       }
 
       if (!response.ok) {
-        const errorMessage = payload?.message || "Doğrulama kodu gönderilemedi.";
+        const errorMessage = payload?.message || "Failed to send the verification code.";
         setMessage("error", errorMessage);
         return;
       }
 
       if (!payload?.success) {
-        setMessage("error", payload?.message || "Doğrulama kodu gönderilemedi.");
+        setMessage("error", payload?.message || "Failed to send the verification code.");
         return;
       }
 
@@ -336,7 +336,7 @@
 
       startCountdown();
     } catch (error) {
-      setMessage("error", "Doğrulama kodu gönderilirken bir hata oluştu.");
+      setMessage("error", "An error occurred while sending the verification code.");
     } finally {
       setButtonLoading(targetButton, false);
       if (requestSucceeded) {
@@ -399,7 +399,7 @@
     const code = codeInput ? codeInput.value.trim() : "";
 
     if (!code) {
-      setMessage("error", "Lütfen doğrulama kodunu girin.");
+      setMessage("error", "Please enter the verification code.");
       if (codeInput) {
         codeInput.focus();
       }
@@ -407,7 +407,7 @@
     }
 
     isConfirming = true;
-    setButtonLoading(confirmButton, true, "İşleniyor...");
+    setButtonLoading(confirmButton, true, "Processing...");
     clearMessage();
 
     try {
@@ -431,13 +431,13 @@
       }
 
       if (!response.ok) {
-        const errorMessage = payload?.message || "İşlem tamamlanamadı.";
+        const errorMessage = payload?.message || "The operation could not be completed.";
         setMessage("error", errorMessage);
         return;
       }
 
       if (!payload?.success) {
-        const errorMessage = payload?.message || "Invalid code";
+        const errorMessage = payload?.message || "Invalid code.";
         setMessage("error", errorMessage);
         return;
       }
@@ -445,7 +445,7 @@
       updateTicketStatus(activeContext.itemElement);
       closePopup();
     } catch (error) {
-      setMessage("error", "İşlem tamamlanamadı. Lütfen tekrar deneyin.");
+      setMessage("error", "The operation could not be completed. Please try again.");
     } finally {
       setButtonLoading(confirmButton, false);
       isConfirming = false;
@@ -476,7 +476,7 @@
       if (context && context.pnr && context.firmKey) {
         openPopup(context);
       } else {
-        console.warn("Bilet iptali için gerekli bilgiler bulunamadı.");
+        console.warn("Required information for ticket cancellation was not found.");
       }
       return;
     }

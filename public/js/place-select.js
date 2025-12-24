@@ -5,33 +5,50 @@
     let placesPromise = null;
     const staticOptionsCache = new Map();
 
-    let trCollator = null;
-    try {
-        trCollator = new Intl.Collator("tr", { sensitivity: "base" });
-    } catch (error) {
-        trCollator = null;
-    }
+    const DEFAULT_LOCALE =
+        (typeof navigator !== "undefined" && (navigator.languages?.[0] || navigator.language)) ||
+        "en-US";
 
-    const compareTurkish = (a, b) => {
-        if (trCollator) {
-            return trCollator.compare(a, b);
-        }
-        return String(a).localeCompare(String(b), "tr");
+    const getLocaleFromElement = (element) => {
+        const candidate =
+            element?.dataset?.locale ||
+            element?.getAttribute?.("lang") ||
+            DEFAULT_LOCALE;
+
+        return typeof candidate === "string" && candidate.trim() ? candidate.trim() : DEFAULT_LOCALE;
     };
 
-    const toLocaleLower = value => {
+    const createCollator = (locale) => {
+        try {
+            return new Intl.Collator(locale, { sensitivity: "base" });
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const toLocaleLower = (value, locale) => {
         if (typeof value !== "string") {
             return "";
         }
 
+        const safeLocale = typeof locale === "string" && locale ? locale : DEFAULT_LOCALE;
+
         try {
-            return value.toLocaleLowerCase("tr-TR");
+            return value.toLocaleLowerCase(safeLocale);
         } catch (error) {
             return value.toLowerCase();
         }
     };
 
-    const getNormalizedTitle = place => {
+    const compareWithLocale = (a, b, collator, locale) => {
+        if (collator) {
+            return collator.compare(a, b);
+        }
+        const safeLocale = typeof locale === "string" && locale ? locale : DEFAULT_LOCALE;
+        return String(a).localeCompare(String(b), safeLocale);
+    };
+
+    const getNormalizedTitle = (place, locale) => {
         if (!place) {
             return "";
         }
@@ -41,17 +58,17 @@
         }
 
         if (typeof place.title === "string") {
-            return toLocaleLower(place.title);
+            return toLocaleLower(place.title, locale);
         }
 
         if (typeof place.displayTitle === "string") {
-            return toLocaleLower(place.displayTitle);
+            return toLocaleLower(place.displayTitle, locale);
         }
 
         return "";
     };
 
-    const sortPlacesForTerm = (places, normalizedTerm) => {
+    const sortPlacesForTerm = (places, normalizedTerm, { locale, collator }) => {
         if (!Array.isArray(places)) {
             return [];
         }
@@ -62,8 +79,8 @@
         }
 
         return places.slice().sort((a, b) => {
-            const aNormalizedTitle = getNormalizedTitle(a);
-            const bNormalizedTitle = getNormalizedTitle(b);
+            const aNormalizedTitle = getNormalizedTitle(a, locale);
+            const bNormalizedTitle = getNormalizedTitle(b, locale);
 
             const aExact = aNormalizedTitle === normalized;
             const bExact = bNormalizedTitle === normalized;
@@ -85,11 +102,11 @@
 
             const aDisplay = a && a.displayTitle ? a.displayTitle : aNormalizedTitle;
             const bDisplay = b && b.displayTitle ? b.displayTitle : bNormalizedTitle;
-            return compareTurkish(aDisplay, bDisplay);
+            return compareWithLocale(aDisplay, bDisplay, collator, locale);
         });
     };
 
-    const parseStaticJson = text => {
+    const parseStaticJson = (text) => {
         if (typeof text !== "string") {
             return [];
         }
@@ -103,18 +120,18 @@
             const parsed = JSON.parse(trimmed);
             return Array.isArray(parsed) ? parsed : [];
         } catch (error) {
-            console.error("Statik seçenekler çözümlenemedi:", error);
+            console.error("Failed to parse static options:", error);
             return [];
         }
     };
 
-    const normalizeStaticOptions = options => {
+    const normalizeStaticOptions = (options, locale) => {
         if (!Array.isArray(options)) {
             return [];
         }
 
         const normalized = options
-            .map(option => {
+            .map((option) => {
                 if (!option || typeof option !== "object") {
                     return null;
                 }
@@ -123,27 +140,20 @@
                     option.value !== undefined
                         ? option.value
                         : option.id !== undefined
-                        ? option.id
-                        : option.code !== undefined
-                        ? option.code
-                        : null;
+                            ? option.id
+                            : option.code !== undefined
+                                ? option.code
+                                : null;
 
                 const value = rawValue != null ? String(rawValue).trim() : "";
-                const baseLabel =
-                    option.displayLabel ||
-                    option.label ||
-                    option.name ||
-                    option.title ||
-                    "";
+                const baseLabel = option.displayLabel || option.label || option.name || option.title || "";
                 const label = baseLabel ? String(baseLabel).trim() : "";
 
                 if (!value || !label) {
                     return null;
                 }
 
-                const displayTitle = option.displayLabel
-                    ? String(option.displayLabel)
-                    : label;
+                const displayTitle = option.displayLabel ? String(option.displayLabel) : label;
 
                 const searchSource =
                     typeof option.searchText === "string" && option.searchText
@@ -153,7 +163,7 @@
                 return Object.freeze({
                     id: String(value),
                     displayTitle,
-                    searchText: toLocaleLower(searchSource),
+                    searchText: toLocaleLower(searchSource, locale),
                 });
             })
             .filter(Boolean);
@@ -161,11 +171,12 @@
         return Object.freeze(normalized);
     };
 
-    const getStaticOptionsForElement = element => {
+    const getStaticOptionsForElement = (element) => {
         if (!element || !element.dataset) {
             return [];
         }
 
+        const locale = getLocaleFromElement(element);
         const { optionsId, options } = element.dataset;
 
         if (optionsId) {
@@ -180,60 +191,45 @@
                 return empty;
             }
 
-            const rawText =
-                sourceElement.textContent || sourceElement.innerText || "";
-            const normalized = normalizeStaticOptions(parseStaticJson(rawText));
+            const rawText = sourceElement.textContent || sourceElement.innerText || "";
+            const normalized = normalizeStaticOptions(parseStaticJson(rawText), locale);
             staticOptionsCache.set(optionsId, normalized);
             return normalized;
         }
 
         if (options) {
-            return normalizeStaticOptions(parseStaticJson(options));
+            return normalizeStaticOptions(parseStaticJson(options), locale);
         }
 
         return [];
     };
 
-    const elementUsesStaticOptions = element =>
-        Boolean(
-            element &&
-                element.dataset &&
-                (element.dataset.optionsId || element.dataset.options)
-        );
+    const elementUsesStaticOptions = (element) =>
+        Boolean(element && element.dataset && (element.dataset.optionsId || element.dataset.options));
 
-    const enhancePlaces = rawPlaces => {
-        const placeMap = new Map(
-            rawPlaces.map(place => [String(place.id), place])
-        );
+    const enhancePlaces = (rawPlaces, locale, collator) => {
+        const placeMap = new Map(rawPlaces.map((place) => [String(place.id), place]));
 
-        const enhanced = rawPlaces.map(place => {
+        const enhanced = rawPlaces.map((place) => {
             const isProvince =
                 place.provinceId && String(place.provinceId) === String(place.id);
             const province =
-                !isProvince && place.provinceId
-                    ? placeMap.get(String(place.provinceId))
-                    : null;
-            const provinceTitle =
-                province && province.title ? province.title : "";
-            const displayTitle = provinceTitle
-                ? `${place.title} (${provinceTitle})`
-                : place.title;
+                !isProvince && place.provinceId ? placeMap.get(String(place.provinceId)) : null;
+            const provinceTitle = province && province.title ? province.title : "";
+            const displayTitle = provinceTitle ? `${place.title} (${provinceTitle})` : place.title;
 
             return Object.freeze(
                 Object.assign({}, place, {
                     provinceTitle,
                     displayTitle,
                     isProvince,
-                    normalizedTitle: toLocaleLower(place.title),
-                    searchText: toLocaleLower(
-                        `${place.title} ${provinceTitle}`.trim()
-                    ),
+                    normalizedTitle: toLocaleLower(place.title, locale),
+                    searchText: toLocaleLower(`${place.title} ${provinceTitle}`.trim(), locale),
                 })
             );
         });
 
-        enhanced.sort((a, b) => compareTurkish(a.displayTitle, b.displayTitle));
-
+        enhanced.sort((a, b) => compareWithLocale(a.displayTitle, b.displayTitle, collator, locale));
         return Object.freeze(enhanced);
     };
 
@@ -245,10 +241,11 @@
 
         const rawPlaces = await response.json();
         if (!Array.isArray(rawPlaces)) {
-            throw new Error("Geçersiz yanıt biçimi");
+            throw new Error("Invalid response format");
         }
 
-        return enhancePlaces(rawPlaces);
+        // Cache is locale-agnostic in the raw JSON; enhancement is per instance locale.
+        return rawPlaces;
     };
 
     const loadPlaces = async () => {
@@ -258,12 +255,12 @@
 
         if (!placesPromise) {
             placesPromise = fetchPlaces()
-                .then(places => {
+                .then((places) => {
                     cachedPlaces = places;
                     return places;
                 })
-                .catch(error => {
-                    console.error("Yerler yüklenirken hata oluştu:", error);
+                .catch((error) => {
+                    console.error("Error while loading places:", error);
                     throw error;
                 })
                 .finally(() => {
@@ -277,6 +274,11 @@
     class PlaceSelect {
         constructor(element, places) {
             this.root = element;
+
+            this.locale = getLocaleFromElement(this.root);
+            this.collator = createCollator(this.locale);
+
+            // if "places" are already normalized static options, use as-is
             this.places = places;
             this.filteredPlaces = places;
             this.highlightIndex = -1;
@@ -287,26 +289,20 @@
             this.label = this.root.querySelector(".place-select_label");
             this.dropdown = this.root.querySelector(".place-select_dropdown");
             this.searchInput = this.root.querySelector(".place-select_search");
-            this.optionsContainer = this.root.querySelector(
-                ".place-select_options"
-            );
+            this.optionsContainer = this.root.querySelector(".place-select_options");
+
             this.placeholder = this.root.dataset.placeholder || "";
-            const parsedBatch = Number.parseInt(
-                this.root.dataset.visibleBatchSize,
-                10
-            );
-            this.visibleBatchSize = Number.isFinite(parsedBatch)
-                ? Math.max(parsedBatch, 1)
-                : 5;
+            this.emptyText = this.root.dataset.emptyText || "No results found";
+
+            const parsedBatch = Number.parseInt(this.root.dataset.visibleBatchSize, 10);
+            this.visibleBatchSize = Number.isFinite(parsedBatch) ? Math.max(parsedBatch, 1) : 5;
+
             this.renderLimit = this.visibleBatchSize;
             this.renderedCount = 0;
             this.handleOptionsScroll = () => this.onOptionsScroll();
 
             if (this.optionsContainer) {
-                this.optionsContainer.addEventListener(
-                    "scroll",
-                    this.handleOptionsScroll
-                );
+                this.optionsContainer.addEventListener("scroll", this.handleOptionsScroll);
             }
 
             const searchPlaceholder = this.root.dataset.searchPlaceholder;
@@ -325,37 +321,27 @@
 
         bindEvents() {
             if (this.display) {
-                this.handleDisplayClick = event => {
+                this.handleDisplayClick = (event) => {
                     event.preventDefault();
                     this.toggleDropdown();
                 };
-                this.handleDisplayKeydown = event => {
+                this.handleDisplayKeydown = (event) => {
                     if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
                         this.toggleDropdown(true);
                     }
                 };
                 this.display.addEventListener("click", this.handleDisplayClick);
-                this.display.addEventListener(
-                    "keydown",
-                    this.handleDisplayKeydown
-                );
+                this.display.addEventListener("keydown", this.handleDisplayKeydown);
             }
 
             if (this.searchInput) {
                 this.handleSearchInput = () => {
                     this.applyFilter(this.searchInput.value);
                 };
-                this.handleSearchKeydownBound = event =>
-                    this.handleSearchKeydown(event);
-                this.searchInput.addEventListener(
-                    "input",
-                    this.handleSearchInput
-                );
-                this.searchInput.addEventListener(
-                    "keydown",
-                    this.handleSearchKeydownBound
-                );
+                this.handleSearchKeydownBound = (event) => this.handleSearchKeydown(event);
+                this.searchInput.addEventListener("input", this.handleSearchInput);
+                this.searchInput.addEventListener("keydown", this.handleSearchKeydownBound);
             }
         }
 
@@ -381,7 +367,7 @@
         }
 
         openDropdown() {
-            instances.forEach(instance => {
+            instances.forEach((instance) => {
                 if (instance !== this) {
                     instance.closeDropdown();
                 }
@@ -425,14 +411,15 @@
         }
 
         applyFilter(term = "") {
-            const normalized = toLocaleLower(term).trim();
+            const normalized = toLocaleLower(term, this.locale).trim();
             if (!normalized) {
                 this.filteredPlaces = this.places;
             } else {
-                const filtered = this.places.filter(place =>
-                    place.searchText.includes(normalized)
-                );
-                this.filteredPlaces = sortPlacesForTerm(filtered, normalized);
+                const filtered = this.places.filter((place) => place.searchText.includes(normalized));
+                this.filteredPlaces = sortPlacesForTerm(filtered, normalized, {
+                    locale: this.locale,
+                    collator: this.collator,
+                });
             }
             this.syncHighlightWithValue();
             this.resetRenderState();
@@ -440,30 +427,21 @@
         }
 
         resetRenderState() {
-            const available = Array.isArray(this.filteredPlaces)
-                ? this.filteredPlaces.length
-                : 0;
+            const available = Array.isArray(this.filteredPlaces) ? this.filteredPlaces.length : 0;
             const base = Math.max(this.visibleBatchSize, 1);
-            const highlightTarget =
-                this.highlightIndex >= 0 ? this.highlightIndex + 1 : 0;
+            const highlightTarget = this.highlightIndex >= 0 ? this.highlightIndex + 1 : 0;
             const desired = Math.max(base, highlightTarget);
             this.renderLimit = available ? Math.min(available, desired) : 0;
             this.renderedCount = 0;
         }
 
         loadMoreOptions() {
-            if (
-                !Array.isArray(this.filteredPlaces) ||
-                this.renderLimit >= this.filteredPlaces.length
-            ) {
+            if (!Array.isArray(this.filteredPlaces) || this.renderLimit >= this.filteredPlaces.length) {
                 return;
             }
 
             const increment = Math.max(this.visibleBatchSize, 1);
-            this.renderLimit = Math.min(
-                this.filteredPlaces.length,
-                this.renderLimit + increment
-            );
+            this.renderLimit = Math.min(this.filteredPlaces.length, this.renderLimit + increment);
             this.renderOptions({ append: true });
         }
 
@@ -472,19 +450,16 @@
                 return;
             }
 
-            const { scrollTop, clientHeight, scrollHeight } =
-                this.optionsContainer;
+            const { scrollTop, clientHeight, scrollHeight } = this.optionsContainer;
             if (scrollTop + clientHeight >= scrollHeight - 8) {
                 this.loadMoreOptions();
             }
         }
 
         syncHighlightWithValue() {
-            const currentValue = this.input
-                ? String(this.input.value || "")
-                : "";
+            const currentValue = this.input ? String(this.input.value || "") : "";
             const selectedIndex = this.filteredPlaces.findIndex(
-                place => String(place.id) === currentValue
+                (place) => String(place.id) === currentValue
             );
             if (selectedIndex !== -1) {
                 this.highlightIndex = selectedIndex;
@@ -507,20 +482,15 @@
                 if (!append) {
                     const empty = document.createElement("div");
                     empty.className = "place-select_empty";
-                    empty.textContent = "Sonuç bulunamadı";
+                    empty.textContent = this.emptyText;
                     this.optionsContainer.appendChild(empty);
                 }
                 return;
             }
 
-            const currentValue = this.input
-                ? String(this.input.value || "")
-                : "";
+            const currentValue = this.input ? String(this.input.value || "") : "";
             const startIndex = append ? this.renderedCount : 0;
-            const endIndex = Math.min(
-                this.renderLimit,
-                this.filteredPlaces.length
-            );
+            const endIndex = Math.min(this.renderLimit, this.filteredPlaces.length);
 
             if (startIndex >= endIndex) {
                 return;
@@ -536,6 +506,7 @@
                 option.dataset.id = String(place.id);
                 option.textContent = place.displayTitle;
                 option.title = place.displayTitle;
+
                 if (String(place.id) === currentValue) {
                     option.classList.add("selected");
                     option.setAttribute("aria-selected", "true");
@@ -543,7 +514,7 @@
                 if (index === this.highlightIndex) {
                     option.classList.add("highlighted");
                 }
-                option.addEventListener("mousedown", event => {
+                option.addEventListener("mousedown", (event) => {
                     event.preventDefault();
                     this.setSelected(place);
                 });
@@ -568,27 +539,17 @@
             if (!this.optionsContainer) {
                 return;
             }
-            if (
-                this.highlightIndex >= this.renderLimit &&
-                this.highlightIndex < this.filteredPlaces.length
-            ) {
+            if (this.highlightIndex >= this.renderLimit && this.highlightIndex < this.filteredPlaces.length) {
                 this.loadMoreOptions();
                 return;
             }
-            const options = this.optionsContainer.querySelectorAll(
-                ".place-select_option"
-            );
+            const options = this.optionsContainer.querySelectorAll(".place-select_option");
             options.forEach((option, index) => {
-                option.classList.toggle(
-                    "highlighted",
-                    index === this.highlightIndex
-                );
+                option.classList.toggle("highlighted", index === this.highlightIndex);
             });
 
             if (this.highlightIndex >= 0 && options[this.highlightIndex]) {
-                options[this.highlightIndex].scrollIntoView({
-                    block: "nearest",
-                });
+                options[this.highlightIndex].scrollIntoView({ block: "nearest" });
             }
         }
 
@@ -607,10 +568,7 @@
                 if (!this.filteredPlaces.length) {
                     return;
                 }
-                this.highlightIndex = Math.min(
-                    this.filteredPlaces.length - 1,
-                    this.highlightIndex + 1
-                );
+                this.highlightIndex = Math.min(this.filteredPlaces.length - 1, this.highlightIndex + 1);
                 this.updateHighlightedOption();
                 return;
             }
@@ -652,9 +610,7 @@
         }
 
         selectById(value) {
-            const target = this.places.find(
-                place => String(place.id) === String(value)
-            );
+            const target = this.places.find((place) => String(place.id) === String(value));
             if (target) {
                 this.setSelected(target);
             } else {
@@ -688,9 +644,7 @@
                     inputValue = String(this.input.value || "");
                 }
                 if (inputValue) {
-                    const found = this.places.find(
-                        place => String(place.id) === inputValue
-                    );
+                    const found = this.places.find((place) => String(place.id) === inputValue);
                     targetPlace = found || null;
                 }
             }
@@ -707,30 +661,15 @@
         destroy() {
             this.closeDropdown();
             if (this.display) {
-                this.display.removeEventListener(
-                    "click",
-                    this.handleDisplayClick
-                );
-                this.display.removeEventListener(
-                    "keydown",
-                    this.handleDisplayKeydown
-                );
+                this.display.removeEventListener("click", this.handleDisplayClick);
+                this.display.removeEventListener("keydown", this.handleDisplayKeydown);
             }
             if (this.searchInput) {
-                this.searchInput.removeEventListener(
-                    "input",
-                    this.handleSearchInput
-                );
-                this.searchInput.removeEventListener(
-                    "keydown",
-                    this.handleSearchKeydownBound
-                );
+                this.searchInput.removeEventListener("input", this.handleSearchInput);
+                this.searchInput.removeEventListener("keydown", this.handleSearchKeydownBound);
             }
             if (this.optionsContainer) {
-                this.optionsContainer.removeEventListener(
-                    "scroll",
-                    this.handleOptionsScroll
-                );
+                this.optionsContainer.removeEventListener("scroll", this.handleOptionsScroll);
                 this.optionsContainer.innerHTML = "";
             }
             this.root.classList.remove("place-select_open", "has-value");
@@ -738,15 +677,13 @@
         }
     }
 
-    const findElements = root => {
+    const findElements = (root) => {
         if (!root) {
             root = document;
         }
 
         if (root instanceof Element) {
-            const elements = Array.from(
-                root.querySelectorAll(".place-select")
-            );
+            const elements = Array.from(root.querySelectorAll(".place-select"));
             if (root.classList.contains("place-select")) {
                 elements.unshift(root);
             }
@@ -759,7 +696,7 @@
 
         if (typeof root.length === "number") {
             const results = [];
-            Array.from(root).forEach(item => {
+            Array.from(root).forEach((item) => {
                 const nested = findElements(item);
                 Array.prototype.push.apply(results, nested);
             });
@@ -769,23 +706,19 @@
         return [];
     };
 
-    const init = async root => {
-        const elements = findElements(root).filter(
-            element => !elementToInstance.has(element)
-        );
+    const init = async (root) => {
+        const elements = findElements(root).filter((element) => !elementToInstance.has(element));
 
         if (!elements.length) {
             return [];
         }
 
         const staticElements = elements.filter(elementUsesStaticOptions);
-        const dynamicElements = elements.filter(
-            element => !elementUsesStaticOptions(element)
-        );
+        const dynamicElements = elements.filter((element) => !elementUsesStaticOptions(element));
 
         const created = [];
 
-        staticElements.forEach(element => {
+        staticElements.forEach((element) => {
             try {
                 const staticOptions = getStaticOptionsForElement(element);
                 const instance = new PlaceSelect(element, staticOptions);
@@ -794,27 +727,31 @@
                 instances.add(instance);
                 created.push(instance);
             } catch (error) {
-                console.error("Statik yer seçici başlatılamadı:", error);
+                console.error("Failed to initialize static select:", error);
             }
         });
 
         if (dynamicElements.length) {
-            let places = [];
+            let rawPlaces = [];
             try {
-                places = await loadPlaces();
+                rawPlaces = await loadPlaces();
             } catch (error) {
-                console.error("Yerler yüklenirken hata oluştu:", error);
+                console.error("Error while loading places:", error);
             }
 
-            dynamicElements.forEach(element => {
+            dynamicElements.forEach((element) => {
                 try {
-                    const instance = new PlaceSelect(element, places);
+                    const locale = getLocaleFromElement(element);
+                    const collator = createCollator(locale);
+                    const enhanced = enhancePlaces(rawPlaces, locale, collator);
+
+                    const instance = new PlaceSelect(element, enhanced);
                     instance.isStatic = false;
                     elementToInstance.set(element, instance);
                     instances.add(instance);
                     created.push(instance);
                 } catch (error) {
-                    console.error("Yer seçici başlatılamadı:", error);
+                    console.error("Failed to initialize select:", error);
                 }
             });
         }
@@ -822,7 +759,7 @@
         return created;
     };
 
-    const destroy = target => {
+    const destroy = (target) => {
         let instance = null;
         if (!target) {
             return false;
@@ -844,8 +781,8 @@
     };
 
     const ready = () => {
-        init().catch(error => {
-            console.error("Yer seçici başlatılamadı:", error);
+        init().catch((error) => {
+            console.error("Failed to initialize place selects:", error);
         });
     };
 
@@ -855,15 +792,15 @@
         ready();
     }
 
-    document.addEventListener("click", event => {
-        instances.forEach(instance => instance.handleDocumentClick(event));
+    document.addEventListener("click", (event) => {
+        instances.forEach((instance) => instance.handleDocumentClick(event));
     });
 
     global.GTR = global.GTR || {};
     global.GTR.placeSelect = {
         init,
         destroy,
-        getInstance: target => {
+        getInstance: (target) => {
             if (!target) {
                 return null;
             }
@@ -878,18 +815,22 @@
         getInstances: () => Array.from(instances),
         refreshPlaces: async () => {
             cachedPlaces = null;
-            const places = await loadPlaces();
-            instances.forEach(instance => {
+            const rawPlaces = await loadPlaces();
+
+            instances.forEach((instance) => {
                 if (!instance || instance.isStatic) {
                     return;
                 }
-                instance.setPlaces(places);
+                const locale = instance.locale || DEFAULT_LOCALE;
+                const collator = createCollator(locale);
+                instance.setPlaces(enhancePlaces(rawPlaces, locale, collator));
             });
-            return places;
+
+            return rawPlaces;
         },
         loadPlaces: async () => {
-            const places = await loadPlaces();
-            return places.map(place => Object.assign({}, place));
+            const rawPlaces = await loadPlaces();
+            return rawPlaces.map((place) => Object.assign({}, place));
         },
     };
 })(window);

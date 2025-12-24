@@ -61,7 +61,8 @@
       if (!button.dataset.originalText) {
         button.dataset.originalText = button.textContent;
       }
-      button.textContent = loadingText || button.dataset.originalText || "Kaydediliyor";
+      button.textContent =
+        loadingText || button.dataset.originalText || "Saving";
       button.disabled = true;
     } else {
       if (button.dataset.originalText) {
@@ -103,7 +104,8 @@
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok || !data.success) {
-          const message = data.message || "İşlem tamamlanamadı. Lütfen formu kontrol edin.";
+          const message =
+            data.message || "We couldn’t complete your request. Please check the form.";
           showAlert(errorAlert, message);
           if (data.fieldErrors) {
             applyFieldErrors(form, data.fieldErrors);
@@ -111,13 +113,13 @@
           return;
         }
 
-        showAlert(successAlert, data.message || "İşlem başarıyla tamamlandı.");
+        showAlert(successAlert, data.message || "Completed successfully.");
         if (typeof onSuccess === "function") {
           onSuccess(data, form);
         }
       } catch (error) {
-        console.error("Form gönderilirken hata oluştu:", error);
-        showAlert(errorAlert, "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
+        console.error("Error while submitting the form:", error);
+        showAlert(errorAlert, "An unexpected error occurred. Please try again.");
       } finally {
         setButtonLoading(submitButton, false);
       }
@@ -145,18 +147,14 @@
     submitForm(personalInfoForm, {
       successAlert: personalInfoSuccess,
       errorAlert: personalInfoError,
-      loadingText: "Kaydediliyor...",
+      loadingText: "Saving...",
       onSuccess: (data, form) => {
         clearFieldErrors(form);
         if (data.personalInfo) {
           Object.entries(data.personalInfo).forEach(([key, value]) => {
             const field = form.querySelector(`[name="${key}"]`);
             if (!field) return;
-            if (field.tagName === "SELECT") {
-              field.value = value || "";
-            } else {
-              field.value = value || "";
-            }
+            field.value = value || "";
           });
         }
       },
@@ -169,11 +167,10 @@
     submitForm(passwordForm, {
       successAlert: passwordSuccess,
       errorAlert: passwordError,
-      loadingText: "Güncelleniyor...",
+      loadingText: "Updating...",
       onSuccess: (_, form) => {
         form.reset();
       },
     });
   });
 })();
-

@@ -36,7 +36,7 @@ function formatTripDate(dateValue) {
     return "";
   }
 
-  return new Intl.DateTimeFormat("tr-TR", {
+  return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -64,7 +64,7 @@ function formatTripTime(timeValue) {
     return "";
   }
 
-  return new Intl.DateTimeFormat("tr-TR", {
+  return new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -82,12 +82,13 @@ function formatCreatedAt(dateValue) {
       return "";
     }
 
-    return new Intl.DateTimeFormat("tr-TR", {
+    return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      hour12: false,
     }).format(date);
   } catch (error) {
     return "";
@@ -150,11 +151,15 @@ function minutesToClockString(totalMinutes) {
     return "";
   }
 
-  const normalized = ((totalMinutes % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
+  const normalized =
+    ((totalMinutes % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
   const hoursPart = Math.floor(normalized / 60);
   const minutesPart = normalized % 60;
 
-  return `${String(hoursPart).padStart(2, "0")}:${String(minutesPart).padStart(2, "0")}`;
+  return `${String(hoursPart).padStart(2, "0")}:${String(minutesPart).padStart(
+    2,
+    "0"
+  )}`;
 }
 
 function addMinutesWithDayOffset(baseMinutes, offsetMinutes) {
@@ -163,7 +168,8 @@ function addMinutesWithDayOffset(baseMinutes, offsetMinutes) {
   }
 
   const total = baseMinutes + offsetMinutes;
-  const normalized = ((total % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
+  const normalized =
+    ((total % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
   const dayOffset = Math.floor((total - normalized) / MINUTES_IN_DAY);
 
   return { minutes: normalized, dayOffset };
@@ -198,7 +204,8 @@ function computeTripDateTimeForStop(tripDateValue, tripTimeValue, offsetMinutes)
   }
 
   const computedDateText = formatTripDate(adjustedDate) || fallbackDateText;
-  const computedTimeText = minutesToClockString(addition.minutes) || fallbackTimeText;
+  const computedTimeText =
+    minutesToClockString(addition.minutes) || fallbackTimeText;
 
   return {
     dateText: computedDateText,
@@ -210,14 +217,14 @@ function mapTicketStatus(status) {
   const normalisedStatus = String(status || "").toLowerCase();
 
   const statusMap = {
-    pending: { label: "Beklemede", cssClass: "status-pending" },
-    reservation: { label: "Rezervasyon", cssClass: "status-pending" },
-    canceled: { label: "İptal Edildi", cssClass: "status-canceled" },
-    refund: { label: "İade Edildi", cssClass: "status-refund" },
-    completed: { label: "Tamamlandı", cssClass: "" },
+    pending: { label: "Pending", cssClass: "status-pending" },
+    reservation: { label: "Reserved", cssClass: "status-pending" },
+    canceled: { label: "Canceled", cssClass: "status-canceled" },
+    refund: { label: "Refunded", cssClass: "status-refund" },
+    completed: { label: "Completed", cssClass: "" },
     web: { label: "Web", cssClass: "" },
-    gotur: { label: "GöTÜR", cssClass: "" },
-    open: { label: "Açık", cssClass: "" },
+    gotur: { label: "GOTUR", cssClass: "" },
+    open: { label: "Open", cssClass: "" },
   };
 
   const mapping = statusMap[normalisedStatus] || {
@@ -238,11 +245,11 @@ exports.renderFindTicketPage = async (req, res) => {
   try {
     await ensureTenantsReady(req);
   } catch (error) {
-    console.error("Find ticket sayfası yüklenirken hata oluştu:", error);
+    console.error("An error occurred while loading the find-ticket page:", error);
   }
 
   res.render("find-ticket", {
-    title: "Biletimi Bul",
+    title: "Find My Ticket",
   });
 };
 
@@ -250,9 +257,9 @@ exports.searchTickets = async (req, res) => {
   try {
     await ensureTenantsReady(req);
   } catch (error) {
-    console.error("Find ticket arama ön hazırlık hatası:", error);
+    console.error("Find-ticket pre-search error:", error);
     return res.status(500).json({
-      message: "Sistem hazır değil. Lütfen daha sonra tekrar deneyin.",
+      message: "The system is not ready. Please try again later.",
     });
   }
 
@@ -262,12 +269,12 @@ exports.searchTickets = async (req, res) => {
   const email = normaliseEmail(req.query?.email);
 
   if (!firmKey) {
-    return res.status(400).json({ message: "Lütfen bir firma seçin." });
+    return res.status(400).json({ message: "Please select a company." });
   }
 
   if (!pnr && !phone && !email) {
     return res.status(400).json({
-      message: "Lütfen PNR veya iletişim bilgilerinizden en az birini girin.",
+      message: "Please enter at least one of: PNR or contact information.",
     });
   }
 
@@ -275,16 +282,15 @@ exports.searchTickets = async (req, res) => {
     const connection = await getTenantConnection(firmKey);
     if (!connection || !connection.models) {
       return res.status(500).json({
-        message: "Firma bağlantısı kurulamadı.",
+        message: "Failed to establish company connection.",
       });
     }
 
-    const { Ticket, Trip, RouteStop, Stop, User, TripStopTime } =
-      connection.models;
+    const { Ticket, Trip, RouteStop, Stop, User, TripStopTime } = connection.models;
 
     if (!Ticket || !Trip || !RouteStop || !Stop) {
       return res.status(500).json({
-        message: "Firma veritabanında gerekli tablolar bulunamadı.",
+        message: "Required tables/models are missing in the company database.",
       });
     }
 
@@ -384,12 +390,12 @@ exports.searchTickets = async (req, res) => {
 
     const routeStops = routeStopConditions.length
       ? await RouteStop.findAll({
-          where:
-            routeStopConditions.length === 1
-              ? routeStopConditions[0]
-              : { [Op.or]: routeStopConditions },
-          raw: true,
-        })
+        where:
+          routeStopConditions.length === 1
+            ? routeStopConditions[0]
+            : { [Op.or]: routeStopConditions },
+        raw: true,
+      })
       : [];
 
     const routeStopIds = Array.from(
@@ -411,12 +417,12 @@ exports.searchTickets = async (req, res) => {
     const [tripStopTimes, stops] = await Promise.all([
       TripStopTime && tripIds.length && routeStopIds.length
         ? TripStopTime.findAll({
-            where: {
-              tripId: { [Op.in]: tripIds },
-              routeStopId: { [Op.in]: routeStopIds },
-            },
-            raw: true,
-          })
+          where: {
+            tripId: { [Op.in]: tripIds },
+            routeStopId: { [Op.in]: routeStopIds },
+          },
+          raw: true,
+        })
         : [],
       stopIds.length
         ? Stop.findAll({ where: { id: { [Op.in]: stopIds } }, raw: true })
@@ -468,9 +474,7 @@ exports.searchTickets = async (req, res) => {
         tripStopTimeMapByTripId.set(tripKey, new Map());
       }
 
-      tripStopTimeMapByTripId
-        .get(tripKey)
-        .set(String(entry.routeStopId), entry);
+      tripStopTimeMapByTripId.get(tripKey).set(String(entry.routeStopId), entry);
     }
 
     const tripEffectiveOffsets = new Map();
@@ -550,27 +554,19 @@ exports.searchTickets = async (req, res) => {
       const trip = tripMap.get(String(ticket.tripId)) || null;
       const fromRouteStop = routeStopMap.get(String(ticket.fromRouteStopId));
       const toRouteStop = routeStopMap.get(String(ticket.toRouteStopId));
-      const fromStop = fromRouteStop
-        ? stopMap.get(String(fromRouteStop.stopId))
-        : null;
+      const fromStop = fromRouteStop ? stopMap.get(String(fromRouteStop.stopId)) : null;
       const toStop = toRouteStop ? stopMap.get(String(toRouteStop.stopId)) : null;
-      const user = ticket.userId
-        ? usersById.get(String(ticket.userId)) || null
-        : null;
+      const user = ticket.userId ? usersById.get(String(ticket.userId)) || null : null;
 
       const passengerName = [ticket.name, ticket.surname]
         .filter((part) => Boolean(part))
         .join(" ")
         .trim();
 
-      const { label: statusLabel, cssClass: statusClass } = mapTicketStatus(
-        ticket.status
-      );
+      const { label: statusLabel, cssClass: statusClass } = mapTicketStatus(ticket.status);
 
       const effectiveOffsets = resolveEffectiveOffsetsForTrip(trip);
-      const fromOffsetMinutes = effectiveOffsets?.get(
-        String(ticket.fromRouteStopId)
-      );
+      const fromOffsetMinutes = effectiveOffsets?.get(String(ticket.fromRouteStopId));
 
       const { dateText: computedTripDate, timeText: computedTripTime } =
         computeTripDateTimeForStop(trip?.date, trip?.time, fromOffsetMinutes);
@@ -595,9 +591,7 @@ exports.searchTickets = async (req, res) => {
           fromTitle: trip?.fromPlaceString || fromStop?.title || "",
           toTitle: trip?.toPlaceString || toStop?.title || "",
         },
-        fromStop: fromStop
-          ? { id: fromStop.id, title: fromStop.title }
-          : null,
+        fromStop: fromStop ? { id: fromStop.id, title: fromStop.title } : null,
         toStop: toStop ? { id: toStop.id, title: toStop.title } : null,
         contactEmail: user?.email || "",
         createdAt: ticket.createdAt || null,
@@ -610,27 +604,23 @@ exports.searchTickets = async (req, res) => {
       };
     });
 
-    return res.render(
-      "find-ticket-results",
-      { tickets: responseTickets },
-      (renderError, html) => {
-        if (renderError) {
-          console.error("Bilet arama sonuçları oluşturulurken hata oluştu:", renderError);
-          return res.status(500).json({
-            message: "Sonuçlar hazırlanırken bir sorun oluştu.",
-          });
-        }
-
-        return res.json({
-          html: html || "",
-          ticketCount: responseTickets.length,
+    return res.render("find-ticket-results", { tickets: responseTickets }, (renderError, html) => {
+      if (renderError) {
+        console.error("An error occurred while rendering ticket search results:", renderError);
+        return res.status(500).json({
+          message: "An error occurred while preparing results.",
         });
       }
-    );
+
+      return res.json({
+        html: html || "",
+        ticketCount: responseTickets.length,
+      });
+    });
   } catch (error) {
-    console.error("Bilet arama hatası:", error);
+    console.error("Ticket search error:", error);
     return res.status(500).json({
-      message: "Biletler aranırken bir sorun oluştu.",
+      message: "An error occurred while searching for tickets.",
     });
   }
 };

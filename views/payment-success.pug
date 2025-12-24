@@ -2,38 +2,38 @@ extends layout_invert
 
 block content
     .container.py-4
-        h2.mb-3 Ödeme Başarılı
+        h2.mb-3 Payment Successful
 
         if error
             .alert.alert-danger #{error}
         else
-            .alert.alert-success Ödemeniz başarıyla tamamlandı. Bilet bilgileriniz aşağıdadır.
+            .alert.alert-success Your payment has been completed successfully. Your ticket details are below.
 
         if trip || fromStop || toStop
             .card.mb-4
                 .card-body
                     if fromStop && toStop
                         p.mb-1
-                            strong Güzergâh:
+                            strong Route:
                             span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
                     if trip && trip.date
                         p.mb-1
-                            strong Tarih:
+                            strong Date:
                             span.ms-1 #{trip.date}
                     if trip && trip.time
                         p.mb-0
-                            strong Kalkış Saati:
+                            strong Departure Time:
                             span.ms-1 #{trip.time}
 
         if tickets && tickets.length
             table.table.table-striped
                 thead
                     tr
-                        th(scope="col") Koltuk
-                        th(scope="col") Yolcu
-                        th(scope="col") Kimlik No
-                        th(scope="col") Telefon
-                        th(scope="col") Uyruk
+                        th(scope="col") Seat
+                        th(scope="col") Passenger
+                        th(scope="col") ID Number
+                        th(scope="col") Phone
+                        th(scope="col") Nationality
                 tbody
                     each ticket in tickets
                         tr
@@ -45,7 +45,7 @@ block content
         else if seatDetails && seatDetails.length
             .card
                 .card-body
-                    h5.mb-3 Koltuklar
+                    h5.mb-3 Seats
                     ul.mb-0
                         each seat in seatDetails
                             li #{seat.seatNumber}
@@ -53,8 +53,8 @@ block content
         .d-flex.justify-content-between.align-items-center.mt-4
             if typeof totalPrice !== 'undefined'
                 span
-                    strong Toplam Tutar:
+                    strong Total Amount:
                     span.ms-2 #{totalPrice || 0} TL
-            a.btn.btn-outline-primary(href="/") Ana sayfaya dön
+            a.btn.btn-outline-primary(href="/") Return to homepage
 
 block scripts

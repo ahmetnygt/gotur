@@ -13,25 +13,25 @@ block css
 
 block content
   .text-center.pb-3.my-trips-hero
-    h1.display-6.fw-bold.text-white Seyahatlerim
+    h1.display-6.fw-bold.text-white My Trips
     p.lead.text-white
-      | Satın aldığınız ve hesabınızla eşleşen tüm biletlerinizi burada görüntüleyin.
+      | View all tickets you’ve purchased and that are linked to your account here.
   .container.py-4
     if !hasIdNumber
       .alert.alert-info.d-flex.align-items-center.gap-2(role='status')
         i.fa-solid.fa-id-card
-        span Kimlik numaranızı hesabınıza ekleyerek geçmiş yolculuklarınızı da otomatik olarak görebilirsiniz.
+        span Add your ID number to your account to automatically see your past trips as well.
     - const firmBadges = Array.isArray(tickets) ? Array.from(new Set(tickets.map(t => t && t.firmKey).filter(Boolean))) : [];
     if firmBadges.length
       .mb-3
-        span.text-muted.me-2 Seyahat ettiğiniz firmalar:
+        span.text-muted.me-2 Operators you’ve traveled with:
         each firm in firmBadges
           span.badge.bg-light.text-dark.me-2
             i.fa-solid.fa-bus-simple.me-1
             | #{firm}
     .card.shadow-sm.find-ticket-card
       .card-header
-        p.h5.fw-semibold.m-0 Biletlerim
+        p.h5.fw-semibold.m-0 My Tickets
       .card-body
         include find-ticket-results
 

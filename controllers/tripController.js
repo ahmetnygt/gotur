@@ -9,14 +9,14 @@ const sendEmail = require("../utilities/sendMail");
 const sendSMS = require("../utilities/sendSms");
 
 const BUS_FEATURE_MAPPINGS = [
-    { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
-    { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Ekran" },
-    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "İkram" },
+    { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Power Outlet" },
+    { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Seat Screen" },
+    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "Catering" },
     { key: "hasWifi", icon: "/svg/wifi_icon.svg", label: "Wi-Fi" },
-    { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Yastık" },
-    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Girişi" },
-    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Buzdolabı" },
-    { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Konforlu Koltuk", },
+    { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Pillow" },
+    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Port" },
+    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Refrigerator" },
+    { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Comfortable Seat" },
 ];
 
 const MINUTES_IN_DAY = 24 * 60;
@@ -106,10 +106,10 @@ function formatDurationFromMinutes(totalMinutes) {
 
     const parts = [];
     if (hours > 0) {
-        parts.push(`${hours} saat`);
+        parts.push(`${hours} hours`);
     }
     if (minutes > 0) {
-        parts.push(`${minutes} dakika`);
+        parts.push(`${minutes} minutes`);
     }
 
     return parts.join(" ");
@@ -526,8 +526,8 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                         .split(":")
                         .map((value) => Number(value));
                     let result = "";
-                    if (h > 0) result += `${h} saat `;
-                    if (m > 0) result += `${m} dakika`;
+                    if (h > 0) result += `${h} hours `;
+                    if (m > 0) result += `${m} minutes`;
 
                     trip.duration = result.trim();
                 } else {
@@ -738,7 +738,7 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                     }
                 });
             } catch (error) {
-                console.error("Firma isimleri alınırken hata oluştu:", error);
+                console.error("An error occurred while retrieving company names: ", error);
             }
         }
     }
@@ -756,7 +756,7 @@ exports.searchAllTrips = async (req, res) => {
         if (!fromId || !toId || !date) {
             return res
                 .status(400)
-                .json({ message: "Eksik parametre: /trips/:fromId-:toId/:date" });
+                .json({ message: "Missing parameter: /trips/:fromId-:toId/:date" });
         }
 
         const { trips } = await fetchTripsForRouteDate(req, { fromId, toId, date });
@@ -815,7 +815,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "Eksik veri gönderildi.",
+                    message: "Missing data sent.",
                 });
         }
 
@@ -829,7 +829,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "Koltuk ve cinsiyet bilgileri hatalı.",
+                    message: "Seat and gender information is invalid.",
                 });
         }
 
@@ -846,7 +846,7 @@ exports.createTicketPayment = async (req, res) => {
                     .status(400)
                     .json({
                         success: false,
-                        message: "Geçersiz koltuk numarası.",
+                        message: "Invalid seat number.",
                     });
             }
 
@@ -855,7 +855,7 @@ exports.createTicketPayment = async (req, res) => {
                     .status(400)
                     .json({
                         success: false,
-                        message: "Geçersiz cinsiyet seçimi.",
+                        message: "Invalid gender selection.",
                     });
             }
 
@@ -873,7 +873,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "En az bir koltuk seçmelisiniz.",
+                    message: "You must select at least one seat.",
                 });
         }
 
@@ -888,14 +888,14 @@ exports.createTicketPayment = async (req, res) => {
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Geçersiz sefer bilgileri gönderildi.",
+                message: "Invalid trip information was provided.",
             });
         }
 
         const numericSeatNumbers = normalisedSeats.map((seat) => {
             const numeric = Number(seat);
             if (!Number.isFinite(numeric)) {
-                throw Object.assign(new Error(`Geçersiz koltuk numarası: ${seat}`), {
+                throw Object.assign(new Error(`Invalid seat number: ${seat}`), {
                     isUserError: true,
                     statusCode: 400,
                 });
@@ -923,7 +923,7 @@ exports.createTicketPayment = async (req, res) => {
             if (existingTickets.length) {
                 throw Object.assign(
                     new Error(
-                        "Seçilen koltuklardan biri veya birkaçı artık uygun değil."
+                        "One or more of the selected seats are no longer available."
                     ),
                     {
                         isUserError: true,
@@ -989,14 +989,14 @@ exports.createTicketPayment = async (req, res) => {
 
         res.json({ success: true, ticketPaymentId: ticketPayment.id });
     } catch (error) {
-        console.error("createTicketPayment hata:", error);
+        console.error("createTicketPayment error:", error);
         const statusCode = error.statusCode || 500;
         res.status(statusCode).json({
             success: false,
             message:
                 error && error.isUserError
                     ? error.message
-                    : "Ödeme kaydı oluşturulamadı.",
+                    : "Payment record could not be created.",
         });
     }
 };
@@ -1013,7 +1013,7 @@ exports.renderPaymentPage = async (req, res) => {
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 passengerInputs: [],
-                error: "Ödeme isteği bulunamadı.",
+                error: "Payment request not found.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone: "",
                 contactEmail: "",
@@ -1049,13 +1049,13 @@ exports.renderPaymentPage = async (req, res) => {
             contactEmail: "",
         });
     } catch (error) {
-        console.error("renderPaymentPage hata:", error);
+        console.error("renderPaymentPage error:", error);
         res.status(500).render("payment", {
             title: "Ödeme",
             ticketPaymentId: String(ticketPaymentId || ""),
             seatDetails: [],
             passengerInputs: [],
-            error: "Ödeme bilgileri yüklenemedi.",
+            error: "Payment details could not be loaded.",
             countryOptions: COUNTRY_OPTIONS,
             contactPhone: "",
             contactEmail: "",
@@ -1081,7 +1081,7 @@ exports.completePayment = async (req, res) => {
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 passengerInputs: [],
-                error: "Ödeme isteği bulunamadı.",
+                error: "Payment request not found.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1099,7 +1099,7 @@ exports.completePayment = async (req, res) => {
         passengerInputs = buildPassengerInputsFromBody(viewData.seatDetails, req.body);
 
         if (!viewData.seatDetails.length) {
-            const err = new Error("Bu ödeme için koltuk bilgisi bulunamadı.");
+            const err = new Error("Seat information could not be found for this payment.");
             err.isUserError = true;
             throw err;
         }
@@ -1118,7 +1118,7 @@ exports.completePayment = async (req, res) => {
                 pricePerSeat: viewData.pricePerSeat,
                 totalPrice: viewData.totalPrice,
                 passengerInputs,
-                error: "Lütfen tüm yolcu bilgilerini doldurun.",
+                error: "Please fill in all passenger details.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1137,7 +1137,7 @@ exports.completePayment = async (req, res) => {
                 pricePerSeat: viewData.pricePerSeat,
                 totalPrice: viewData.totalPrice,
                 passengerInputs,
-                error: "Lütfen iletişim bilgilerini doldurun.",
+                error: "Please fill in the contact details.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1148,7 +1148,7 @@ exports.completePayment = async (req, res) => {
         const numericSeatNumbers = viewData.seatDetails.map((seat) => {
             const numeric = Number(seat.seatNumber);
             if (!Number.isFinite(numeric)) {
-                const err = new Error(`Geçersiz koltuk numarası: ${seat.seatNumber}`);
+                const err = new Error(`Invalid seat number: ${seat.seatNumber}`);
                 err.isUserError = true;
                 throw err;
             }
@@ -1177,7 +1177,7 @@ exports.completePayment = async (req, res) => {
                         existing.status === "pending" && existing.pnr === pendingPnr;
                     if (!isOwnPending) {
                         const err = new Error(
-                            `${viewData.seatDetails[i].seatNumber} numaralı koltuk artık uygun değil.`
+                            `Seat ${viewData.seatDetails[i].seatNumber} is no longer available.`
                         );
                         err.isUserError = true;
                         throw err;
@@ -1259,7 +1259,7 @@ exports.completePayment = async (req, res) => {
             throw innerError;
         }
     } catch (error) {
-        console.error("completePayment hata:", error);
+        console.error("completePayment error:", error);
 
         if (context && !viewData) {
             viewData = await buildPaymentViewData(context.models, context.ticketPayment);
@@ -1295,7 +1295,7 @@ exports.completePayment = async (req, res) => {
             pricePerSeat: viewData.pricePerSeat,
             totalPrice: viewData.totalPrice,
             passengerInputs,
-            error: error?.message || "Ödeme tamamlanırken bir hata oluştu.",
+            error: error?.message || "An error occurred while completing the payment.",
             countryOptions: COUNTRY_OPTIONS,
             contactPhone,
             contactEmail,
@@ -1312,11 +1312,11 @@ exports.renderPaymentSuccess = async (req, res) => {
 
         if (!context) {
             return res.status(404).render("payment-success", {
-                title: "Ödeme Başarılı",
+                title: "Payment Successful",
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 tickets: [],
-                error: "Ödeme isteği bulunamadı.",
+                error: "Payment request not found.",
             });
         }
 
@@ -1344,7 +1344,7 @@ exports.renderPaymentSuccess = async (req, res) => {
         });
 
         res.render("payment-success", {
-            title: "Ödeme Başarılı",
+            title: "Payment Successful",
             ticketPaymentId: String(ticketPaymentId),
             seatDetails: viewData.seatDetails,
             trip: viewData.trip,
@@ -1356,13 +1356,13 @@ exports.renderPaymentSuccess = async (req, res) => {
             error: null,
         });
     } catch (error) {
-        console.error("renderPaymentSuccess hata:", error);
+        console.error("renderPaymentSuccess error:", error);
         res.status(500).render("payment-success", {
-            title: "Ödeme Başarılı",
+            title: "Payment Successful",
             ticketPaymentId: String(ticketPaymentId || ""),
             seatDetails: [],
             tickets: [],
-            error: "Ödeme sonucu görüntülenemedi.",
+            error: "Payment result could not be displayed.",
         });
     }
 };

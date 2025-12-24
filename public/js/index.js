@@ -1,11 +1,8 @@
 (() => {
     const placeSelectModule = window.GTR && window.GTR.placeSelect;
     if (placeSelectModule && typeof placeSelectModule.init === "function") {
-        Promise.resolve(placeSelectModule.init()).catch(error => {
-            console.error(
-                "Trip finder için yer seçici başlatılırken hata oluştu:",
-                error
-            );
+        Promise.resolve(placeSelectModule.init()).catch((error) => {
+            console.error("Failed to initialise trip finder place selector:", error);
         });
     }
 
@@ -16,21 +13,21 @@
         tomorrow: 1,
     };
 
-    const formatDate = date => {
+    const formatDate = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
 
-    const getRelativeDate = offset => {
+    const getRelativeDate = (offset) => {
         const date = new Date();
         date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() + offset);
         return date;
     };
 
-    const updateActiveDayButton = dateStr => {
+    const updateActiveDayButton = (dateStr) => {
         dayButtons.removeClass("active");
         if (!dateStr) {
             return;
@@ -47,10 +44,10 @@
 
     if (tripFinderDate.length) {
         datePicker = flatpickr(tripFinderDate[0], {
-            locale: "tr",
+            locale: "en",
             defaultDate: new Date(),
             altInput: true,
-            altFormat: "d F Y",
+            altFormat: "d M Y",
             onChange: (_, dateStr) => {
                 updateActiveDayButton(dateStr);
             },
@@ -82,7 +79,6 @@
     const searchButton = $(".trip-finder_search-button");
     searchButton.off("click");
     searchButton.on("click", () => {
-        // alert("Şimdilik yapım aşamasındayız. Çok kısa sürede sizlere hizmet vermeye başlıyoruz!")
         const fromId = $(".trip-finder_from").val();
         const toId = $(".trip-finder_to").val();
         const date = tripFinderDate.val();
@@ -97,7 +93,7 @@
 
     const changeButton = $(".trip-finder_change");
     changeButton.off("click");
-    changeButton.on("click", event => {
+    changeButton.on("click", (event) => {
         event.preventDefault();
 
         const fromInput = $(".trip-finder_from");
@@ -138,9 +134,7 @@
                     }
                     if (typeof instance.setSelected === "function") {
                         const match = Array.isArray(instance.places)
-                            ? instance.places.find(
-                                place => String(place.id) === String(value)
-                            )
+                            ? instance.places.find((place) => String(place.id) === String(value))
                             : null;
                         if (match) {
                             instance.setSelected(match);
@@ -174,7 +168,8 @@
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?\d{10,15}$/;
 
-    const getFeedbackElement = (input) => input?.closest(".mb-3")?.querySelector(".invalid-feedback");
+    const getFeedbackElement = (input) =>
+        input?.closest(".mb-3")?.querySelector(".invalid-feedback");
 
     const setFieldError = (input, message) => {
         if (!input) {
@@ -247,7 +242,6 @@
         }
 
         const submitButton = form.querySelector("button[type='submit']");
-
         if (!submitButton) {
             return;
         }
@@ -257,7 +251,7 @@
                 submitButton.dataset.originalText = submitButton.textContent;
             }
             submitButton.disabled = true;
-            submitButton.textContent = "Gönderiliyor...";
+            submitButton.textContent = "Submitting...";
         } else {
             submitButton.disabled = false;
             if (submitButton.dataset.originalText) {
@@ -322,7 +316,9 @@
         popup.classList.remove(AUTH_POPUP_OPEN_CLASS);
         popup.setAttribute("aria-hidden", "true");
 
-        const isAnyPopupOpen = document.querySelector(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`);
+        const isAnyPopupOpen = document.querySelector(
+            `${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`
+        );
         if (!isAnyPopupOpen) {
             document.body.classList.remove(AUTH_POPUP_BODY_CLASS);
         }
@@ -353,11 +349,13 @@
                     return;
                 }
 
-                document.querySelectorAll(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`).forEach((openPopup) => {
-                    if (openPopup !== targetPopup) {
-                        closeAuthPopup(openPopup);
-                    }
-                });
+                document
+                    .querySelectorAll(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`)
+                    .forEach((openPopup) => {
+                        if (openPopup !== targetPopup) {
+                            closeAuthPopup(openPopup);
+                        }
+                    });
 
                 openAuthPopup(targetPopup);
             });
@@ -399,7 +397,9 @@
                 return;
             }
 
-            const openPopups = document.querySelectorAll(`${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`);
+            const openPopups = document.querySelectorAll(
+                `${AUTH_POPUP_SELECTOR}.${AUTH_POPUP_OPEN_CLASS}`
+            );
             if (!openPopups.length) {
                 return;
             }
@@ -432,18 +432,18 @@
             const fieldErrors = {};
 
             if (!identifier) {
-                fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
+                fieldErrors.identifier = "Email or phone number is required.";
             } else if (!isValidIdentifier(identifier)) {
-                fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
+                fieldErrors.identifier = "Please enter a valid email or phone number.";
             }
 
             if (!password) {
-                fieldErrors.password = "Şifre zorunludur.";
+                fieldErrors.password = "Password is required.";
             }
 
             if (Object.keys(fieldErrors).length > 0) {
                 applyFieldErrors(loginForm, fieldErrors);
-                showGlobalError(loginAlert, "Giriş bilgileri eksik veya hatalı.");
+                showGlobalError(loginAlert, "Your login details are missing or invalid.");
                 return;
             }
 
@@ -466,20 +466,23 @@
                         applyFieldErrors(loginForm, data.fieldErrors);
                     }
 
-                    const message = data?.message || "Giriş sırasında beklenmeyen bir hata oluştu.";
+                    const message =
+                        data?.message || "An unexpected error occurred during login.";
                     showGlobalError(loginAlert, message);
                     return;
                 }
 
                 window.location.reload();
             } catch (error) {
-                console.error("Giriş isteği başarısız oldu:", error);
-                showGlobalError(loginAlert, "Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+                console.error("Login request failed:", error);
+                showGlobalError(
+                    loginAlert,
+                    "Something went wrong while logging in. Please try again."
+                );
             } finally {
                 setSubmitting(loginForm, false);
             }
         });
-
     }
 
     const registerForm = document.getElementById("registerForm");
@@ -497,30 +500,32 @@
             const formData = new FormData(registerForm);
             const identifier = (formData.get("identifier") || "").toString().trim();
             const password = (formData.get("password") || "").toString().trim();
-            const passwordConfirm = (formData.get("passwordConfirm") || "").toString().trim();
+            const passwordConfirm = (formData.get("passwordConfirm") || "")
+                .toString()
+                .trim();
             const fieldErrors = {};
 
             if (!identifier) {
-                fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
+                fieldErrors.identifier = "Email or phone number is required.";
             } else if (!isValidIdentifier(identifier)) {
-                fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
+                fieldErrors.identifier = "Please enter a valid email or phone number.";
             }
 
             if (!password) {
-                fieldErrors.password = "Şifre zorunludur.";
+                fieldErrors.password = "Password is required.";
             } else if (password.length < 6) {
-                fieldErrors.password = "Şifre en az 6 karakter olmalıdır.";
+                fieldErrors.password = "Password must be at least 6 characters.";
             }
 
             if (!passwordConfirm) {
-                fieldErrors.passwordConfirm = "Şifre tekrarı zorunludur.";
+                fieldErrors.passwordConfirm = "Please confirm your password.";
             } else if (passwordConfirm !== password) {
-                fieldErrors.passwordConfirm = "Şifreler eşleşmiyor.";
+                fieldErrors.passwordConfirm = "Passwords do not match.";
             }
 
             if (Object.keys(fieldErrors).length > 0) {
                 applyFieldErrors(registerForm, fieldErrors);
-                showGlobalError(registerAlert, "Lütfen formdaki hataları düzeltin.");
+                showGlobalError(registerAlert, "Please fix the errors in the form.");
                 return;
             }
 
@@ -543,20 +548,23 @@
                         applyFieldErrors(registerForm, data.fieldErrors);
                     }
 
-                    const message = data?.message || "Kayıt sırasında beklenmeyen bir hata oluştu.";
+                    const message =
+                        data?.message || "An unexpected error occurred during sign up.";
                     showGlobalError(registerAlert, message);
                     return;
                 }
 
                 window.location.reload();
             } catch (error) {
-                console.error("Kayıt isteği başarısız oldu:", error);
-                showGlobalError(registerAlert, "Kayıt yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+                console.error("Sign up request failed:", error);
+                showGlobalError(
+                    registerAlert,
+                    "Something went wrong while signing up. Please try again."
+                );
             } finally {
                 setSubmitting(registerForm, false);
             }
         });
-
     }
 
     function initBusTicketResults() {
@@ -603,12 +611,11 @@
 
                 window.location.reload();
             } catch (error) {
-                console.error("Çıkış isteği başarısız oldu:", error);
-                alert("Çıkış yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+                console.error("Logout request failed:", error);
+                alert("Something went wrong while logging out. Please try again.");
                 logoutButton.classList.remove("disabled");
                 logoutButton.removeAttribute("aria-disabled");
             }
         });
     }
-
 })();
