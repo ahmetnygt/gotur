@@ -24,27 +24,31 @@
         span 8/24
         button.btn.btn-primary.btn-sm.w-100.trip_pick-button 500 TL
     .trip_content
-        .d-flex
-        .trip_seat-plan
-            - const plan = "00011110001100111001110011100111001111110000000000000000000000000000000000000000001"
-            - var index = 0
-            - var seatNumber = 1
-            -for(let i = 0; i < 8; i++){
-            .d-flex
-                -for(let j = 0; j < 5; j++){
-                if plan[index] == "1"
-                    div(style="position:relative;")
-                    svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
-                        rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
-                        rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                        rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                        rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                        rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
-                    span(style="position: absolute;top: 40%;left: 50%;transform: translate(-50%, -50%);") #{seatNumber}
-                    -seatNumber++;
-                else 
-                    svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
-                -index++;
-                -}
-            -}
+        .trip-seat-plan
+            .trip_seat-plan.d-flex.justify-content-center.gap-1
+                //- 40 koltuklu standart 2+2 otobüs düzeni (10 sıra x 5 hücre)
+                - const dummyPlan = "11011110111101111011110111101111011110111101111011"
+                - const totalRows = Math.ceil(dummyPlan.length / 5);
+                - var seatNumber = 1
+                - for(let i = 0; i < totalRows; i++) {
+                    - const row = dummyPlan.slice(i * 5, (i + 1) * 5)
+                    - const rowHasSeat = row.includes("1")
+                    if rowHasSeat
+                        .d-flex.flex-column-reverse.gap-1
+                            - for(let j = 0; j < 5; j++) {
+                                - const currentIndex = i * 5 + j;
+                                if dummyPlan[currentIndex] == "1"
+                                    div(style="position:relative;")
+                                        svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="max-width:100px;")
+                                            rect(x="20" y="20" width="60" height="60" rx="10" ry="10" fill="#fff" stroke="#333" stroke-width="2")
+                                            rect(x="75" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                                            rect(x="15" y="30" width="10" height="40" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                                            rect(x="20" y="60" width="60" height="20" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                                            rect(x="35" y="55" width="30" height="30" rx="5" ry="5" fill="#fff" stroke="#333" stroke-width="2")
+                                        span(style="position: absolute;top: 40%;left: 50%;transform: translate(-50%, -50%); font-size:0.9rem;") #{seatNumber}
+                                    - seatNumber++;
+                                else 
+                                    svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
+                            - }
+                - }
         .trip_info.p-1

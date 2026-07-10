@@ -11,6 +11,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    planBinaryRaw: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     plan: {
       type: DataTypes.JSON,
       allowNull: false,
@@ -26,6 +30,16 @@ module.exports = (sequelize) => {
     maxPassenger: {
       type: DataTypes.BIGINT,
       allowNull: true,
+    },
+    rowCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    colCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 5,
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,

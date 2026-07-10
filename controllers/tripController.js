@@ -684,17 +684,26 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                 where: { id: trip.busModelId },
             });
 
+            console.log(busModel)
+
             if (busModel) {
-                trip.fullness =
-                    seatBlockingTickets.length +
-                    "/" +
-                    busModel.maxPassenger;
+                trip.fullness = seatBlockingTickets.length + "/" + busModel.maxPassenger;
                 trip.busPlanBinary = busModel.planBinary;
                 trip.busPlan = JSON.parse(busModel.plan);
+
+                // BUNLARI KESİN EKLE YOKSA ARAYÜZ SIÇAR:
+                trip.rowCount = busModel.rowCount || 0;
+                trip.colCount = busModel.colCount || 0;
+                trip.busPlanBinaryRaw = busModel.planBinaryRaw || "";
             } else {
                 trip.fullness = seatBlockingTickets.length.toString();
                 trip.busPlanBinary = "";
                 trip.busPlan = [];
+
+                // BOŞ DURUM İÇİN:
+                trip.rowCount = 0;
+                trip.colCount = 0;
+                trip.busPlanBinaryRaw = "";
             }
 
             trip.tickets = newTickets;
@@ -791,6 +800,8 @@ exports.searchAllTrips = async (req, res) => {
         console.log(trips.map(t => t.id))
 
         res.render("trips", { trips, fromId, toId, date, title });
+
+        console.log(trips[0].colCount)
     } catch (err) {
         console.error("searchAllTrips hata:", err);
         res.status(500).json({ error: err.message });

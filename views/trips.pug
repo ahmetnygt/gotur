@@ -174,32 +174,30 @@ block content
                             li #{stopInfo.title}
                 .trip-seat-plan
                   .trip_seat-plan.d-flex.justify-content-center.gap-1
-                    - const planBinary = t.busPlanBinary
-                    - const plan = t.busPlan
-                    - var index = 0
-                    - var seat = 1
-                    - for (let i = 0; i < 8; i++) {
-                      - const row = planBinary.slice(i * 5, (i + 1) * 5)
-                      - const rowHasSeat = row.includes("1")
-                      if rowHasSeat
-                        .d-flex.flex-column-reverse.gap-1
-                          - for (let j = 0; j < 5; j++) {
-                            if planBinary[index] == "1"
-                              - const genderColor = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#2986cc" : "#c90076") : "#fff"
-                              - const genderColorStroke = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#216396" : "#920256") : "#b4b4b4"
-                              - const genderColorText = t.tickets[seat] ? (t.tickets[seat].gender == "m" ? "#1a4f77" : "#720042") : "#1f1f1f"
-                              .trip_seat(
-                                data-is-available=`${t.tickets[seat] ? false : true}`
-                                data-seat-number=`${plan[index]}`
-                                data-trip=(t.tripId || t.id)
-                              )
-                                +seat(genderColor, genderColorStroke)
-                                span(style=`position:absolute;top:50%;left:45%;transform:translate(-50%, -50%);color:${genderColorText}`) #{plan[index]}
-                              - seat++;
-                            else
-                              svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style=`visibility:hidden;${(index+1)%5==0?"display:none;":""}`)
-                            - index++;
-                          - }
+                    - const planBinary = t.busPlanBinary || ""
+                    - const plan = Array.isArray(t.busPlan) ? t.busPlan : JSON.parse(t.busPlan || "[]")
+                    - const cCount = t.colCount || 5
+                    - const rCount = t.rowCount || Math.ceil(planBinary.length / cCount)
+                    - for (let i = 0; i < rCount; i++) {
+                      .d-flex.flex-column-reverse.gap-1
+                        - for (let j = 0; j < cCount; j++) {
+                          - const currentIndex = i * cCount + j;
+                          if planBinary[currentIndex] == "1"
+                            - const currentSeatNumber = plan[currentIndex];
+                            - const ticketInfo = t.tickets && (t.tickets[currentSeatNumber] || t.tickets[String(currentSeatNumber)]);
+                            - const genderColor = ticketInfo ? (ticketInfo.gender == "m" ? "#2986cc" : "#c90076") : "#fff"
+                            - const genderColorStroke = ticketInfo ? (ticketInfo.gender == "m" ? "#216396" : "#920256") : "#b4b4b4"
+                            - const genderColorText = ticketInfo ? (ticketInfo.gender == "m" ? "#1a4f77" : "#720042") : "#1f1f1f"
+                            .trip_seat(
+                              data-is-available=`${ticketInfo ? false : true}`
+                              data-seat-number=`${currentSeatNumber}`
+                              data-trip=(t.tripId || t.id)
+                            )
+                              +seat(genderColor, genderColorStroke)
+                              span(style=`position:absolute;top:50%;left:45%;transform:translate(-50%, -50%);color:${genderColorText}`) #{currentSeatNumber}
+                          else
+                            svg(viewBox="0 0 100 100" width="2.75rem" height="2.75rem" style="visibility:hidden;")
+                        - }
                     - }
                 .trip-seat-info
                   .trip_info.p-1
