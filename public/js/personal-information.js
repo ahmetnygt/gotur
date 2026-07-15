@@ -91,7 +91,7 @@
 
       try {
         setButtonLoading(submitButton, true, loadingText);
-        const response = await fetch(form.action, {
+        const response = await fetch(form.action, window.GoturCsrf.withCsrf({
           method: form.method || "POST",
           headers: {
             "Content-Type": "application/json",
@@ -99,7 +99,7 @@
           },
           credentials: "same-origin",
           body: JSON.stringify(payload),
-        });
+        }));
 
         const data = await response.json().catch(() => ({}));
 

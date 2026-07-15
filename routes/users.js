@@ -11,8 +11,17 @@ router.post(
 );
 router.get("/cards", userController.myAccount);
 router.get("/passengers", userController.myAccount);
-router.post("/login", userController.login);
-router.post("/register", userController.register);
+
+// GÜVENLİK: app.js'de tanımlanan authRateLimiter, brute-force login/kayıt
+// denemelerini sınırlamak için burada uygulanıyor.
+function withAuthRateLimit(req, res, next) {
+  const limiter = req.app.get("authRateLimiter");
+  if (limiter) return limiter(req, res, next);
+  return next();
+}
+
+router.post("/login", withAuthRateLimit, userController.login);
+router.post("/register", withAuthRateLimit, userController.register);
 router.post("/logout", userController.logout);
 
 module.exports = router;

@@ -684,8 +684,6 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
                 where: { id: trip.busModelId },
             });
 
-            console.log(busModel)
-
             if (busModel) {
                 trip.fullness = seatBlockingTickets.length + "/" + busModel.maxPassenger;
                 trip.busPlanBinary = busModel.planBinary;
@@ -757,7 +755,7 @@ async function fetchTripsForRouteDate(req, { fromId, toId, date }) {
 
 exports.fetchTripsForRouteDate = fetchTripsForRouteDate;
 
-exports.searchAllTrips = async (req, res) => {
+exports.searchAllTrips = async (req, res, next) => {
     try {
         const [fromId, toId] = (req.params.route || "").split("-");
         const date = req.params.date;
@@ -797,14 +795,22 @@ exports.searchAllTrips = async (req, res) => {
 
         const title = `Götür | ${fromPlaceTitle}-${toPlaceTitle}`;
 
-        console.log(trips.map(t => t.id))
-
+        // BUG DÜZELTMESİ: Burada önceden res.render()'dan SONRA çalışan bir
+        // debug log (`trips[0].colCount`) vardı; `trips` boş olduğunda (çok
+        // olağan bir senaryo, örn. o gün/rotada hiç sefer yoksa) bu satır
+        // `TypeError` fırlatıyordu ve catch bloğu, yanıt ZATEN gönderilmiş
+        // olduğu halde res.status(500).json(...) ile ikinci bir yanıt
+        // göndermeye çalışıp "headers already sent" hatasına yol açıyordu.
         res.render("trips", { trips, fromId, toId, date, title });
-
-        console.log(trips[0].colCount)
     } catch (err) {
         console.error("searchAllTrips hata:", err);
-        res.status(500).json({ error: err.message });
+        // Yanıt zaten gönderilmişse (örn. render sırasında bir hata oluştuysa)
+        // ikinci bir yanıt göndermeyi denemek "headers already sent" hatasına
+        // yol açar; bu durumda hatayı sadece Express'in merkezi error handler'ına
+        // (app.js) devrediyoruz, o da zaten headersSent durumunu kontrol eder.
+        if (!res.headersSent) {
+            return next(err);
+        }
     }
 };
 
@@ -916,9 +922,27 @@ exports.createTicketPayment = async (req, res) => {
 
         const { models, sequelize } = await getTenantConnection(firmKey);
         const { Ticket, TicketGroup } = models;
-        const transaction = await sequelize.transaction();
 
-        let ticketPayment = null;
+        // GÜVENLİK: TicketPayment artık goturyzhn (ERP) ile PAYLAŞILAN ortak
+        // veritabanında (req.commonModels) yaşıyor ve `tenantKey` ile
+        // damgalanıyor. Böylece bu ödeme kaydı sadece bu firmaya ait olur;
+        // aksi halde (eski davranış) id tahmin/artırma ile başka bir
+        // firmanın ödeme kaydı görülebilir/tamamlanabilirdi.
+        const { TicketPayment } = req.commonModels || {};
+        if (!TicketPayment) {
+            throw new Error("Ortak ödeme modeli bulunamadı.");
+        }
+
+        const ticketPayment = await TicketPayment.create({
+            tenantKey: firmKey,
+            tripId: numericTripId,
+            fromStopId: numericFromStopId,
+            toStopId: numericToStopId,
+            seatNumbers: normalisedSeats,
+            genders: normalisedGenders,
+        });
+
+        const transaction = await sequelize.transaction();
 
         try {
             const existingTickets = await Ticket.findAll({
@@ -942,17 +966,6 @@ exports.createTicketPayment = async (req, res) => {
                     }
                 );
             }
-
-            ticketPayment = await models.TicketPayment.create(
-                {
-                    tripId: numericTripId,
-                    fromStopId: numericFromStopId,
-                    toStopId: numericToStopId,
-                    seatNumbers: normalisedSeats,
-                    genders: normalisedGenders,
-                },
-                { transaction }
-            );
 
             const ticketGroup = await models.TicketGroup.create(
                 {
@@ -990,13 +1003,14 @@ exports.createTicketPayment = async (req, res) => {
             await transaction.commit();
         } catch (innerError) {
             await transaction.rollback();
+            // Koltuklar kilitlenemedi/rezerve edilemedi; ortak DB'de oluşan
+            // ödeme kaydı hiçbir bilete bağlanmayacağından ölü (orphan) kalır.
+            // Bu yüzden burada temizleniyor.
+            await ticketPayment.destroy().catch((cleanupError) => {
+                console.error("Ödeme kaydı temizlenirken hata:", cleanupError);
+            });
             throw innerError;
         }
-
-        if (!req.session.ticketPaymentTenants) {
-            req.session.ticketPaymentTenants = {};
-        }
-        req.session.ticketPaymentTenants[String(ticketPayment.id)] = firmKey;
 
         res.json({ success: true, ticketPaymentId: ticketPayment.id });
     } catch (error) {
@@ -1169,6 +1183,7 @@ exports.completePayment = async (req, res) => {
         const { Ticket } = models;
         const transaction = await sequelize.transaction();
         const pendingPnr = buildPendingPnr(ticketPayment.id);
+        let pnr = null;
 
         try {
             for (let i = 0; i < numericSeatNumbers.length; i++) {
@@ -1217,16 +1232,25 @@ exports.completePayment = async (req, res) => {
                 },
             });
 
-            const pnr =
+            pnr =
                 ticketPayment.fromStopId && ticketPayment.toStopId
                     ? await generatePNR(models, ticketPayment.fromStopId, ticketPayment.toStopId, stops)
                     : null;
+
+            // NOT: Önceden burada userId sabit olarak 3 kabul ediliyordu ("götür.com
+            // kullanıcısı"). Bu, seed sırasına/şubelerin var olup olmamasına bağlı
+            // olarak yanlış bir kullanıcıya (veya var olmayan bir ID'ye, FK hatasıyla)
+            // işaret edebiliyordu. Artık kullanıcı adına göre güvenle çözümleniyor.
+            const webUser = await models.FirmUser.findOne({
+                where: { username: "goturbilet" },
+                transaction,
+            });
 
             for (let i = 0; i < numericSeatNumbers.length; i++) {
                 await Ticket.create(
                     {
                         tripId: ticketPayment.tripId,
-                        userId: 3, // götür.com kullanıcısı
+                        userId: webUser ? webUser.id : null,
                         ticketGroupId: group.id,
                         seatNo: numericSeatNumbers[i],
                         price: viewData.pricePerSeat || 0,
@@ -1250,25 +1274,48 @@ exports.completePayment = async (req, res) => {
                 );
             }
 
-            ticketPayment.isSuccess = true;
-            await ticketPayment.save({ transaction });
-
             await transaction.commit();
-
-            // ✅ Commit SONRASI işlemler (artık rollback riski yok)
-            await sendEmail("ahmetnygt@hotmail.com", "Bilet Mesajı", "BİLET ALDIN GÖTÜR H.O DER");
-
-            // SMS gönderimi – sadece ilk yolcuya
-            const firstPhone = passengerInputs[0]?.phoneNumber;
-            if (firstPhone) {
-                await sendSMS(firstPhone, `Biletiniz oluşturuldu. PNR: ${pnr}`);
-            }
-
-            return res.redirect(`/payment/${ticketPaymentId}/success`);
         } catch (innerError) {
             if (!transaction.finished) await transaction.rollback();
             throw innerError;
         }
+
+        // ✅ Commit SONRASI işlemler: biletler artık kalıcı olarak oluşturuldu.
+        // BUG DÜZELTMESİ: Önceden bu adımlardan biri (ödeme durumu güncelleme,
+        // e-posta/SMS gönderimi) hata verirse, dış catch bloğu devreye girip
+        // kullanıcıya "ödeme başarısız oldu" sayfası gösteriyordu; oysa bilet
+        // ve ödeme zaten başarıyla oluşturulmuştu. Bu adımlar artık kendi
+        // içlerinde hataları yutup logluyor; kullanıcıya her durumda başarı
+        // sayfası gösteriliyor.
+        try {
+            // TicketPayment ortak (gotur_common) veritabanında yaşıyor; tenant
+            // transaction'ının bir parçası olamaz, bu yüzden commit'ten sonra
+            // ayrı bir işlem olarak güncelleniyor.
+            ticketPayment.isSuccess = true;
+            await ticketPayment.save();
+        } catch (postCommitError) {
+            console.error("Ödeme durumu güncellenirken hata oluştu (bilet zaten oluşturuldu):", postCommitError);
+        }
+
+        try {
+            if (contactEmail) {
+                await sendEmail(contactEmail, "Biletiniz Oluşturuldu", `Biletiniz oluşturuldu. PNR: ${pnr}`);
+            }
+        } catch (mailError) {
+            console.error("Bilet e-postası gönderilirken hata oluştu:", mailError);
+        }
+
+        // SMS gönderimi – sadece ilk yolcuya
+        const firstPhone = passengerInputs[0]?.phoneNumber;
+        if (firstPhone) {
+            try {
+                await sendSMS(firstPhone, `Biletiniz oluşturuldu. PNR: ${pnr}`);
+            } catch (smsError) {
+                console.error("Bilet SMS'i gönderilirken hata oluştu:", smsError);
+            }
+        }
+
+        return res.redirect(`/payment/${ticketPaymentId}/success`);
     } catch (error) {
         console.error("completePayment error:", error);
 
@@ -1495,60 +1542,31 @@ async function resolveTicketPaymentContext(req, ticketPaymentId) {
         return null;
     }
 
-    const ticketKey = String(ticketPaymentId);
-    const tenantMap = req.session?.ticketPaymentTenants || {};
-
-    const firmFromSession = tenantMap[ticketKey];
-    if (firmFromSession) {
-        try {
-            const { models, sequelize } = await getTenantConnection(firmFromSession);
-            const ticketPayment = await models.TicketPayment.findByPk(ticketPaymentId);
-            if (ticketPayment) {
-                return { firmKey: firmFromSession, models, sequelize, ticketPayment };
-            }
-        } catch (error) {
-            console.error("resolveTicketPaymentContext session hata:", error);
-        }
+    // GÜVENLİK + PERFORMANS: TicketPayment ortak DB'de yaşadığı ve tenantKey
+    // kolonuna sahip olduğu için, hangi tenant'a ait olduğunu doğrudan kendi
+    // kaydından öğrenebiliyoruz. Önceden burada ya oturumdaki (kaybolabilen/
+    // güvenilmez) bir eşleşmeye bakılıyor ya da bulunamazsa TÜM firmaların
+    // veritabanları tek tek taranıyordu (hem ölçeklenemez hem de -id
+    // biliniyorsa- başka bir firmanın ödeme kaydının görülebilmesine yol
+    // açan bir cross-tenant IDOR paterniydi). Artık tenantKey ile doğrudan
+    // ve güvenle çözümleniyor.
+    const { TicketPayment } = req.commonModels || {};
+    if (!TicketPayment) {
+        return null;
     }
 
-    await ensureTenantsReady(req);
-
-    const searchResults = await runForAllTenants(async ({ firmKey, models, sequelize }) => {
-        const record = await models.TicketPayment.findByPk(ticketPaymentId);
-        if (!record) return null;
-        return { firmKey };
-    });
-
-    for (const entry of searchResults) {
-        if (entry.result?.firmKey) {
-            try {
-                const { models, sequelize } = await getTenantConnection(
-                    entry.result.firmKey
-                );
-                const ticketPayment = await models.TicketPayment.findByPk(
-                    ticketPaymentId
-                );
-
-                if (ticketPayment) {
-                    if (!req.session.ticketPaymentTenants) {
-                        req.session.ticketPaymentTenants = {};
-                    }
-                    req.session.ticketPaymentTenants[ticketKey] = entry.result.firmKey;
-
-                    return {
-                        firmKey: entry.result.firmKey,
-                        models,
-                        sequelize,
-                        ticketPayment,
-                    };
-                }
-            } catch (error) {
-                console.error("resolveTicketPaymentContext fetch hata:", error);
-            }
-        }
+    const ticketPayment = await TicketPayment.findByPk(ticketPaymentId);
+    if (!ticketPayment || !ticketPayment.tenantKey) {
+        return null;
     }
 
-    return null;
+    try {
+        const { models, sequelize } = await getTenantConnection(ticketPayment.tenantKey);
+        return { firmKey: ticketPayment.tenantKey, models, sequelize, ticketPayment };
+    } catch (error) {
+        console.error("resolveTicketPaymentContext hata:", error);
+        return null;
+    }
 }
 
 async function buildPaymentViewData(models, ticketPayment) {

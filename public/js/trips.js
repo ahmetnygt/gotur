@@ -687,13 +687,13 @@ $(".trip_confirm-button")
         // window.location.href = `https://arenaturizm.com/`;
 
         try {
-            const response = await fetch("/payment", {
+            const response = await fetch("/payment", window.GoturCsrf.withCsrf({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(payload),
-            });
+            }));
 
             let data = null;
             try {

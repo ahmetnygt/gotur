@@ -10,6 +10,7 @@ block content
             .alert.alert-danger #{error}
         if seatDetails && seatDetails.length
             form(method="post" action=`/payment/${ticketPaymentId}/complete`)
+                input(type="hidden" name="_csrf" value=csrfToken)
                 - const genderLabels = { m: "Male", f: "Female" };
                 .row.g-3
                     .col-12.col-lg-6
