@@ -27,8 +27,12 @@ async function getTenantConnection(firmKey) {
 
     const models = initModels(sequelize);
 
-    // Geliştirme aşamasında tabloların oluşması için:
-    await sequelize.sync();
+    // NOT: `sync()` (alter olmadan) sadece eksik tabloları oluşturur, VAR
+    // OLAN tablolara yeni kolon eklemez veya kolon tipini düzeltmez (örn.
+    // ticketModel.price'ın FLOAT'tan DECIMAL(12,2)'ye taşınması). goturyzhn
+    // (ERP) bu tenant veritabanına `alter: true` ile bağlandığından, burada
+    // da aynı stratejiyle tutarlı davranmak için `alter: true` kullanılıyor.
+    await sequelize.sync({ alter: true });
 
     const entry = { sequelize, models };
     connections.set(firmKey, entry);

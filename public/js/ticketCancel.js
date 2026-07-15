@@ -292,7 +292,7 @@
 
     let requestSucceeded = false;
     try {
-      const response = await fetch("/api/ticket/cancel/request", {
+      const response = await fetch("/api/ticket/cancel/request", window.GoturCsrf.withCsrf({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -301,7 +301,7 @@
           pnr: activeContext.pnr,
           firmKey: activeContext.firmKey,
         }),
-      });
+      }));
 
       let payload = null;
       try {
@@ -411,7 +411,7 @@
     clearMessage();
 
     try {
-      const response = await fetch("/api/ticket/cancel/verify", {
+      const response = await fetch("/api/ticket/cancel/verify", window.GoturCsrf.withCsrf({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -421,7 +421,7 @@
           firmKey: activeContext.firmKey,
           code,
         }),
-      });
+      }));
 
       let payload = null;
       try {

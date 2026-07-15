@@ -450,14 +450,14 @@
             try {
                 setSubmitting(loginForm, true);
 
-                const response = await fetch("/user/login", {
+                const response = await fetch("/user/login", window.GoturCsrf.withCsrf({
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     credentials: "same-origin",
                     body: JSON.stringify({ identifier, password }),
-                });
+                }));
 
                 const data = await response.json().catch(() => ({}));
 
@@ -532,14 +532,14 @@
             try {
                 setSubmitting(registerForm, true);
 
-                const response = await fetch("/user/register", {
+                const response = await fetch("/user/register", window.GoturCsrf.withCsrf({
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     credentials: "same-origin",
                     body: JSON.stringify({ identifier, password, passwordConfirm }),
-                });
+                }));
 
                 const data = await response.json().catch(() => ({}));
 
@@ -596,14 +596,14 @@
             logoutButton.setAttribute("aria-disabled", "true");
 
             try {
-                const response = await fetch("/user/logout", {
+                const response = await fetch("/user/logout", window.GoturCsrf.withCsrf({
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     credentials: "same-origin",
                     body: JSON.stringify({}),
-                });
+                }));
 
                 if (!response.ok) {
                     throw new Error("Logout failed");
