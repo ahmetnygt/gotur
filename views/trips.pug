@@ -33,19 +33,19 @@ block content
   .gender-pick.border
     .d-flex.gap-3
       .m
-        img(src="/svg/man.svg" alt="seat")
-        |MALE
+        img(src="/svg/man.svg" alt="koltuk")
+        |ERKEK
       .f
-        img(src="/svg/woman.svg" alt="seat")
-        |FEMALE
+        img(src="/svg/woman.svg" alt="koltuk")
+        |KADIN
   .trip-search
     .trip-search_field
       span.trip-search_label
         i.fa-solid.fa-bus-side.me-1
-        span From where?
+        span Nereden?
       +placeSelect({
-        placeholder: 'Select Departure',
-        searchPlaceholder: 'Type a city or district...',
+        placeholder: 'Kalkış Seçin',
+        searchPlaceholder: 'Şehir veya ilçe yazın...',
         input: {
           class: 'trip-search_from',
           name: 'from',
@@ -57,10 +57,10 @@ block content
     .trip-search_field
       span.trip-search_label
         i.fa-solid.fa-bus-side.me-1
-        span To where?
+        span Nereye?
       +placeSelect({
-        placeholder: 'Select Arrival',
-        searchPlaceholder: 'Type a city or district...',
+        placeholder: 'Varış Seçin',
+        searchPlaceholder: 'Şehir veya ilçe yazın...',
         input: {
           class: 'trip-search_to',
           name: 'to',
@@ -70,40 +70,40 @@ block content
     .trip-search_field.trip-search_date-wrapper
       span.trip-search_label
         i.fa-solid.fa-calendar.me-1
-        span When?
+        span Ne zaman?
       input.trip-search_date(type='text' value=date)
     .trip-search_button
-      button.trip-search_search-button.btn.btn-primary.w-100 SEARCH
+      button.trip-search_search-button.btn.btn-primary.w-100 ARA
   .trip-actions
     .container
       .trip-actions_inner
         .trip-actions_sorting
-          label.trip-actions_label(for="trip-sort-select") Sort:
+          label.trip-actions_label(for="trip-sort-select") Sırala:
           select#trip-sort-select.form-select.form-select-sm
-            option(value="departureTime") By departure time
-            option(value="price") By price
-            option(value="duration") By travel time
+            option(value="departureTime") Kalkış saatine göre
+            option(value="price") Fiyata göre
+            option(value="duration") Süreye göre
         .trip-actions_filters
           .trip-filter
-            label.form-label(for="trip-filter-firm") Operator
+            label.form-label(for="trip-filter-firm") Firma
             select#trip-filter-firm.form-select.form-select-sm
-              option(value="") All operators
+              option(value="") Tüm firmalar
               each firm in uniqueFirms
                 option(value=firm.key) #{firm.label}
           .trip-filter
-            label.form-label(for="trip-filter-from") Departure stop
+            label.form-label(for="trip-filter-from") Kalkış noktası
             select#trip-filter-from.form-select.form-select-sm
-              option(value="") All departure stops
+              option(value="") Tüm kalkış noktaları
               each stop in uniqueFromStops
                 option(value=stop.id) #{stop.label}
           .trip-filter
-            label.form-label(for="trip-filter-to") Arrival stop
+            label.form-label(for="trip-filter-to") Varış noktası
             select#trip-filter-to.form-select.form-select-sm
-              option(value="") All arrival stops
+              option(value="") Tüm varış noktaları
               each stop in uniqueToStops
                 option(value=stop.id) #{stop.label}
           .trip-filter.trip-filter_time-range
-            label.form-label(for="trip-filter-time-start") Departure time range
+            label.form-label(for="trip-filter-time-start") Kalkış saat aralığı
             .trip-filter_time-inputs
               input#trip-filter-time-start.form-control.form-control-sm(type="time")
               span.trip-filter_time-separator –
@@ -160,7 +160,7 @@ block content
               .trip-content_inner.d-flex.mt-3
                 .trip-description
                   p.trip-description_header.text-center(role="button" tabindex="0" aria-expanded="false")
-                    b Trip Details
+                    b Sefer Detayları
                   .trip-description_body
                     p.text-center #{t.routeDescription}
                     if Array.isArray(t.routeTimeline) && t.routeTimeline.length
@@ -204,21 +204,21 @@ block content
                     .trip_info_inner.d-flex
                       .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#2986cc","#216396")
-                        span Occupied (Male)
+                        span Dolu (Erkek)
                       .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#c90076","#920256")
-                        span Occupied (Female)
+                        span Dolu (Kadın)
                       .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#fff","#b4b4b4")
-                        span Available Seat
+                        span Boş Koltuk
                       .trip-seat-info-item.d-flex.align-items-center.gap-1
                         +seat("#02ff89","#00c76a")
-                        span Selected Seat
+                        span Seçili Koltuk
                     p.trip_info-selection.text-center.fw-semibold(
-                      data-placeholder="Select seats."
-                    ) Select seats.
-                    button.trip_confirm-button.btn.btn-sm.btn-primary.mt-2 Confirm
-    p.trip-results_empty(style=tripList.length ? 'display:none;' : '') No trips found.
+                      data-placeholder="Koltuk seçin."
+                    ) Koltuk seçin.
+                    button.trip_confirm-button.btn.btn-sm.btn-primary.mt-2 Onayla
+    p.trip-results_empty(style=tripList.length ? 'display:none;' : '') Sefer bulunamadı.
 
 block scripts
   script(src="/js/trips.js")

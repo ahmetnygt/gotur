@@ -22,41 +22,41 @@ html
       .d-flex.justify-content-between.align-items-center.flex-wrap.gtr-header__inner
         a.navbar-brand(href="/")
           img(src="/images/gotur_vip_logo_white.png" alt="GOTUR")
-        button.gtr-header__toggle(type='button' aria-label='Open menu' aria-controls='gtrHeaderLinks' aria-expanded='false')
+        button.gtr-header__toggle(type='button' aria-label='Menüyü aç' aria-controls='gtrHeaderLinks' aria-expanded='false')
           i.fa-solid.fa-bars
         .d-flex.gap-3.align-items-center.gtr-header__links#gtrHeaderLinks
           a.gtr-link#findMyTicket(href='/find-ticket')
             i.fa-solid.fa-magnifying-glass.me-1
-            |Find My Ticket
+            |Biletimi Bul
           if currentUser
             a.gtr-link#myTrips(href='/user/my-trips' role='button')
               i.fa-solid.fa-road.me-1
-              |My Trips
+              |Seyahatlerim
             a.gtr-link#accounrPersonalInfo(href='/user?section=personal' role='button')
               i.fa-solid.fa-user.me-1
-              |My Account
+              |Hesabım
             a.gtr-link#logoutButton(href='#' role='button')
               i.fa-solid.fa-right-from-bracket.me-1
-              |Log Out
+              |Çıkış Yap
           else
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='loginPopup')
               i.fa-solid.fa-user-check.me-1
-              |Log In
+              |Giriş Yap
             a.gtr-link(href='javascript:void(0)' role='button' data-popup-open='registerPopup')
               i.fa-solid.fa-user-plus.me-1
-              |Sign Up
+              |Üye Ol
       - const fromValue = typeof fromId !== 'undefined' ? fromId : '';
       - const toValue = typeof toId !== 'undefined' ? toId : '';
-      p.slogan Fast & Simple Bus Ticketing
+      p.slogan Hızlı ve Kolay Otobüs Bileti
       .trip-finder.border
         .trip-finder_selects
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
-              span From where?
+              span Nereden?
             +placeSelect({
-              placeholder: 'Select Departure',
-              searchPlaceholder: 'Type a city or district...',
+              placeholder: 'Kalkış Seç',
+              searchPlaceholder: 'Şehir veya ilçe yazın...',
               input: {
                 class: 'trip-finder_from',
                 name: 'from',
@@ -68,10 +68,10 @@ html
           .d-flex.flex-column
             span
               i.fa-solid.fa-bus-side.me-1
-              span To where?
+              span Nereye?
             +placeSelect({
-              placeholder: 'Select Arrival',
-              searchPlaceholder: 'Type a city or district...',
+              placeholder: 'Varış Seç',
+              searchPlaceholder: 'Şehir veya ilçe yazın...',
               input: {
                 class: 'trip-finder_to',
                 name: 'to',
@@ -81,12 +81,12 @@ html
           .d-flex.flex-column
             span
               i.fa-solid.fa-calendar.me-1
-              span When?
+              span Ne zaman?
             input.trip-finder_date(type='text')
           .trip-finder_day-buttons
-            button.trip-finder_day-button(data-day='today' type='button') Today
-            button.trip-finder_day-button(data-day='tomorrow' type='button') Tomorrow
-          button.trip-finder_search-button SEARCH
+            button.trip-finder_day-button(data-day='today' type='button') Bugün
+            button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
+          button.trip-finder_search-button ARA
     if !currentUser
       +authModals()
     .container
@@ -112,31 +112,31 @@ html
           hr
       .home-attributes.mt-4
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Solution-Oriented Online Support")
-          h4 Solution-Oriented Online Support
-          p We’re here for you every step of your journey. Our online support team helps quickly and effectively with ticket purchases, cancellations, and changes. Relax — we’ve got you.
+          img.attributes_icon(src="/svg/customer_service_icon.svg" alt="Çözüm Odaklı Online Destek")
+          h4 Çözüm Odaklı Online Destek
+          p Yolculuğunuzun her adımında yanınızdayız. Online destek ekibimiz, bilet satın alma, iptal ve değişiklik işlemlerinizde hızlı ve etkili şekilde yardımcı olur. Rahat olun — biz hallederiz.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Secure Payment")
-          h4 Secure Payment
-          p Your payments are protected with advanced security systems. With fast, easy, and secure payment options, you can focus on your trip — we’ll handle the rest.
+          img.attributes_icon(src="/svg/secure_payment_icon.svg" alt="Güvenli Ödeme")
+          h4 Güvenli Ödeme
+          p Ödemeleriniz gelişmiş güvenlik sistemleriyle korunur. Hızlı, kolay ve güvenli ödeme seçenekleriyle siz sadece yolculuğunuza odaklanın — gerisini biz hallederiz.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Great Value Tickets")
-          h4 Great Value Tickets
-          p We care about your budget. Find affordable, great-value tickets easily and enjoy a pleasant trip with the best options.
+          img.attributes_icon(src="/svg/ticket_icon.svg" alt="Uygun Fiyatlı Biletler")
+          h4 Uygun Fiyatlı Biletler
+          p Bütçenizi düşünüyoruz. Uygun fiyatlı, kaliteli biletleri kolayca bulun ve en iyi seçeneklerle keyifli bir yolculuk yaşayın.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/hand_icon.svg" alt="Easy Process")
-          h4 Easy Process
-          p No complicated steps needed! With our user-friendly system, searching, comparing, and buying your ticket takes just a few minutes. Wherever you are, it’s easy.
+          img.attributes_icon(src="/svg/hand_icon.svg" alt="Kolay İşlem")
+          h4 Kolay İşlem
+          p Karmaşık adımlara gerek yok! Kullanıcı dostu sistemimizle arama, karşılaştırma ve bilet satın alma işlemleri sadece birkaç dakika sürer. Nerede olursanız olun, çok kolay.
         .attribute.d-flex.flex-column
-          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="User-Friendly Campaigns")
-          h4 User-Friendly Campaigns
-          p Everyone loves a good deal — we know. With special discounts and campaigns, we make your trips more affordable. Great-value tickets are always at your fingertips.
+          img.attributes_icon(src="/svg/campaigns_icon.svg" alt="Kullanıcı Dostu Kampanyalar")
+          h4 Kullanıcı Dostu Kampanyalar
+          p Herkes iyi bir fırsatı sever — bunu biliyoruz. Özel indirimler ve kampanyalarla yolculuklarınızı daha uygun fiyatlı hale getiriyoruz. Uygun fiyatlı biletler her zaman elinizin altında.
       if promoRoutes && promoRoutes.length
         .attribute-routes.mt-5
           .bus-ticket-results__header
             .bus-ticket-results__title
-              h2 A Little Inspiration
-              p.bus-ticket-results__subtitle Ready to explore? Get inspired by popular routes we’ve picked for you.
+              h2 Biraz İlham
+              p.bus-ticket-results__subtitle Keşfetmeye hazır mısınız? Sizin için seçtiğimiz popüler güzergahlardan ilham alın.
           ul.list-unstyled.mb-0.attribute-routes__grid
             each route in promoRoutes
               - const routeUrl = `/bus-ticket/${route.fromSlug}-${route.toSlug}`;
@@ -147,20 +147,20 @@ html
                     i.fa-solid.fa-arrow-right-long.mx-2
                     span.attribute-route__city #{route.toTitle}
                   .attribute-route__meta
-                    span.attribute-route__tag View Trips
+                    span.attribute-route__tag Seferleri Gör
                     span.attribute-route__price
                       span.attribute-route__price-value #{route.formattedPrice}
                       span.attribute-route__price-currency ₺
-                      span.attribute-route__price-note starting from
+                      span.attribute-route__price-note başlayan fiyatlarla
       if blogPosts && blogPosts.length
         section.bus-ticket-blog.mt-5
           .container
             .bus-ticket-blog__header
               .bus-ticket-blog__title
-                h2 Latest Blog Posts
-                p.bus-ticket-blog__subtitle Discover our newest content curated for travel lovers.
+                h2 Son Blog Yazıları
+                p.bus-ticket-blog__subtitle Seyahatseverler için özenle seçtiğimiz en yeni içerikleri keşfedin.
               a.bus-ticket-blog__all(href='/blog')
-                |All Articles
+                |Tüm Yazılar
                 i.fa-solid.fa-arrow-right
             .row.g-4
               each post in blogPosts
@@ -187,7 +187,7 @@ html
   script(src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js")
   script(src="https://code.jquery.com/jquery-3.7.1.min.js")
   script(src="/flatpickr/dist/flatpickr.min.js")
-  script(src="/flatpickr/dist/l10n/en.js")
+  script(src="/flatpickr/dist/l10n/tr.js")
   script(src="/js/csrf.js")
   script(src="/js/place-select.js")
   script(src="/js/header.js")

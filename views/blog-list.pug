@@ -6,8 +6,8 @@ block css
 block content
     section.blog-hero
         .container
-            h1.blog-hero-title Inspiring Articles
-            p.blog-hero-subtitle Up-to-date tips, stories, and guides to accompany your travel journey.
+            h1.blog-hero-title İlham Veren Yazılar
+            p.blog-hero-subtitle Seyahatlerinize eşlik edecek güncel ipuçları, hikayeler ve rehberler.
 
     section.blog-listing
         .container
@@ -20,7 +20,7 @@ block content
                                     a.blog-card-cover(href=`/blog/${post.slug}`)
                                         img(src=`/blog/images/${post.coverImage}` alt=post.title)
                                 .blog-card-body
-                                    span.blog-card-date= post.createdAt.toLocaleDateString("en-US")
+                                    span.blog-card-date= post.createdAt.toLocaleDateString("tr-TR")
                                     h2.blog-card-title
                                         a(href=`/blog/${post.slug}`)= post.title
                                     if post.description
@@ -29,12 +29,12 @@ block content
                                     .blog-card-meta
                                         span.meta-item
                                             i.fa-solid.fa-eye
-                                            |  #{post.viewCount || 0} views
+                                            |  #{post.viewCount || 0} görüntülenme
                                     if post.tags.length
                                         ul.blog-card-tags
                                             each tag in post.tags
                                                 li.blog-card-tag ##{tag.trim()}
             else
                 .empty-state
-                    h2 No blog posts available yet.
-                    p Stay tuned for new articles!
+                    h2 Henüz yayınlanmış bir blog yazısı bulunmuyor.
+                    p Yeni yazılar için bizi takip etmeye devam edin!

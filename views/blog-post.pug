@@ -11,10 +11,10 @@ block content
             .blog-meta
                 span.meta-item
                     i.fa-solid.fa-calendar-days
-                    |  #{post.createdAt.toLocaleDateString("en-US")}
+                    |  #{post.createdAt.toLocaleDateString("tr-TR")}
                 span.meta-item
                     i.fa-solid.fa-eye
-                    |  #{post.viewCount || 0} views
+                    |  #{post.viewCount || 0} görüntülenme
 
     section.blog-post-layout
         .container
@@ -33,7 +33,7 @@ block content
                 .col-lg-4
                     aside.blog-sidebar
                         .sidebar-card
-                            h3.sidebar-title Other Articles
+                            h3.sidebar-title Önerilen Yazılar
                             if recommendedPosts && recommendedPosts.length
                                 each item in recommendedPosts
                                     a.recommended-card(href=`/blog/${item.slug}`)
@@ -44,6 +44,6 @@ block content
                                             h4.recommended-title= item.title
                                             span.recommended-meta
                                                 i.fa-solid.fa-eye
-                                                |  #{item.viewCount || 0} views · #{item.createdAt.toLocaleDateString("en-US")}
+                                                |  #{item.viewCount || 0} görüntülenme · #{item.createdAt.toLocaleDateString("tr-TR")}
                             else
-                                p.sidebar-empty No other recommendations for now.
+                                p.sidebar-empty Şu anda önerilen başka bir yazı bulunmuyor.

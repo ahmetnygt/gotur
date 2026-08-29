@@ -32,7 +32,7 @@ exports.requestVerificationCode = async (req, res) => {
     console.error("An error occurred while loading tenants:", error);
     return res
       .status(500)
-      .json({ success: false, message: "The system is not ready." });
+      .json({ success: false, message: "Sistem hazır değil." });
   }
 
   const pnr = normalisePnr(req.body?.pnr);
@@ -41,13 +41,13 @@ exports.requestVerificationCode = async (req, res) => {
   if (!pnr) {
     return res
       .status(400)
-      .json({ success: false, message: "PNR is required." });
+      .json({ success: false, message: "PNR gereklidir." });
   }
 
   if (!firmKey) {
     return res
       .status(400)
-      .json({ success: false, message: "Company is required." });
+      .json({ success: false, message: "Firma gereklidir." });
   }
 
   try {
@@ -57,7 +57,7 @@ exports.requestVerificationCode = async (req, res) => {
     if (!Ticket) {
       return res
         .status(500)
-        .json({ success: false, message: "Ticket model not found." });
+        .json({ success: false, message: "Bilet modeli bulunamadı." });
     }
 
     const ticket = await Ticket.findOne({ where: { pnr } });
@@ -65,7 +65,7 @@ exports.requestVerificationCode = async (req, res) => {
     if (!ticket) {
       return res
         .status(404)
-        .json({ success: false, message: "Ticket not found." });
+        .json({ success: false, message: "Bilet bulunamadı." });
     }
 
     const verificationCode = generateVerificationCode();
@@ -90,7 +90,7 @@ exports.requestVerificationCode = async (req, res) => {
     console.error("An error occurred while sending the verification code:", error);
     return res
       .status(500)
-      .json({ success: false, message: "Failed to send verification code." });
+      .json({ success: false, message: "Doğrulama kodu gönderilemedi." });
   }
 };
 
@@ -101,7 +101,7 @@ exports.verifyCancellation = async (req, res) => {
     console.error("An error occurred while loading tenants:", error);
     return res
       .status(500)
-      .json({ success: false, message: "The system is not ready." });
+      .json({ success: false, message: "Sistem hazır değil." });
   }
 
   const pnr = normalisePnr(req.body?.pnr);
@@ -111,7 +111,7 @@ exports.verifyCancellation = async (req, res) => {
   if (!pnr || !firmKey || !code) {
     return res.status(400).json({
       success: false,
-      message: "PNR, company, and verification code are required.",
+      message: "PNR, firma ve doğrulama kodu gereklidir.",
     });
   }
 
@@ -120,7 +120,7 @@ exports.verifyCancellation = async (req, res) => {
     const cachedVerification = verificationCache.get(cacheKey);
 
     if (!cachedVerification || cachedVerification.code !== code) {
-      return res.json({ success: false, message: "Invalid verification code." });
+      return res.json({ success: false, message: "Geçersiz doğrulama kodu." });
     }
 
     const connection = await getTenantConnection(firmKey);
@@ -129,7 +129,7 @@ exports.verifyCancellation = async (req, res) => {
     if (!Ticket) {
       return res
         .status(500)
-        .json({ success: false, message: "Ticket model not found." });
+        .json({ success: false, message: "Bilet modeli bulunamadı." });
     }
 
     const ticket = await Ticket.findOne({ where: { pnr } });
@@ -137,7 +137,7 @@ exports.verifyCancellation = async (req, res) => {
     if (!ticket) {
       return res
         .status(404)
-        .json({ success: false, message: "Ticket not found." });
+        .json({ success: false, message: "Bilet bulunamadı." });
     }
 
     ticket.status = "canceled";
@@ -150,6 +150,6 @@ exports.verifyCancellation = async (req, res) => {
     console.error("An error occurred while verifying ticket cancellation:", error);
     return res
       .status(500)
-      .json({ success: false, message: "The operation could not be completed." });
+      .json({ success: false, message: "İşlem tamamlanamadı." });
   }
 };

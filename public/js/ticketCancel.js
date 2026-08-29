@@ -53,7 +53,7 @@
         button.dataset.originalText = button.textContent.trim();
       }
       button.disabled = true;
-      button.textContent = loadingText || "Sending...";
+      button.textContent = loadingText || "Gönderiliyor...";
     } else {
       button.disabled = false;
       if (button.dataset.originalText) {
@@ -124,7 +124,7 @@
     }
 
     if (countdownRemaining > 0) {
-      countdownElement.textContent = `You can resend in ${countdownRemaining} seconds.`;
+      countdownElement.textContent = `${countdownRemaining} saniye sonra yeniden gönderebilirsiniz.`;
     } else {
       countdownElement.textContent = "";
     }
@@ -287,7 +287,7 @@
     }
 
     isSendingCode = true;
-    setButtonLoading(targetButton, true, "Sending...");
+    setButtonLoading(targetButton, true, "Gönderiliyor...");
     clearMessage();
 
     let requestSucceeded = false;
@@ -311,19 +311,19 @@
       }
 
       if (!response.ok) {
-        const errorMessage = payload?.message || "Failed to send the verification code.";
+        const errorMessage = payload?.message || "Doğrulama kodu gönderilemedi.";
         setMessage("error", errorMessage);
         return;
       }
 
       if (!payload?.success) {
-        setMessage("error", payload?.message || "Failed to send the verification code.");
+        setMessage("error", payload?.message || "Doğrulama kodu gönderilemedi.");
         return;
       }
 
       requestSucceeded = true;
       activeContext.codeSent = true;
-      setMessage("success", "Verification code sent.");
+      setMessage("success", "Doğrulama kodu gönderildi.");
 
       const sendButton = getSendButton(popup);
       if (sendButton) {
@@ -336,7 +336,7 @@
 
       startCountdown();
     } catch (error) {
-      setMessage("error", "An error occurred while sending the verification code.");
+      setMessage("error", "Doğrulama kodu gönderilirken bir hata oluştu.");
     } finally {
       setButtonLoading(targetButton, false);
       if (requestSucceeded) {
@@ -360,7 +360,7 @@
 
     const statusBadge = itemElement.querySelector("[data-ticket-status-label]");
     if (statusBadge) {
-      statusBadge.textContent = "Canceled";
+      statusBadge.textContent = "İptal Edildi";
       statusBadge.classList.add("status-canceled");
       statusBadge.classList.remove("status-pending", "status-refund");
     } else {
@@ -369,7 +369,7 @@
         const badge = document.createElement("span");
         badge.className = "status-badge status-canceled";
         badge.dataset.ticketStatusLabel = "";
-        badge.textContent = "Canceled";
+        badge.textContent = "İptal Edildi";
         footer.prepend(badge);
       }
     }
@@ -399,7 +399,7 @@
     const code = codeInput ? codeInput.value.trim() : "";
 
     if (!code) {
-      setMessage("error", "Please enter the verification code.");
+      setMessage("error", "Lütfen doğrulama kodunu girin.");
       if (codeInput) {
         codeInput.focus();
       }
@@ -407,7 +407,7 @@
     }
 
     isConfirming = true;
-    setButtonLoading(confirmButton, true, "Processing...");
+    setButtonLoading(confirmButton, true, "İşleniyor...");
     clearMessage();
 
     try {
@@ -431,13 +431,13 @@
       }
 
       if (!response.ok) {
-        const errorMessage = payload?.message || "The operation could not be completed.";
+        const errorMessage = payload?.message || "İşlem tamamlanamadı.";
         setMessage("error", errorMessage);
         return;
       }
 
       if (!payload?.success) {
-        const errorMessage = payload?.message || "Invalid code.";
+        const errorMessage = payload?.message || "Geçersiz kod.";
         setMessage("error", errorMessage);
         return;
       }
@@ -445,7 +445,7 @@
       updateTicketStatus(activeContext.itemElement);
       closePopup();
     } catch (error) {
-      setMessage("error", "The operation could not be completed. Please try again.");
+      setMessage("error", "İşlem tamamlanamadı. Lütfen tekrar deneyin.");
     } finally {
       setButtonLoading(confirmButton, false);
       isConfirming = false;
