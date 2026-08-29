@@ -24,7 +24,7 @@
     }
 
     try {
-      return value.toLocaleLowerCase("en-US");
+      return value.toLocaleLowerCase("tr-TR");
     } catch (error) {
       return value.toLowerCase();
     }
@@ -270,7 +270,7 @@
     } catch (error) {
       console.error("Error while loading operators:", error);
       renderStatus(
-        "Something went wrong while loading operators. Please refresh the page.",
+        "Firmalar yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.",
         "danger"
       );
     }
@@ -313,20 +313,20 @@
     const payload = buildPayload(new FormData(form));
 
     if (!payload.firmKey) {
-      renderStatus("Please select an operator.", "warning");
+      renderStatus("Lütfen bir firma seçin.", "warning");
       return;
     }
 
     if (!payload.pnr && !payload.phone && !payload.email) {
       renderStatus(
-        "Please enter at least one of the following: PNR or your contact details.",
+        "Lütfen PNR veya iletişim bilgilerinizden en az birini girin.",
         "warning"
       );
       return;
     }
 
     if (payload.contactType === "phone" && payload.phone && payload.phone.length !== 10) {
-      renderStatus("Phone number must be 10 digits.", "warning");
+      renderStatus("Telefon numarası 10 haneli olmalıdır.", "warning");
       return;
     }
 
@@ -342,7 +342,7 @@
       });
 
       if (!response.ok) {
-        let message = "An error occurred while searching for tickets.";
+        let message = "Bilet aranırken bir hata oluştu.";
         try {
           const errorPayload = await response.json();
           if (errorPayload && errorPayload.message) {
@@ -358,14 +358,14 @@
       renderTickets(data && typeof data.html === "string" ? data.html : "");
 
       if (data && typeof data.ticketCount === "number" && data.ticketCount > 0) {
-        renderStatus(`${data.ticketCount} ticket(s) found.`, "success");
+        renderStatus(`${data.ticketCount} bilet bulundu.`, "success");
       } else {
-        renderStatus("No matching tickets found.", "info");
+        renderStatus("Eşleşen bilet bulunamadı.", "info");
       }
     } catch (error) {
       console.error("Ticket search error:", error);
-      renderStatus(error.message || "An error occurred while searching for tickets.", "danger");
-      clearResults("Something went wrong. Please try again.");
+      renderStatus(error.message || "Bilet aranırken bir hata oluştu.", "danger");
+      clearResults("Bir sorun oluştu. Lütfen tekrar deneyin.");
     } finally {
       setSubmitting(false);
     }

@@ -6,21 +6,21 @@ block css
 
 block content
   .text-center.pb-3(style="background-color:#2660ff;")
-    h1.display-6.fw-bold.text-white Find My Ticket
-    p.lead.text-white View the tickets you purchased using your PNR or contact information.
+    h1.display-6.fw-bold.text-white Biletimi Bul
+    p.lead.text-white PNR numaranızı veya iletişim bilgilerinizi kullanarak satın aldığınız biletleri görüntüleyin.
   .container.py-4.find-ticket-page
     .row.gy-4
       .col-lg-4
         .card.shadow-sm.find-ticket-card
           .card-header
-            p.h5.fw-semibold.m-0 Search Criteria
+            p.h5.fw-semibold.m-0 Arama Kriterleri
           .card-body
             form#find-ticket-form
               .mb-3
-                label.form-label(for='firm-select-input') Select Operator
+                label.form-label(for='firm-select-input') Firma Seçin
                 +placeSelect({
-                  placeholder: 'Select an operator',
-                  searchPlaceholder: 'Search operator...',
+                  placeholder: 'Bir firma seçin',
+                  searchPlaceholder: 'Firma ara...',
                   attrs: {
                     id: 'firm-select',
                     'data-options': '[]'
@@ -31,36 +31,36 @@ block content
                   }
                 })
               .mb-3
-                label.form-label(for='pnr-input') Ticket PNR
-                input#pnr-input.gtr-input-sm.w-100(type='text' name='pnr' placeholder='e.g. ANKIST1234')
-                .form-text Case insensitive.
+                label.form-label(for='pnr-input') Bilet PNR
+                input#pnr-input.gtr-input-sm.w-100(type='text' name='pnr' placeholder='örn. ANKIST1234')
+                .form-text Büyük/küçük harf duyarlı değildir.
               .mb-3
-                span.form-label.d-block.mb-2 Contact Information
+                span.form-label.d-block.mb-2 İletişim Bilgileri
                 .d-flex.gap-3.flex-wrap
                   .form-check
                     input#contact-phone.form-check-input(type='radio' name='contactType' value='phone' checked)
-                    label.form-check-label(for='contact-phone') Search by phone
+                    label.form-check-label(for='contact-phone') Telefon ile ara
                   .form-check
                     input#contact-email.form-check-input(type='radio' name='contactType' value='email')
-                    label.form-check-label(for='contact-email') Search by email
+                    label.form-check-label(for='contact-email') E-posta ile ara
               .mb-3.contact-input-wrapper.is-active(data-contact-type='phone')
-                label.form-label(for='phone-input') Phone Number
+                label.form-label(for='phone-input') Telefon Numarası
                 input#phone-input.gtr-input-sm.w-100(type='text' name='phone' placeholder='555 444 33 22' inputmode='numeric')
-                .form-text Your number must be 10 digits.
+                .form-text Numaranız 10 haneli olmalıdır.
               .mb-3.contact-input-wrapper(data-contact-type='email')
-                label.form-label(for='email-input') Email Address
-                input#email-input.gtr-input-sm.w-100(type='email' name='email' placeholder='example@mail.com' disabled)
+                label.form-label(for='email-input') E-posta Adresi
+                input#email-input.gtr-input-sm.w-100(type='email' name='email' placeholder='ornek@mail.com' disabled)
               button.btn.btn-primary.w-100(type='submit')
-                span.find-ticket-submit-text Search
+                span.find-ticket-submit-text Ara
                 span.spinner-border.spinner-border-sm.find-ticket-submit-spinner(role='status' aria-hidden='true')
             #find-ticket-status.mt-3
       .col-lg-8
         .card.shadow-sm.find-ticket-card
           .card-header
-            p.h5.fw-semibold.m-0 Search Results
+            p.h5.fw-semibold.m-0 Arama Sonuçları
           .card-body
             #find-ticket-results
-              p.text-muted.text-center Run a search to view your tickets.
+              p.text-muted.text-center Biletlerinizi görüntülemek için bir arama yapın.
 
 block scripts
   script(src='/js/find-ticket.js')

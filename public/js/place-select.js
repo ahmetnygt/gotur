@@ -7,7 +7,7 @@
 
     const DEFAULT_LOCALE =
         (typeof navigator !== "undefined" && (navigator.languages?.[0] || navigator.language)) ||
-        "en-US";
+        "tr-TR";
 
     const getLocaleFromElement = (element) => {
         const candidate =
@@ -292,7 +292,7 @@
             this.optionsContainer = this.root.querySelector(".place-select_options");
 
             this.placeholder = this.root.dataset.placeholder || "";
-            this.emptyText = this.root.dataset.emptyText || "No results found";
+            this.emptyText = this.root.dataset.emptyText || "Sonuç bulunamadı";
 
             const parsedBatch = Number.parseInt(this.root.dataset.visibleBatchSize, 10);
             this.visibleBatchSize = Number.isFinite(parsedBatch) ? Math.max(parsedBatch, 1) : 5;

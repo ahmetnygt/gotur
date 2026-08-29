@@ -36,7 +36,7 @@ function formatTripDate(dateValue) {
     return "";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("tr-TR", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -64,7 +64,7 @@ function formatTripTime(timeValue) {
     return "";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("tr-TR", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -82,7 +82,7 @@ function formatCreatedAt(dateValue) {
       return "";
     }
 
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("tr-TR", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -217,14 +217,14 @@ function mapTicketStatus(status) {
   const normalisedStatus = String(status || "").toLowerCase();
 
   const statusMap = {
-    pending: { label: "Pending", cssClass: "status-pending" },
-    reservation: { label: "Reserved", cssClass: "status-pending" },
-    canceled: { label: "Canceled", cssClass: "status-canceled" },
-    refund: { label: "Refunded", cssClass: "status-refund" },
-    completed: { label: "Completed", cssClass: "" },
+    pending: { label: "Beklemede", cssClass: "status-pending" },
+    reservation: { label: "Rezerve", cssClass: "status-pending" },
+    canceled: { label: "İptal Edildi", cssClass: "status-canceled" },
+    refund: { label: "İade Edildi", cssClass: "status-refund" },
+    completed: { label: "Tamamlandı", cssClass: "" },
     web: { label: "Web", cssClass: "" },
     gotur: { label: "GOTUR", cssClass: "" },
-    open: { label: "Open", cssClass: "" },
+    open: { label: "Açık", cssClass: "" },
   };
 
   const mapping = statusMap[normalisedStatus] || {
@@ -249,7 +249,7 @@ exports.renderFindTicketPage = async (req, res) => {
   }
 
   res.render("find-ticket", {
-    title: "Find My Ticket",
+    title: "Biletimi Bul",
   });
 };
 
@@ -259,7 +259,7 @@ exports.searchTickets = async (req, res) => {
   } catch (error) {
     console.error("Find-ticket pre-search error:", error);
     return res.status(500).json({
-      message: "The system is not ready. Please try again later.",
+      message: "Sistem hazır değil. Lütfen daha sonra tekrar deneyin.",
     });
   }
 
@@ -269,12 +269,12 @@ exports.searchTickets = async (req, res) => {
   const email = normaliseEmail(req.query?.email);
 
   if (!firmKey) {
-    return res.status(400).json({ message: "Please select a company." });
+    return res.status(400).json({ message: "Lütfen bir firma seçin." });
   }
 
   if (!pnr && !phone && !email) {
     return res.status(400).json({
-      message: "Please enter at least one of: PNR or contact information.",
+      message: "Lütfen PNR veya iletişim bilgilerinden en az birini girin.",
     });
   }
 
@@ -282,7 +282,7 @@ exports.searchTickets = async (req, res) => {
     const connection = await getTenantConnection(firmKey);
     if (!connection || !connection.models) {
       return res.status(500).json({
-        message: "Failed to establish company connection.",
+        message: "Firma bağlantısı kurulamadı.",
       });
     }
 
@@ -290,7 +290,7 @@ exports.searchTickets = async (req, res) => {
 
     if (!Ticket || !Trip || !RouteStop || !Stop) {
       return res.status(500).json({
-        message: "Required tables/models are missing in the company database.",
+        message: "Firma veritabanında gerekli tablolar/modeller bulunamadı.",
       });
     }
 
@@ -608,7 +608,7 @@ exports.searchTickets = async (req, res) => {
       if (renderError) {
         console.error("An error occurred while rendering ticket search results:", renderError);
         return res.status(500).json({
-          message: "An error occurred while preparing results.",
+          message: "Sonuçlar hazırlanırken bir hata oluştu.",
         });
       }
 
@@ -620,7 +620,7 @@ exports.searchTickets = async (req, res) => {
   } catch (error) {
     console.error("Ticket search error:", error);
     return res.status(500).json({
-      message: "An error occurred while searching for tickets.",
+      message: "Bilet aranırken bir hata oluştu.",
     });
   }
 };

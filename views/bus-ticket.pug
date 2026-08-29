@@ -18,17 +18,17 @@ block css
     link(rel='stylesheet' href='/css/bus-ticket.css')
 
 block content
-    h1.bus-ticket-header #{fromTitle} - #{toTitle} Bus Ticket
+    h1.bus-ticket-header #{fromTitle} - #{toTitle} Otobüs Bileti
     .trip-finder-container
         .trip-finder-static.border
             .trip-finder_selects
                 .d-flex.flex-column
                     span
                         i.fa-solid.fa-bus-side.me-1
-                        span From where?
+                        span Nereden?
                     +placeSelect({
-                        placeholder: 'Select Departure',
-                        searchPlaceholder: 'Type a city or district...',
+                        placeholder: 'Kalkış Seçin',
+                        searchPlaceholder: 'Şehir veya ilçe yazın...',
                         input: {
                             class: 'trip-finder_from',
                             name: 'from',
@@ -40,10 +40,10 @@ block content
                 .d-flex.flex-column
                     span
                         i.fa-solid.fa-bus-side.me-1
-                        span To where?
+                        span Nereye?
                     +placeSelect({
-                        placeholder: 'Select Arrival',
-                        searchPlaceholder: 'Type a city or district...',
+                        placeholder: 'Varış Seçin',
+                        searchPlaceholder: 'Şehir veya ilçe yazın...',
                         input: {
                             class: 'trip-finder_to',
                             name: 'to',
@@ -53,18 +53,18 @@ block content
                 .d-flex.flex-column
                     span
                         i.fa-solid.fa-calendar.me-1
-                        span When?
+                        span Ne zaman?
                     input.trip-finder_date(type='text')
                 .trip-finder_day-buttons
-                    button.trip-finder_day-button(data-day='today' type='button') Today
-                    button.trip-finder_day-button(data-day='tomorrow' type='button') Tomorrow
-                button.trip-finder_search-button SEARCH
+                    button.trip-finder_day-button(data-day='today' type='button') Bugün
+                    button.trip-finder_day-button(data-day='tomorrow' type='button') Yarın
+                button.trip-finder_search-button ARA
     section.bus-ticket-results
         .container
             .bus-ticket-results__header
                 .bus-ticket-results__title
-                    h2 #{fromTitle} - #{toTitle} Popular Trips
-                    p.bus-ticket-results__subtitle We’ve curated the standout trips on this route for you.
+                    h2 #{fromTitle} - #{toTitle} Popüler Seferler
+                    p.bus-ticket-results__subtitle Bu güzergahtaki öne çıkan seferleri sizin için seçtik.
             if popularTrips.length
                 .bus-ticket-results__grid(role='list')
                     each trip in popularTrips
@@ -77,7 +77,7 @@ block content
                             .bus-ticket-card__route.text-center
                                 strong #{trip.routeTitle}
                                 if trip.durationText
-                                    span Estimated duration: #{trip.durationText} #{trip.firm.firmKey}
+                                    span Tahmini süre: #{trip.durationText} #{trip.firm.firmKey}
                             .bus-ticket-card__body
                                 .bus-ticket-card__time
                                     .bus-ticket-card__time-row
@@ -95,20 +95,20 @@ block content
                                     each feature in trip.features
                                         .bus-ticket-card__feature
                                             if feature.icon
-                                                img(src=feature.icon alt=feature.label || 'Feature')
+                                                img(src=feature.icon alt=feature.label || 'Özellik')
                                             //- span #{feature.label}
             else
-                .bus-ticket-results__empty.alert.alert-warning We couldn't find any featured trips for this route.
+                .bus-ticket-results__empty.alert.alert-warning Bu güzergah için öne çıkan sefer bulunamadı.
 
     if blogPosts && blogPosts.length
         section.bus-ticket-blog
             .container
                 .bus-ticket-blog__header
                     .bus-ticket-blog__title
-                        h2 #{fromTitle} - #{toTitle} Travel Guides
-                        p.bus-ticket-blog__subtitle Discover inspiring blog posts about this route.
+                        h2 #{fromTitle} - #{toTitle} Seyahat Rehberleri
+                        p.bus-ticket-blog__subtitle Bu güzergahla ilgili ilham verici blog yazılarını keşfedin.
                     a.bus-ticket-blog__all(href='/blog') 
-                        |All Articles
+                        |Tüm Makaleler
                         i.fa-solid.fa-arrow-right
                 .row.g-4
                     each post in blogPosts

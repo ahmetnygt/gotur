@@ -90,7 +90,7 @@
     if (tripSearchDateInput) {
         const defaultDate = tripSearchDateInput.value || new Date();
         flatpickr(tripSearchDateInput, {
-            locale: "en",
+            locale: "tr",
             defaultDate,
             altInput: true,
             altFormat: "d F Y",
@@ -358,7 +358,7 @@ var ticketPairs = [];
 
 const currencyFormatter = (() => {
     try {
-        return new Intl.NumberFormat("en-US", {
+        return new Intl.NumberFormat("tr-TR", {
             style: "currency",
             currency: "TRY",
             minimumFractionDigits: 2,
@@ -420,7 +420,7 @@ const updateTripSeatSummary = (tripId) => {
                 return firstNumber - secondNumber;
             }
 
-            return String(firstSeat).localeCompare(String(secondSeat), "en");
+            return String(firstSeat).localeCompare(String(secondSeat), "tr");
         });
 
     const seatText = seats.join(", ");
@@ -432,11 +432,11 @@ const updateTripSeatSummary = (tripId) => {
         const totalPrice = pricePerSeat * selectedTickets.length;
         const formatted = formatCurrency(totalPrice);
         if (formatted) {
-            totalText = ` - Total: ${formatted}`;
+            totalText = ` - Toplam: ${formatted}`;
         }
     }
 
-    $summary.text(`Seats: ${seatText}${totalText}`);
+    $summary.text(`Koltuklar: ${seatText}${totalText}`);
 };
 
 $(".trip").on("click", function () {
@@ -649,7 +649,7 @@ $(".trip_confirm-button")
             typeof tripIdData === "undefined" ? null : String(tripIdData);
 
         if (!tripId) {
-            alert("Trip information could not be found.");
+            alert("Sefer bilgisi bulunamadı.");
             return;
         }
 
@@ -658,7 +658,7 @@ $(".trip_confirm-button")
         );
 
         if (!selectedTickets.length) {
-            alert("Please select at least one seat.");
+            alert("Lütfen en az bir koltuk seçin.");
             return;
         }
 
@@ -666,12 +666,12 @@ $(".trip_confirm-button")
             typeof fromStopId === "undefined" ||
             typeof toStopId === "undefined"
         ) {
-            alert("Trip stop information is missing.");
+            alert("Sefer durak bilgisi eksik.");
             return;
         }
 
         if (!firmKey) {
-            alert("Company information could not be found.");
+            alert("Firma bilgisi bulunamadı.");
             return;
         }
 
@@ -706,12 +706,12 @@ $(".trip_confirm-button")
                 throw new Error(
                     data && data.message
                         ? data.message
-                        : "Failed to create the payment request."
+                        : "Ödeme talebi oluşturulamadı."
                 );
             }
 
             if (!data.ticketPaymentId) {
-                throw new Error("An unexpected server response was received.");
+                throw new Error("Sunucudan beklenmeyen bir yanıt alındı.");
             }
 
             ticketPairs = ticketPairs.filter((ticket) => ticket.tripId !== tripId);
@@ -719,6 +719,6 @@ $(".trip_confirm-button")
 
             window.location.href = `/payment/${data.ticketPaymentId}`;
         } catch (error) {
-            alert(error.message || "Failed to create the payment request.");
+            alert(error.message || "Ödeme talebi oluşturulamadı.");
         }
     });

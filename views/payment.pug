@@ -11,11 +11,11 @@ block content
         if seatDetails && seatDetails.length
             form(method="post" action=`/payment/${ticketPaymentId}/complete`)
                 input(type="hidden" name="_csrf" value=csrfToken)
-                - const genderLabels = { m: "Male", f: "Female" };
+                - const genderLabels = { m: "Erkek", f: "Kadın" };
                 .row.g-3
                     .col-12.col-lg-6
                         .card.h-100
-                            .card-header Trip Details
+                            .card-header Seyahat Detayları
                             .card-body.h-100
                                 .d-flex
                                     .col-5.p-2
@@ -23,31 +23,31 @@ block content
                                     .col-7.px-3.py-2
                                         if fromStop && toStop
                                             p.mb-1
-                                                strong Route:
+                                                strong Güzergah:
                                                 span.ms-1 #{fromStop.title || fromStop.webTitle || ''} → #{toStop.title || toStop.webTitle || ''}
                                         if trip && trip.date
                                             p.mb-1
-                                                strong Date:
+                                                strong Tarih:
                                                 span.ms-1 #{trip.date}
                                         if trip && trip.time
                                             p.mb-1
-                                                strong Departure Time:
+                                                strong Kalkış Saati:
                                                 span.ms-1 #{trip.time}
                                         p.mb-0
-                                            strong Seats:
+                                            strong Koltuklar:
                                             span.ms-1 
                                                 each seat in seatDetails
                                                     |#{seat.seatNumber}
                                                     if seat != seatDetails[seat.length-1]
                                                         span.mx-1 -
-                                p.text-center Changes, refunds, and releases are available until 2 hours before departure.
+                                p.text-center Değişiklik, iade ve iptal işlemleri kalkıştan 2 saat öncesine kadar yapılabilir.
                     .col-12.col-lg-6
                         .card.h-100
-                            .card-header Contact
+                            .card-header İletişim
                             .card-body
                                 .row.g-3
                                     .col-6
-                                        label.form-label(for="contact-email") Email
+                                        label.form-label(for="contact-email") E-posta
                                         input.gtr-input-sm.w-100(
                                             type="email"
                                             id="contact-email"
@@ -56,7 +56,7 @@ block content
                                             value=contactEmail
                                         )
                                     .col-6
-                                        label.form-label(for="contact-phone") Phone
+                                        label.form-label(for="contact-phone") Telefon
                                         input.gtr-input-sm.w-100(
                                             type="tel"
                                             id="contact-phone"
@@ -67,23 +67,23 @@ block content
                                 .form-check.mt-2
                                     input#isSMS.form-check-input(type="checkbox")
                                     label.form-check-label(for="isSMS")
-                                        | I agree to receive my ticket via
-                                        b  FREE SMS
-                                        | , to receive campaigns and announcements via commercial electronic messages and WhatsApp, and to have my personal data processed for marketing purposes.
+                                        | Biletimi
+                                        b  ÜCRETSİZ SMS
+                                        | ile almayı, ticari elektronik iletiler ve WhatsApp üzerinden kampanya ve duyuru almayı ve kişisel verilerimin pazarlama amacıyla işlenmesini kabul ediyorum.
                     each seat, index in seatDetails
                         - const passenger = passengerInputs && passengerInputs[index] ? passengerInputs[index] : { name: '', surname: '', idNumber: '', phoneNumber: '', nationality: 'TR' };
                         .col-12.col-lg-6
                             .card.h-100
                                 .card-header.d-flex.justify-content-between.align-items-center
                                     span
-                                        strong Seat #{seat.seatNumber}
-                                        span.ms-2.badge.bg-secondary #{genderLabels[seat.gender] || 'Not specified'}
+                                        strong Koltuk #{seat.seatNumber}
+                                        span.ms-2.badge.bg-secondary #{genderLabels[seat.gender] || 'Belirtilmedi'}
                                     if typeof pricePerSeat !== 'undefined'
                                         span.text-white #{pricePerSeat} TL
                                 .card-body
                                     .row.g-3
                                         .col-md-6
-                                            label.form-label(for=`passenger-name-${index}`) First Name
+                                            label.form-label(for=`passenger-name-${index}`) Ad
                                             input.gtr-input-sm.w-100(
                                                 type="text"
                                                 id=`passenger-name-${index}`
@@ -92,7 +92,7 @@ block content
                                                 value=passenger.name
                                             )
                                         .col-md-6
-                                            label.form-label(for=`passenger-surname-${index}`) Last Name
+                                            label.form-label(for=`passenger-surname-${index}`) Soyad
                                             input.gtr-input-sm.w-100(
                                                 type="text"
                                                 id=`passenger-surname-${index}`
@@ -101,7 +101,7 @@ block content
                                                 value=passenger.surname
                                             )
                                         .col-md-6
-                                            label.form-label(for=`passenger-id-${index}`) ID Number
+                                            label.form-label(for=`passenger-id-${index}`) Kimlik Numarası
                                             input.gtr-input-sm.w-100(
                                                 type="text"
                                                 id=`passenger-id-${index}`
@@ -113,10 +113,10 @@ block content
                                             - const passengerNationality = (passenger.nationality || 'TR').toUpperCase()
                                             - const nationalityOption = Array.isArray(countryOptions) ? countryOptions.find((option) => option.value === passengerNationality) : null
                                             - const passengerNationalityLabel = nationalityOption ? nationalityOption.displayLabel : null
-                                            label.form-label(for=`passenger-nationality-${index}`) Nationality
+                                            label.form-label(for=`passenger-nationality-${index}`) Uyruk
                                             +placeSelect({
-                                                placeholder: 'Select nationality',
-                                                searchPlaceholder: 'Search country...',
+                                                placeholder: 'Uyruk seçin',
+                                                searchPlaceholder: 'Ülke ara...',
                                                 label: passengerNationalityLabel || undefined,
                                                 attrs: {
                                                     id: `passenger-nationality-select-${index}`,
@@ -130,20 +130,20 @@ block content
                                             })
                     .col-12.col-lg-6
                         .card.h-100
-                            .card-header Payment Details
+                            .card-header Ödeme Detayları
                             .card-body
                                 .row.g-3
                                     .col-md-6
-                                        label.form-label(for="payment-card-name") Name on Card
+                                        label.form-label(for="payment-card-name") Kart Üzerindeki İsim
                                         input.gtr-input-sm.w-100(
                                             type="text"
                                             id="payment-card-name"
                                             name="cardHolder"
-                                            placeholder="Full name"
+                                            placeholder="Ad Soyad"
                                             required
                                         )
                                     .col-md-6
-                                        label.form-label(for="payment-card-number") Card Number
+                                        label.form-label(for="payment-card-number") Kart Numarası
                                         input.gtr-input-sm.w-100(
                                             type="text"
                                             id="payment-card-number"
@@ -154,12 +154,12 @@ block content
                                             required
                                         )
                                     .col-md-6
-                                        label.form-label(for="payment-card-expiry") Expiry Date
+                                        label.form-label(for="payment-card-expiry") Son Kullanma Tarihi
                                         input.gtr-input-sm.w-100(
                                             type="text"
                                             id="payment-card-expiry"
                                             name="cardExpiry"
-                                            placeholder="MM/YY"
+                                            placeholder="AA/YY"
                                             autocomplete="cc-exp"
                                             required
                                         )
@@ -176,16 +176,16 @@ block content
                                             required
                                         )
                                     .col-12
-                                        small.text-muted Card details are currently stored only on the frontend. These fields will be processed once the virtual POS integration is enabled.
+                                        small.text-muted Kart bilgileri şu anda yalnızca tarayıcı tarafında saklanmaktadır. Sanal POS entegrasyonu etkinleştirildiğinde bu alanlar işleme alınacaktır.
 
                 .d-flex.justify-content-between.align-items-center.mt-3
                     if typeof pricePerSeat !== 'undefined'
                         span
-                            strong Total Amount:
+                            strong Toplam Tutar:
                             span.ms-2 #{totalPrice || 0} TL
-                    button.btn.btn-primary.btn-lg(type="submit") Pay
+                    button.btn.btn-primary.btn-lg(type="submit") Ödemeyi Tamamla
         else
-            p No seat selection has been made yet.
+            p Henüz bir koltuk seçimi yapılmadı.
 
 block scripts
     script(type='application/json' id='country-options')!= JSON.stringify(countryOptions || [])

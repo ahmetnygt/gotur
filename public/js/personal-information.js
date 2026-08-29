@@ -62,7 +62,7 @@
         button.dataset.originalText = button.textContent;
       }
       button.textContent =
-        loadingText || button.dataset.originalText || "Saving";
+        loadingText || button.dataset.originalText || "Kaydediliyor";
       button.disabled = true;
     } else {
       if (button.dataset.originalText) {
@@ -105,7 +105,7 @@
 
         if (!response.ok || !data.success) {
           const message =
-            data.message || "We couldn’t complete your request. Please check the form.";
+            data.message || "Talebiniz tamamlanamadı. Lütfen formu kontrol edin.";
           showAlert(errorAlert, message);
           if (data.fieldErrors) {
             applyFieldErrors(form, data.fieldErrors);
@@ -113,13 +113,13 @@
           return;
         }
 
-        showAlert(successAlert, data.message || "Completed successfully.");
+        showAlert(successAlert, data.message || "İşlem başarıyla tamamlandı.");
         if (typeof onSuccess === "function") {
           onSuccess(data, form);
         }
       } catch (error) {
         console.error("Error while submitting the form:", error);
-        showAlert(errorAlert, "An unexpected error occurred. Please try again.");
+        showAlert(errorAlert, "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
       } finally {
         setButtonLoading(submitButton, false);
       }
@@ -147,7 +147,7 @@
     submitForm(personalInfoForm, {
       successAlert: personalInfoSuccess,
       errorAlert: personalInfoError,
-      loadingText: "Saving...",
+      loadingText: "Kaydediliyor...",
       onSuccess: (data, form) => {
         clearFieldErrors(form);
         if (data.personalInfo) {
@@ -167,7 +167,7 @@
     submitForm(passwordForm, {
       successAlert: passwordSuccess,
       errorAlert: passwordError,
-      loadingText: "Updating...",
+      loadingText: "Güncelleniyor...",
       onSuccess: (_, form) => {
         form.reset();
       },

@@ -31,11 +31,11 @@ if (typeof document !== "undefined") {
             }
 
             if (digits.length !== 10) {
-                return { valid: false, message: "Phone number must be 10 digits." };
+                return { valid: false, message: "Telefon numarası 10 haneli olmalıdır." };
             }
 
             if (digits[0] !== "5") {
-                return { valid: false, message: "Phone number must start with 5." };
+                return { valid: false, message: "Telefon numarası 5 ile başlamalıdır." };
             }
 
             return { valid: true, message: "" };
@@ -67,7 +67,7 @@ if (typeof document !== "undefined") {
             }
 
             if (!isValidTurkishId(digits)) {
-                return { valid: false, message: "Please enter a valid Turkish ID number." };
+                return { valid: false, message: "Lütfen geçerli bir T.C. Kimlik Numarası girin." };
             }
 
             return { valid: true, message: "" };

@@ -9,14 +9,14 @@ const sendEmail = require("../utilities/sendMail");
 const sendSMS = require("../utilities/sendSms");
 
 const BUS_FEATURE_MAPPINGS = [
-    { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Power Outlet" },
-    { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Seat Screen" },
-    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "Catering" },
+    { key: "hasPowerOutlet", icon: "/svg/plug_icon.svg", label: "Priz" },
+    { key: "hasSeatScreen", icon: "/svg/hd_icon.svg", label: "Koltuk Ekranı" },
+    { key: "hasCatering", icon: "/svg/cup_icon.svg", label: "İkram" },
     { key: "hasWifi", icon: "/svg/wifi_icon.svg", label: "Wi-Fi" },
-    { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Pillow" },
-    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Port" },
-    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Refrigerator" },
-    { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Comfortable Seat" },
+    { key: "hasSeatPillow", icon: "/svg/pillow_icon.svg", label: "Yastık" },
+    { key: "hasUsbPort", icon: "/svg/usb_icon.svg", label: "USB Girişi" },
+    { key: "hasFridge", icon: "/svg/fridge_icon.svg", label: "Buzdolabı" },
+    { key: "hasComfortableSeat", icon: "/svg/sofa_icon.svg", label: "Konforlu Koltuk" },
 ];
 
 const MINUTES_IN_DAY = 24 * 60;
@@ -763,7 +763,7 @@ exports.searchAllTrips = async (req, res, next) => {
         if (!fromId || !toId || !date) {
             return res
                 .status(400)
-                .json({ message: "Missing parameter: /trips/:fromId-:toId/:date" });
+                .json({ message: "Eksik parametre: /trips/:fromId-:toId/:date" });
         }
 
         const { trips } = await fetchTripsForRouteDate(req, { fromId, toId, date });
@@ -832,7 +832,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "Missing data sent.",
+                    message: "Gönderilen veriler eksik.",
                 });
         }
 
@@ -846,7 +846,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "Seat and gender information is invalid.",
+                    message: "Koltuk ve cinsiyet bilgileri geçersiz.",
                 });
         }
 
@@ -863,7 +863,7 @@ exports.createTicketPayment = async (req, res) => {
                     .status(400)
                     .json({
                         success: false,
-                        message: "Invalid seat number.",
+                        message: "Geçersiz koltuk numarası.",
                     });
             }
 
@@ -872,7 +872,7 @@ exports.createTicketPayment = async (req, res) => {
                     .status(400)
                     .json({
                         success: false,
-                        message: "Invalid gender selection.",
+                        message: "Geçersiz cinsiyet seçimi.",
                     });
             }
 
@@ -890,7 +890,7 @@ exports.createTicketPayment = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    message: "You must select at least one seat.",
+                    message: "En az bir koltuk seçmelisiniz.",
                 });
         }
 
@@ -905,14 +905,14 @@ exports.createTicketPayment = async (req, res) => {
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid trip information was provided.",
+                message: "Geçersiz sefer bilgisi girildi.",
             });
         }
 
         const numericSeatNumbers = normalisedSeats.map((seat) => {
             const numeric = Number(seat);
             if (!Number.isFinite(numeric)) {
-                throw Object.assign(new Error(`Invalid seat number: ${seat}`), {
+                throw Object.assign(new Error(`Geçersiz koltuk numarası: ${seat}`), {
                     isUserError: true,
                     statusCode: 400,
                 });
@@ -958,7 +958,7 @@ exports.createTicketPayment = async (req, res) => {
             if (existingTickets.length) {
                 throw Object.assign(
                     new Error(
-                        "One or more of the selected seats are no longer available."
+                        "Seçilen koltuklardan bir veya daha fazlası artık uygun değil."
                     ),
                     {
                         isUserError: true,
@@ -976,11 +976,22 @@ exports.createTicketPayment = async (req, res) => {
 
             const pendingPnr = buildPendingPnr(ticketPayment.id);
 
+            // Koltuk kilitleme (pending) kaydı da nihai bilet gibi kimin
+            // adına ve hangi fiyattan oluşturulduğunu doğru şekilde
+            // taşımalı; önceden userId boş, price sabit 0 bırakılıyordu.
+            const [pricePerSeat, webUser] = await Promise.all([
+                resolvePricePerSeat(models, numericFromStopId, numericToStopId),
+                findWebFirmUser(models, transaction),
+            ]);
+
+            const { optionDate, optionTime } = buildPendingOptionExpiry();
+
             const pendingTickets = numericSeatNumbers.map((seatNumber, index) => ({
                 tripId: numericTripId,
+                userId: webUser ? webUser.id : null,
                 ticketGroupId: ticketGroup.id,
                 seatNo: seatNumber,
-                price: 0,
+                price: pricePerSeat,
                 status: "pending",
                 idNumber: null,
                 name: null,
@@ -990,6 +1001,8 @@ exports.createTicketPayment = async (req, res) => {
                 nationality: "TR",
                 customerType: null,
                 customerCategory: null,
+                optionDate,
+                optionTime,
                 fromRouteStopId: numericFromStopId,
                 toRouteStopId: numericToStopId,
                 pnr: pendingPnr,
@@ -1021,7 +1034,7 @@ exports.createTicketPayment = async (req, res) => {
             message:
                 error && error.isUserError
                     ? error.message
-                    : "Payment record could not be created.",
+                    : "Ödeme kaydı oluşturulamadı.",
         });
     }
 };
@@ -1038,7 +1051,7 @@ exports.renderPaymentPage = async (req, res) => {
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 passengerInputs: [],
-                error: "Payment request not found.",
+                error: "Ödeme talebi bulunamadı.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone: "",
                 contactEmail: "",
@@ -1080,7 +1093,7 @@ exports.renderPaymentPage = async (req, res) => {
             ticketPaymentId: String(ticketPaymentId || ""),
             seatDetails: [],
             passengerInputs: [],
-            error: "Payment details could not be loaded.",
+            error: "Ödeme bilgileri yüklenemedi.",
             countryOptions: COUNTRY_OPTIONS,
             contactPhone: "",
             contactEmail: "",
@@ -1106,7 +1119,7 @@ exports.completePayment = async (req, res) => {
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 passengerInputs: [],
-                error: "Payment request not found.",
+                error: "Ödeme talebi bulunamadı.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1124,7 +1137,7 @@ exports.completePayment = async (req, res) => {
         passengerInputs = buildPassengerInputsFromBody(viewData.seatDetails, req.body);
 
         if (!viewData.seatDetails.length) {
-            const err = new Error("Seat information could not be found for this payment.");
+            const err = new Error("Bu ödeme için koltuk bilgisi bulunamadı.");
             err.isUserError = true;
             throw err;
         }
@@ -1143,7 +1156,7 @@ exports.completePayment = async (req, res) => {
                 pricePerSeat: viewData.pricePerSeat,
                 totalPrice: viewData.totalPrice,
                 passengerInputs,
-                error: "Please fill in all passenger details.",
+                error: "Lütfen tüm yolcu bilgilerini doldurun.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1162,7 +1175,7 @@ exports.completePayment = async (req, res) => {
                 pricePerSeat: viewData.pricePerSeat,
                 totalPrice: viewData.totalPrice,
                 passengerInputs,
-                error: "Please fill in the contact details.",
+                error: "Lütfen iletişim bilgilerini doldurun.",
                 countryOptions: COUNTRY_OPTIONS,
                 contactPhone,
                 contactEmail,
@@ -1173,7 +1186,7 @@ exports.completePayment = async (req, res) => {
         const numericSeatNumbers = viewData.seatDetails.map((seat) => {
             const numeric = Number(seat.seatNumber);
             if (!Number.isFinite(numeric)) {
-                const err = new Error(`Invalid seat number: ${seat.seatNumber}`);
+                const err = new Error(`Geçersiz koltuk numarası: ${seat.seatNumber}`);
                 err.isUserError = true;
                 throw err;
             }
@@ -1203,7 +1216,7 @@ exports.completePayment = async (req, res) => {
                         existing.status === "pending" && existing.pnr === pendingPnr;
                     if (!isOwnPending) {
                         const err = new Error(
-                            `Seat ${viewData.seatDetails[i].seatNumber} is no longer available.`
+                            `${viewData.seatDetails[i].seatNumber} numaralı koltuk artık uygun değil.`
                         );
                         err.isUserError = true;
                         throw err;
@@ -1237,14 +1250,7 @@ exports.completePayment = async (req, res) => {
                     ? await generatePNR(models, ticketPayment.fromStopId, ticketPayment.toStopId, stops)
                     : null;
 
-            // NOT: Önceden burada userId sabit olarak 3 kabul ediliyordu ("götür.com
-            // kullanıcısı"). Bu, seed sırasına/şubelerin var olup olmamasına bağlı
-            // olarak yanlış bir kullanıcıya (veya var olmayan bir ID'ye, FK hatasıyla)
-            // işaret edebiliyordu. Artık kullanıcı adına göre güvenle çözümleniyor.
-            const webUser = await models.FirmUser.findOne({
-                where: { username: "goturbilet" },
-                transaction,
-            });
+            const webUser = await findWebFirmUser(models, transaction);
 
             for (let i = 0; i < numericSeatNumbers.length; i++) {
                 await Ticket.create(
@@ -1353,7 +1359,7 @@ exports.completePayment = async (req, res) => {
             pricePerSeat: viewData.pricePerSeat,
             totalPrice: viewData.totalPrice,
             passengerInputs,
-            error: error?.message || "An error occurred while completing the payment.",
+            error: error?.message || "Ödeme tamamlanırken bir hata oluştu.",
             countryOptions: COUNTRY_OPTIONS,
             contactPhone,
             contactEmail,
@@ -1370,11 +1376,11 @@ exports.renderPaymentSuccess = async (req, res) => {
 
         if (!context) {
             return res.status(404).render("payment-success", {
-                title: "Payment Successful",
+                title: "Ödeme Başarılı",
                 ticketPaymentId: String(ticketPaymentId || ""),
                 seatDetails: [],
                 tickets: [],
-                error: "Payment request not found.",
+                error: "Ödeme talebi bulunamadı.",
             });
         }
 
@@ -1402,7 +1408,7 @@ exports.renderPaymentSuccess = async (req, res) => {
         });
 
         res.render("payment-success", {
-            title: "Payment Successful",
+            title: "Ödeme Başarılı",
             ticketPaymentId: String(ticketPaymentId),
             seatDetails: viewData.seatDetails,
             trip: viewData.trip,
@@ -1416,11 +1422,11 @@ exports.renderPaymentSuccess = async (req, res) => {
     } catch (error) {
         console.error("renderPaymentSuccess error:", error);
         res.status(500).render("payment-success", {
-            title: "Payment Successful",
+            title: "Ödeme Başarılı",
             ticketPaymentId: String(ticketPaymentId || ""),
             seatDetails: [],
             tickets: [],
-            error: "Payment result could not be displayed.",
+            error: "Ödeme sonucu görüntülenemedi.",
         });
     }
 };
@@ -1569,6 +1575,38 @@ async function resolveTicketPaymentContext(req, ticketPaymentId) {
     }
 }
 
+async function resolvePricePerSeat(models, fromStopId, toStopId) {
+    if (!fromStopId || !toStopId) {
+        return 0;
+    }
+
+    const price = await models.Price.findOne({
+        where: {
+            fromStopId,
+            toStopId,
+        },
+        raw: true,
+    });
+
+    if (!price) {
+        return 0;
+    }
+
+    const candidate =
+        price.webPrice ?? price.price1 ?? price.price2 ?? price.price3 ?? 0;
+    return Number(candidate) || 0;
+}
+
+// Web/goturbilet kanalından oluşturulan biletlerin "işlem yapan" kullanıcısı
+// olarak sabit bir FirmUser kaydına bağlanır. Önceden bu id sabit (3) kabul
+// ediliyordu; artık kullanıcı adına göre güvenle çözümleniyor.
+async function findWebFirmUser(models, transaction) {
+    return models.FirmUser.findOne({
+        where: { username: "goturbilet" },
+        transaction,
+    });
+}
+
 async function buildPaymentViewData(models, ticketPayment) {
     const seatNumbers = normaliseStoredArray(ticketPayment.seatNumbers);
     const genders = normaliseStoredArray(ticketPayment.genders);
@@ -1590,22 +1628,11 @@ async function buildPaymentViewData(models, ticketPayment) {
         ? await models.Stop.findByPk(ticketPayment.toStopId, { raw: true })
         : null;
 
-    let pricePerSeat = 0;
-    if (ticketPayment.fromStopId && ticketPayment.toStopId) {
-        const price = await models.Price.findOne({
-            where: {
-                fromStopId: ticketPayment.fromStopId,
-                toStopId: ticketPayment.toStopId,
-            },
-            raw: true,
-        });
-
-        if (price) {
-            const candidate =
-                price.webPrice ?? price.price1 ?? price.price2 ?? price.price3 ?? 0;
-            pricePerSeat = Number(candidate) || 0;
-        }
-    }
+    const pricePerSeat = await resolvePricePerSeat(
+        models,
+        ticketPayment.fromStopId,
+        ticketPayment.toStopId
+    );
 
     return {
         seatDetails,
@@ -1619,4 +1646,26 @@ async function buildPaymentViewData(models, ticketPayment) {
 
 function buildPendingPnr(ticketPaymentId) {
     return `PENDING-${ticketPaymentId}`;
+}
+
+const PENDING_TICKET_OPTION_MINUTES = 5;
+
+// goturyzhn tarafındaki rezervasyon temizleme işi (reservationCleanupJob),
+// status "pending"/"reservation" olan biletleri optionDate+optionTime'a göre
+// süresi geçmiş kabul edip siliyor/iptal ediyor. Bu alanlar boş bırakılırsa
+// job hiçbir zaman süresi geçmiş kabul edemiyor ve pending koltuk kilitleri
+// otomatik temizlenmiyordu. Bu yüzden oluşturma anından PENDING_TICKET_OPTION_MINUTES
+// dakika sonrasına denk gelen bir opsiyon zamanı hesaplanıyor.
+function buildPendingOptionExpiry(now = new Date()) {
+    const expiresAt = new Date(now.getTime() + PENDING_TICKET_OPTION_MINUTES * 60 * 1000);
+
+    const pad = (value) => String(value).padStart(2, "0");
+    const optionDate = `${expiresAt.getFullYear()}-${pad(expiresAt.getMonth() + 1)}-${pad(
+        expiresAt.getDate()
+    )}`;
+    const optionTime = `${pad(expiresAt.getHours())}:${pad(expiresAt.getMinutes())}:${pad(
+        expiresAt.getSeconds()
+    )}`;
+
+    return { optionDate, optionTime };
 }

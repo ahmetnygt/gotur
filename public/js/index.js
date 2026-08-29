@@ -44,7 +44,7 @@
 
     if (tripFinderDate.length) {
         datePicker = flatpickr(tripFinderDate[0], {
-            locale: "en",
+            locale: "tr",
             defaultDate: new Date(),
             altInput: true,
             altFormat: "d M Y",
@@ -251,7 +251,7 @@
                 submitButton.dataset.originalText = submitButton.textContent;
             }
             submitButton.disabled = true;
-            submitButton.textContent = "Submitting...";
+            submitButton.textContent = "Gönderiliyor...";
         } else {
             submitButton.disabled = false;
             if (submitButton.dataset.originalText) {
@@ -432,18 +432,18 @@
             const fieldErrors = {};
 
             if (!identifier) {
-                fieldErrors.identifier = "Email or phone number is required.";
+                fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
             } else if (!isValidIdentifier(identifier)) {
-                fieldErrors.identifier = "Please enter a valid email or phone number.";
+                fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
             }
 
             if (!password) {
-                fieldErrors.password = "Password is required.";
+                fieldErrors.password = "Şifre zorunludur.";
             }
 
             if (Object.keys(fieldErrors).length > 0) {
                 applyFieldErrors(loginForm, fieldErrors);
-                showGlobalError(loginAlert, "Your login details are missing or invalid.");
+                showGlobalError(loginAlert, "Giriş bilgileriniz eksik veya geçersiz.");
                 return;
             }
 
@@ -467,7 +467,7 @@
                     }
 
                     const message =
-                        data?.message || "An unexpected error occurred during login.";
+                        data?.message || "Giriş sırasında beklenmeyen bir hata oluştu.";
                     showGlobalError(loginAlert, message);
                     return;
                 }
@@ -477,7 +477,7 @@
                 console.error("Login request failed:", error);
                 showGlobalError(
                     loginAlert,
-                    "Something went wrong while logging in. Please try again."
+                    "Giriş yapılırken bir sorun oluştu. Lütfen tekrar deneyin."
                 );
             } finally {
                 setSubmitting(loginForm, false);
@@ -506,26 +506,26 @@
             const fieldErrors = {};
 
             if (!identifier) {
-                fieldErrors.identifier = "Email or phone number is required.";
+                fieldErrors.identifier = "E-posta veya telefon numarası zorunludur.";
             } else if (!isValidIdentifier(identifier)) {
-                fieldErrors.identifier = "Please enter a valid email or phone number.";
+                fieldErrors.identifier = "Lütfen geçerli bir e-posta veya telefon numarası girin.";
             }
 
             if (!password) {
-                fieldErrors.password = "Password is required.";
+                fieldErrors.password = "Şifre zorunludur.";
             } else if (password.length < 6) {
-                fieldErrors.password = "Password must be at least 6 characters.";
+                fieldErrors.password = "Şifre en az 6 karakter olmalıdır.";
             }
 
             if (!passwordConfirm) {
-                fieldErrors.passwordConfirm = "Please confirm your password.";
+                fieldErrors.passwordConfirm = "Lütfen şifrenizi onaylayın.";
             } else if (passwordConfirm !== password) {
-                fieldErrors.passwordConfirm = "Passwords do not match.";
+                fieldErrors.passwordConfirm = "Şifreler eşleşmiyor.";
             }
 
             if (Object.keys(fieldErrors).length > 0) {
                 applyFieldErrors(registerForm, fieldErrors);
-                showGlobalError(registerAlert, "Please fix the errors in the form.");
+                showGlobalError(registerAlert, "Lütfen formdaki hataları düzeltin.");
                 return;
             }
 
@@ -549,7 +549,7 @@
                     }
 
                     const message =
-                        data?.message || "An unexpected error occurred during sign up.";
+                        data?.message || "Üye olma sırasında beklenmeyen bir hata oluştu.";
                     showGlobalError(registerAlert, message);
                     return;
                 }
@@ -559,7 +559,7 @@
                 console.error("Sign up request failed:", error);
                 showGlobalError(
                     registerAlert,
-                    "Something went wrong while signing up. Please try again."
+                    "Üye olurken bir sorun oluştu. Lütfen tekrar deneyin."
                 );
             } finally {
                 setSubmitting(registerForm, false);
@@ -612,7 +612,7 @@
                 window.location.reload();
             } catch (error) {
                 console.error("Logout request failed:", error);
-                alert("Something went wrong while logging out. Please try again.");
+                alert("Çıkış yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
                 logoutButton.classList.remove("disabled");
                 logoutButton.removeAttribute("aria-disabled");
             }
